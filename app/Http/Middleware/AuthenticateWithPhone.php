@@ -21,8 +21,10 @@ class AuthenticateWithPhone
             return redirect()->route('login');
         }
 
-        // Custom logic for phone authentication can go here
-        // You can check if the user has verified their phone, etc.
+        // Check if user has verified their phone
+        if (!Auth::user()->hasVerifiedPhone()) {
+            return redirect()->route('verification.notice');
+        }
 
         return $next($request);
     }

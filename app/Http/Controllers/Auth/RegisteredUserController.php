@@ -59,9 +59,14 @@ class RegisteredUserController extends Controller
             'phone.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
 
-        Session::put('register_step1', $request->only([
+        $step1Data = $request->only([
             'first_name','middle_name','last_name','phone','birthday','gender','address','nationality'
-        ]));
+        ]);
+        
+        Session::put('register_step1', $step1Data);
+        
+        // Debug: Log step 1 data storage
+        Log::info('Step 1 data stored in session: ', $step1Data);
 
         return redirect()->route('register.step2');
     }
@@ -84,6 +89,11 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Logout any existing user before creating a new one
+        if (Auth::check()) {
+            Auth::logout();
+        }
+
         // Step 2 validations only
         $validationRules = [
             'username' => 'required|string|max:255|unique:users,username',
@@ -99,9 +109,15 @@ class RegisteredUserController extends Controller
         $request->validate($validationRules);
 
         try {
+            // Debug: Log the request data
+            Log::info('Registration request data: ', $request->all());
+            
             // Merge step 1 data from session with step 2 inputs
             $step1 = Session::get('register_step1');
+            Log::info('Step 1 data from session: ', $step1);
+            
             if (!$step1) {
+                Log::error('No step 1 data found in session');
                 return redirect()->route('register');
             }
 
@@ -124,7 +140,20 @@ class RegisteredUserController extends Controller
                 'is_approved' => $isApproved,
             ];
 
+            // Generate a 6-digit OTP code for phone verification
+            $otpCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+            
+            // Store OTP in phone_verified_at column temporarily
+            $userData['phone_verified_at'] = $otpCode;
+            
+            // Debug: Log the OTP being generated
+            Log::info('Generated OTP for user registration: ' . $otpCode);
+
             $user = User::create($userData);
+            
+            // Debug: Log the created user's phone_verified_at value
+            Log::info('User created with phone_verified_at: ' . $user->phone_verified_at);
+            Log::info('User created successfully with ID: ' . $user->id);
 
             // If role is tourist and an image was uploaded, save it to public path and store relative path
             if ($request->role === 'tourist' && $request->hasFile('owner_image')) {
@@ -170,13 +199,11 @@ class RegisteredUserController extends Controller
         Session::forget('register_step1');
         event(new Registered($user));
 
-        if ($user->role === 'resort_owner') {
-            return redirect()->route('resort.owner.dashboard')->with('success', 'Registration successful! Your resort has been automatically approved and is ready to use. Start adding rooms to get started!');
-        } elseif ($user->role === 'boat_owner') {
-            return redirect()->route('boat.owner.dashboard');
-        }
-
-        return redirect()->intended(RouteServiceProvider::HOME);
+        // Debug: Log before redirect
+        Log::info('Redirecting to verification notice for user: ' . $user->id);
+        
+        // Redirect to phone verification for all users
+        return redirect()->route('verification.notice')->with('success', 'Registration successful! Please verify your phone number to continue.');
     }
 }
 

@@ -9,24 +9,180 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        body { background: url("{{ asset('images/subiclogo.png') }}") no-repeat center center fixed; background-size: cover; color: white; min-height: 100vh; padding-top: 40px; padding-bottom: 40px; position: relative; overflow-y: auto; display: flex; align-items: center; justify-content: center; }
-        .header { background: url("{{ asset('images/subiclogo1.png') }}") no-repeat center center/cover; height: 40px; width: 100%; position: fixed; top: 0; left: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: -1; }
-        .container { position: relative; z-index: 1; display: flex; width: 90%; max-width: 900px; align-items: center; justify-content: space-between; }
-        .register-card { background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 0 10px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
-        .input-group-text, .form-control { background-color: rgba(255,255,255,0.7); border: none; font-size: 0.9rem; }
-        .register-btn { background-color: black; color: white; border-radius: 20px; width: 100%; margin-top: 15px; font-size: 0.9rem; padding: 8px 15px; }
-        .footer { background: url("{{ asset('images/subiclogo2.png') }}") no-repeat center center/cover; height: 40px; width: 100%; position: fixed; bottom: 0; left: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; box-shadow: 0 -2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; }
-        .text-danger { color: #dc3545; font-size: 0.875em; margin-top: 0.25rem; text-align: left; width: 100%; }
-        .toggle-password { cursor: pointer; }
+        body {
+            background: url("{{ asset('images/subiclogo.png') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            padding-top: 60px;
+            padding-bottom: 60px;
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header {
+            background: url("{{ asset('images/subiclogo1.png') }}") no-repeat center center/cover;
+            height: 60px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 80%;
+            max-width: 1200px;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px auto;
+            flex-wrap: wrap;
+        }
+
+        .welcome-section {
+            flex: 1;
+            text-align: center;
+            margin-right: 20px;
+        }
+
+        .welcome-text {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .explore-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .input-group-text, .form-control {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+        }
+
+        .register-btn {
+            background-color: black;
+            color: white;
+            border-radius: 20px;
+            width: 100%;
+        }
+
+        .explore-btn {
+            background-color: #00bfff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .explore-btn:hover {
+            background-color: #0099cc;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .welcome-section {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .container {
+                justify-content: space-around;
+            }
+
+            .welcome-section {
+                text-align: left;
+            }
+        }
+
+        .footer {
+            background: url("{{ asset('images/subiclogo2.png') }}") no-repeat center center/cover;
+            height: 60px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+        }
+
         /* Tourist upload visibility */
-        #touristImageGroup { display: none; }
+        #touristImageGroup {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="header"></div>
     <div class="overlay"></div>
     <div class="container">
+        <div class="welcome-section">
+            <div class="welcome-text text-center">
+                <h1>Welcome to</h1>
+                <h2>Matnog Tourism, Culture and Arts Office</h2>
+            </div>
+            <div class="explore-container text-center">
+                <a href="{{ url('/explore/exploring') }}" class="explore-btn">Explore</a>
+            </div>
+        </div>
         <div class="register-card text-center">
             <h5 class="text-white">Create Account - Step 2</h5>
             <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">

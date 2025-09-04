@@ -18,8 +18,17 @@
                 return redirect()->intended(route('dashboard', absolute: false));
             }
 
-            // Send the phone verification notification (this calls the method in User model).
-            $request->user()->sendPhoneVerificationNotification();
+            // Generate a new 6-digit OTP code
+            $otpCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+            
+            // Debug: Log the new OTP being generated
+            \Illuminate\Support\Facades\Log::info('Resending OTP for user: ' . $request->user()->id . ', New OTP: ' . $otpCode);
+            
+            // Store OTP in phone_verified_at column temporarily
+            $request->user()->update(['phone_verified_at' => $otpCode]);
+            
+            // Debug: Log the updated user's phone_verified_at value
+            \Illuminate\Support\Facades\Log::info('User updated with new phone_verified_at: ' . $request->user()->fresh()->phone_verified_at);
 
             // Redirect back with a status message.
             return back()->with('status', 'verification-code-sent');

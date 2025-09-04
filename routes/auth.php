@@ -18,9 +18,9 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
+// Register routes - accessible to both guests and logged-in users
+Route::get('register', [RegisteredUserController::class, 'create'])
+    ->name('register');
 
     // Two-step registration
     Route::post('register/step1', [RegisteredUserController::class, 'storeStep1'])
@@ -28,7 +28,9 @@ Route::middleware('guest')->group(function () {
     Route::get('register/step2', [RegisteredUserController::class, 'showStep2'])
         ->name('register.step2');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+Route::post('register', [RegisteredUserController::class, 'store']);
+
+Route::middleware('guest')->group(function () {
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
@@ -41,11 +43,32 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
+    // Phone-based password reset routes
+    Route::post('password/phone-reset', [\App\Http\Controllers\Auth\PhonePasswordResetController::class, 'store'])
+        ->name('password.phone.reset');
+
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Phone-based password reset form (no token required)
+    Route::get('password/reset-form', [NewPasswordController::class, 'create'])
+        ->name('password.reset.form');
+
+    // Phone-based password reset verification routes
+    Route::get('password/reset/verify', [\App\Http\Controllers\Auth\PhonePasswordResetController::class, 'showVerifyForm'])
+        ->name('password.reset.verify');
+
+    Route::post('password/reset/verify', [\App\Http\Controllers\Auth\PhonePasswordResetController::class, 'verifyOtp'])
+        ->name('password.reset.verify.submit');
+
+    Route::get('password/reset/confirm', [\App\Http\Controllers\Auth\PhonePasswordResetController::class, 'showConfirmForm'])
+        ->name('password.reset.confirm');
+
+    Route::post('password/reset/confirm', [\App\Http\Controllers\Auth\PhonePasswordResetController::class, 'confirmPasswordChange'])
+        ->name('password.reset.confirm.submit');
 });
 
 Route::middleware('auth')->group(function () {

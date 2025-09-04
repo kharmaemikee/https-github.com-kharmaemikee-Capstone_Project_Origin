@@ -24,6 +24,7 @@ class User extends Authenticatable
         'last_name',
         'username',
         'phone',
+        'phone_verified_at', // Added for OTP verification
         'birthday',
         'gender',
         'nationality', // <<< ADDED THIS LINE >>>
@@ -65,7 +66,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'phone_verified_at' => 'datetime', // If you have phone verification
+        // Removed cast for phone_verified_at so we can store 6-digit OTP strings temporarily
         'password' => 'hashed',
         'birthday' => 'date', // Cast birthday to a date
         'is_approved' => 'boolean', // Cast is_approved to boolean
@@ -205,6 +206,25 @@ class User extends Authenticatable
     public function canAccessBasicFeatures(): bool
     {
         // All authenticated users can access basic features
+        return true;
+    }
+
+    /**
+     * Determine if the user has verified their phone number.
+     */
+    public function hasVerifiedPhone(): bool
+    {
+        // Unverified when null or a 6-digit OTP string
+        if ($this->phone_verified_at === null) {
+            return false;
+        }
+
+        // Treat 6-digit numeric value as an OTP (unverified)
+        if (is_string($this->phone_verified_at) && preg_match('/^\d{6}$/', $this->phone_verified_at)) {
+            return false;
+        }
+
+        // Any non-6-digit value indicates a verification timestamp/value
         return true;
     }
 }

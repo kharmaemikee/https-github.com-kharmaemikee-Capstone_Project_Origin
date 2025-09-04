@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
         // Get the authenticated user
         $user = Auth::user();
 
+        // Check if user has verified their phone
+        if (!$user->hasVerifiedPhone()) {
+            return redirect()->route('verification.notice');
+        }
+
         // Redirect to the specific dashboard based on user role
         // It's good practice to encapsulate this logic, e.g., in the User model,
         // but for now, it's fine here.

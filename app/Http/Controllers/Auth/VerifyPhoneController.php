@@ -20,26 +20,26 @@
                 return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
             }
 
-            // Get the expected code from cache
-            $expectedCode = $request->user()->getPhoneVerificationCode();
-
             // Validate the incoming code
             $request->validate([
-                'code' => ['required', 'numeric', 'digits:6'], // Assuming a 6-digit code
+                'code' => ['required', 'string', 'size:6'], // 6-character code
             ]);
 
+            // Get the expected code from phone_verified_at column
+            $expectedCode = $request->user()->phone_verified_at;
+
             // Check if the provided code matches the expected code
-            if ($request->input('code') != $expectedCode) {
+            if ($request->input('code') !== $expectedCode) {
                 throw ValidationException::withMessages([
                     'code' => __('The provided verification code is invalid.'),
                 ]);
             }
 
-            // Mark the user's phone as verified.
-            if ($request->user()->markPhoneAsVerified()) {
-                event(new Verified($request->user())); // Dispatch generic Verified event
-                $request->user()->clearPhoneVerificationCode(); // Clear code from cache
-            }
+            // Mark the user's phone as verified by setting phone_verified_at to current timestamp
+            $request->user()->update(['phone_verified_at' => now()]);
+            
+            // Dispatch verified event
+            event(new Verified($request->user()));
 
             // Redirect to dashboard after successful verification.
             return redirect()->intended(route('dashboard', absolute: false).'?verified=1');

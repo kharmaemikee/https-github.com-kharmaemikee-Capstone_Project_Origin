@@ -84,8 +84,11 @@
             @auth
                 @if((in_array(Auth::user()->role, ['resort_owner', 'boat_owner']) && Auth::user()->owner_image_path && Auth::user()->owner_pic_approved)
                     || (Auth::user()->role === 'tourist' && Auth::user()->owner_image_path))
-                    {{-- Show image for owners (approved only) or tourist (no approval needed) --}}
-                    <a href="#" class="text-decoration-none" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding-bottom: 0px; ">
+                    {{-- Show image with name for owners (approved only) or tourist (no approval needed) --}}
+                    <a href="#" class="text-decoration-none d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding-bottom: 0px; ">
+                        <span class="text-primary me-2" style="font-size: 0.9rem;">
+                            {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}
+                        </span>
                         <img src="{{ asset(Auth::user()->owner_image_path) }}" 
                              alt="Owner Image" 
                              class="rounded-circle owner-image" 
@@ -108,7 +111,7 @@
             @endauth
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                 @auth
-                    @if(in_array(Auth::user()->role, ['resort_owner', 'boat_owner']))
+                    @if(in_array(Auth::user()->role, ['resort_owner', 'boat_owner', 'tourist']))
                         <li>
                             <h6 class="dropdown-header text-primary">
                                 Hi {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}!

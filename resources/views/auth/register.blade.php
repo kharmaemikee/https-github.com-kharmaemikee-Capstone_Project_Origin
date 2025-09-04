@@ -52,10 +52,18 @@
             position: relative;
             z-index: 1;
             display: flex;
-            width: 90%;
-            max-width: 900px;
+            width: 80%;
+            max-width: 1200px;
             align-items: center;
             justify-content: space-between;
+            margin: 20px auto;
+            flex-wrap: wrap;
+        }
+
+        .welcome-section {
+            flex: 1;
+            text-align: center;
+            margin-right: 20px;
         }
 
         .welcome-text {
@@ -64,9 +72,14 @@
             margin-bottom: 15px;
         }
 
+        .explore-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
         .register-card {
             background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             backdrop-filter: blur(10px);
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
@@ -119,24 +132,14 @@
         }
 
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                padding-top: 40px;
-                padding-bottom: 40px;
-            }
-
             .container {
                 flex-direction: column;
                 text-align: center;
-                max-width: 95%;
-                margin-top: 60px;
-                padding: 15px;
+                align-items: center;
             }
 
-            .register-card {
-                max-width: 90%;
+            .welcome-section {
+                margin-right: 0;
                 margin-bottom: 20px;
             }
 
@@ -148,6 +151,16 @@
             .form-row .input-group {
                 flex: none;
                 margin-bottom: 10px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .container {
+                justify-content: space-around;
+            }
+
+            .welcome-section {
+                text-align: left;
             }
         }
 
@@ -250,14 +263,15 @@
     <div class="header"></div>
     <div class="overlay"></div>
     <div class="container">
-        <div class="welcome-text text-center">
-            <h1>Welcome to</h1>
-            <h2>Matnog Tourism, Culture and Arts Office</h2>
-            <div class="explore-container">
+        <div class="welcome-section">
+            <div class="welcome-text text-center">
+                <h1>Welcome to</h1>
+                <h2>Matnog Tourism, Culture and Arts Office</h2>
+            </div>
+            <div class="explore-container text-center">
                 <a href="{{ url('/explore/exploring') }}" class="explore-btn">Explore</a>
             </div>
         </div>
-
         <div class="register-card text-center">
             <h5 class="text-white">Create Account</h5>
             <form method="POST" action="{{ route('register.step1') }}">

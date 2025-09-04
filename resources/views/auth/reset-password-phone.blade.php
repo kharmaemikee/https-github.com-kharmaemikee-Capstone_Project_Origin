@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phone Verification - Matnog Tourism</title>
+    <title>Reset Password - Matnog Tourism</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/js/app.js'])
@@ -71,7 +71,7 @@
             margin-bottom: 15px;
         }
 
-        .verification-card {
+        .reset-card {
             background: rgba(255, 255, 255, 0.2);
             padding: 30px;
             border-radius: 10px;
@@ -86,7 +86,7 @@
             border: none;
         }
 
-        .verify-btn {
+        .reset-btn {
             background-color: black;
             color: white;
             border-radius: 20px;
@@ -109,14 +109,6 @@
 
         .text-danger {
             color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 0.25rem;
-            text-align: left;
-            width: 100%;
-        }
-
-        .text-success {
-            color: #28a745;
             font-size: 0.875em;
             margin-top: 0.25rem;
             text-align: left;
@@ -157,21 +149,15 @@
                 <h2>Matnog Tourism, Culture and Arts Office</h2>
             </div>
             <div class="text-center">
-                <p class="mb-0">Please verify your phone number to continue</p>
+                <p class="mb-0">Set your new password</p>
             </div>
         </div>
-        <div class="verification-card text-center">
-            <h3 class="text-white mb-4">Phone Verification</h3>
+        <div class="reset-card text-center">
+            <h3 class="text-white mb-4">Reset Password</h3>
             
             <div class="mb-3 text-white">
-                <small>Thanks for signing up! Please verify your phone number by entering the OTP code. Check the database for the code in the phone_verified_at column.</small>
+                <small>Please enter your new password below.</small>
             </div>
-
-            @if (session('status') == 'verification-code-sent')
-                <div class="mb-3 text-success">
-                    <small><i class="fas fa-check-circle"></i> A new verification code has been generated. Check the database phone_verified_at column for the code.</small>
-                </div>
-            @endif
 
             @if ($errors->any())
                 <div class="mb-3">
@@ -186,52 +172,94 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('verification.verify') }}">
+            <form method="POST" action="{{ route('password.store') }}">
                 @csrf
+                
                 <div class="mb-3 input-group flex-wrap">
-                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
                     <input 
-                        id="code" 
-                        name="code" 
-                        type="text" 
-                        maxlength="6"
+                        type="password" 
                         class="form-control" 
-                        placeholder="Enter 6-digit code"
-                        value="{{ old('code') }}"
+                        placeholder="New Password" 
+                        name="password" 
+                        id="password"
                         required 
                         autofocus
                     >
-                    @error('code')
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                    </button>
+                    @error('password')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <button type="submit" class="btn verify-btn mb-3">
-                    <i class="fas fa-check"></i> Verify Phone Number
+                <div class="mb-3 input-group flex-wrap">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input 
+                        type="password" 
+                        class="form-control" 
+                        placeholder="Confirm New Password" 
+                        name="password_confirmation" 
+                        id="password_confirmation"
+                        required 
+                    >
+                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirmation">
+                        <i class="fas fa-eye" id="togglePasswordConfirmationIcon"></i>
+                    </button>
+                    @error('password_confirmation')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn reset-btn mb-3">
+                    <i class="fas fa-key"></i> Reset Password
                 </button>
             </form>
 
-            <div class="mb-3">
-                <form method="POST" action="{{ route('verification.send') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-link text-white p-0">
-                        <small><i class="fas fa-redo"></i> Resend Code</small>
-                    </button>
-                </form>
-            </div>
-
             <div class="mt-3">
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-link text-white p-0">
-                        <small><i class="fas fa-sign-out-alt"></i> Log Out</small>
-                    </button>
-                </form>
+                <a href="{{ route('login') }}" class="btn btn-link text-white p-0">
+                    <small><i class="fas fa-arrow-left"></i> Back to Login</small>
+                </a>
             </div>
         </div>
     </div>
     <div class="footer">&copy; 2025 Matnog Tourism</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Toggle password visibility for password field
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Toggle password visibility for password confirmation field
+        document.getElementById('togglePasswordConfirmation').addEventListener('click', function() {
+            const passwordField = document.getElementById('password_confirmation');
+            const toggleIcon = document.getElementById('togglePasswordConfirmationIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

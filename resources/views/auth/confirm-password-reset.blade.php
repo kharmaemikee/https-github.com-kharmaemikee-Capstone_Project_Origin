@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matnog Tourism - Forgot Password</title>
+    <title>Confirm Password Reset - Matnog Tourism</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/js/app.js'])
@@ -54,7 +54,7 @@
             width: 80%;
             max-width: 1200px;
             align-items: center;
-            justify-content: space-around; /* Changed to space-around to match login layout */
+            justify-content: center;
             margin: 20px auto;
             flex-wrap: wrap;
         }
@@ -71,53 +71,43 @@
             margin-bottom: 15px;
         }
 
-        .explore-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .forgot-password-card {
+        .confirmation-card {
             background: rgba(255, 255, 255, 0.2);
             padding: 30px;
             border-radius: 10px;
             backdrop-filter: blur(10px);
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 350px;
-            color: white;
+            max-width: 400px;
         }
 
-        .input-group-text, .form-control {
-            background-color: rgba(255, 255, 255, 0.7);
-            border: none;
-            color: black;
-        }
-        .form-control::placeholder {
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        .reset-btn {
-            background-color: black;
+        .btn-yes {
+            background-color: #28a745;
             color: white;
             border-radius: 20px;
             width: 100%;
-            padding: 10px 20px;
+            margin-bottom: 10px;
         }
 
-        .explore-btn {
-            background-color: #00bfff;
+        .btn-no {
+            background-color: #6c757d;
             color: white;
-            border: none;
-            padding: 10px 20px;
             border-radius: 20px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
+            width: 100%;
         }
 
-        .explore-btn:hover {
-            background-color: #0099cc;
+        .footer {
+            background: url("{{ asset('images/subiclogo2.png') }}") no-repeat center center/cover;
+            height: 60px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -142,28 +132,6 @@
                 text-align: left;
             }
         }
-
-        .footer {
-            background: url("{{ asset('images/subiclogo2.png') }}") no-repeat center center/cover;
-            height: 60px;
-            width: 100%;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .text-danger {
-            color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 0.25rem;
-            text-align: left;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -175,39 +143,36 @@
                 <h1>Welcome to</h1>
                 <h2>Matnog Tourism, Culture and Arts Office</h2>
             </div>
-            <div class="explore-container text-center">
-                <a href="{{ url('/explore/exploring') }}" class="explore-btn">Explore</a>
+            <div class="text-center">
+                <p class="mb-0">OTP verification successful!</p>
             </div>
         </div>
-        <div class="forgot-password-card text-center">
-            <h3 class="text-white mb-4">Forgot Password</h3>
+        <div class="confirmation-card text-center">
+            <h3 class="text-white mb-4">Password Reset Confirmation</h3>
+            
+            <div class="mb-4 text-white">
+                <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                <p class="mb-0">Your phone number has been verified successfully!</p>
+            </div>
 
-            @if (session('status'))
-                <div class="alert alert-success mb-4" role="alert">
-                    {{ session('status') }}
-                </div>
-            @endif
+            <div class="mb-4">
+                <h5 class="text-white">Do you want to change your password?</h5>
+            </div>
 
-            <p class="mb-4 text-sm">
-                {{ __('Forgot your password? No problem. Just let us know your phone number and we will send you an OTP code to verify your identity.') }}
-            </p>
-
-            <form method="POST" action="{{ route('password.phone.reset') }}">
+            <form method="POST" action="{{ route('password.reset.confirm.submit') }}">
                 @csrf
+                
+                <button type="submit" name="action" value="yes" class="btn btn-yes">
+                    <i class="fas fa-key"></i> Yes, Change Password
+                </button>
+            </form>
 
-                <div class="mb-3 input-group flex-wrap">
-                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                    <input type="text" class="form-control" placeholder="Phone Number (e.g., 09123456789)" name="phone_number" value="{{ old('phone_number') }}" maxlength="11" required autofocus>
-                    @error('phone_number')
-                        <div class="text-danger">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="d-flex align-items-center justify-content-end mt-4">
-                    <button type="submit" class="btn reset-btn">
-                        {{ __('Send OTP Code') }}
-                    </button>
-                </div>
+            <form method="POST" action="{{ route('password.reset.confirm.submit') }}">
+                @csrf
+                
+                <button type="submit" name="action" value="no" class="btn btn-no">
+                    <i class="fas fa-times"></i> Not Now
+                </button>
             </form>
         </div>
     </div>

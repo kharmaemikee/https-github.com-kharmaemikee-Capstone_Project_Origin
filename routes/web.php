@@ -29,6 +29,11 @@ Route::get('/', function () {
     return view('auth.login');
 })->name('login');
 
+// Test route to check if verification works
+Route::get('/test-verification', function () {
+    return view('auth.verify-phone');
+})->name('test.verification');
+
 
 // Admin Dashboard Route
 Route::get('/admin/admin', function () {
@@ -39,12 +44,12 @@ Route::get('/admin/admin', function () {
     $totalForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->count();
     $totalFilipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->count();
     return view('admin.admin', compact('totalForeigners', 'totalFilipinos'));
-})->middleware(['auth'])->name('admin');
+})->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('admin');
 
 
 // Tourist Dashboard
 Route::get('/tourist', [TouristController::class, 'dashboard'])
-    ->middleware(['auth'])
+    ->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])
     ->name('tourist.tourist');
 
 
@@ -54,7 +59,7 @@ Route::get('/resort_owner/resort', function () {
         abort(403, 'Unauthorized');
     }
     return redirect()->route('resort.owner.information');
-})->middleware(['auth'])->name('resort');
+})->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('resort');
 
 
 // Resort Owner Information Page (will display the list of resorts)
@@ -510,7 +515,7 @@ Route::middleware(['auth'])->group(function () {
             'boatRevenueData', 
             'unreadCount'
         ));
-    })->middleware(['auth'])->name('boat.owner.dashboard');
+    })->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('boat.owner.dashboard');
 
     // Boat Owner Verified Page (if role-based verified status is used)
     Route::get('/boat_owner/verified', function () {
@@ -632,7 +637,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 // Redirect users to their correct dashboard based on their role
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();
 

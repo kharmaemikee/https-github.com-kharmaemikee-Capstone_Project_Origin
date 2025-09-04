@@ -17,19 +17,59 @@ class NewPasswordController extends Controller
 {
     public function create(Request $request): View
     {
-        return view('auth.reset-password', ['request' => $request, 'username' => $request->username]);
+        // Check if this is a phone-based password reset
+        if (session('password_reset_user_id')) {
+            $user = User::find(session('password_reset_user_id'));
+            if ($user) {
+                return view('auth.reset-password-phone', ['user' => $user]);
+            }
+        }
+        
+        // Handle traditional token-based password reset
+        return view('auth.reset-password', [
+            'request' => $request, 
+            'username' => $request->get('username', '')
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        // Handle phone-based password reset
+        if (session('password_reset_user_id')) {
+            $request->validate([
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
+
+            $user = User::find(session('password_reset_user_id'));
+            
+            if (!$user) {
+                return redirect()->route('password.request');
+            }
+
+            // Update password
+            $user->update([
+                'password' => Hash::make($request->password),
+                'phone_verified_at' => now(), // Mark phone as verified
+            ]);
+
+            // Clear session
+            session()->forget('password_reset_user_id');
+
+            // Log the user in automatically
+            auth()->login($user);
+
+            return redirect()->route('dashboard')->with('status', 'Password has been reset successfully!');
+        }
+
+        // Handle traditional token-based password reset
         $request->validate([
             'token' => ['required'],
-            'username' => ['required', 'string'], // Assuming username for reset, adjust if phone
+            'username' => ['required', 'string'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $status = Password::reset(
-            $request->only('username', 'password', 'password_confirmation', 'token'), // Assuming username for reset
+            $request->only('username', 'password', 'password_confirmation', 'token'),
             function (User $user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
