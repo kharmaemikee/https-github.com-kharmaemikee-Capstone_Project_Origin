@@ -1,0 +1,189 @@
+<x-app-layout>
+    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+
+        {{-- Desktop Sidebar --}}
+        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
+            {{-- Icon added here for Admin --}}
+            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
+                <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
+                ADMIN
+            </h4>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item mt-2">
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                        <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Resort Management
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                        <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Boat Management
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="{{ route('admin.users') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                        <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Users
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Documentation
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        {{-- Mobile Offcanvas Toggle Button --}}
+        <div class="d-md-none bg-light border-bottom p-2">
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                &#9776;
+            </button>
+        </div>
+
+        {{-- Mobile Offcanvas Sidebar --}}
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+            <div class="offcanvas-header">
+                {{-- Icon added here for Admin in mobile sidebar --}}
+                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
+                    <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
+                    ADMIN
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                            <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Resort Information
+                        </a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                            <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Boat Information
+                        </a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('admin.users') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                            <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Documentation
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {{-- Main Content Area --}}
+        <div class="flex-grow-1 p-4">
+            <h4 class="fw-bold">USERS</h4>
+            <h5 class="text-muted">MANAGE CUSTOMERS</h5>
+
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    {{-- Updated route to admin.rooms and added active state for Customers --}}
+                    <a href="{{ route('admin.addrooms') }}" class="btn btn-link" style="text-decoration: none; color: inherit;" onmouseover="this.style.textDecoration='underline'; this.style.color='blue';" onmouseout="this.style.textDecoration='none'; this.style.color='inherit';">Add Rooms</a>
+                    <a href="{{ route('admin.customers') }}" class="btn btn-link" style="text-decoration: none; color: black; font-weight: bold; {{ request()->routeIs('admin.customers') ? 'text-decoration: underline; color: blue;' : '' }}">Customers</a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Customer No.</th>
+                            <th>Customer Name</th>
+                            <th>Phone Number</th>
+                            <th>Username</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for ($i = 1; $i <= 3; $i++)
+                            <tr>
+                                <td>{{ $i }}</td>
+                                <td>
+                                    @if ($i == 1)
+                                        Emike Hipos
+                                    @elseif ($i == 2)
+                                        Janna Conda
+                                    @else
+                                        Verlyn Gabelo
+                                    @endif
+                                </td>
+                                <td>09384453856</td>
+                                <td>
+                                    @if ($i == 1)
+                                        Emike
+                                    @elseif ($i == 2)
+                                        Janna
+                                    @else
+                                        Verlyn
+                                    @endif
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                        @endfor
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Custom CSS for sidebar nav-link hover and focus --}}
+    <style>
+        /* Custom CSS for sidebar nav-link hover and focus */
+        .nav-link.text-white:hover,
+        .nav-link.text-white:focus,
+        .nav-link.text-white.active {
+            background-color: rgb(6, 58, 170) !important; /* Maroon Red */
+        }
+    </style>
+
+    {{-- Custom JavaScript to handle offcanvas hiding --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- JavaScript for Offcanvas Hiding ---
+            var mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                var offcanvas = new bootstrap.Offcanvas(mobileSidebar);
+
+                function hideOffcanvasOnDesktop() {
+                    if (window.innerWidth >= 768) { // Bootstrap's 'md' breakpoint is 768px
+                        offcanvas.hide();
+                    }
+                }
+
+                // Hide offcanvas immediately if screen is already desktop size on load
+                hideOffcanvasOnDesktop();
+
+                // Add event listener for window resize
+                window.addEventListener('resize', hideOffcanvasOnDesktop);
+            }
+            // --- End JavaScript ---
+        });
+    </script>
+</x-app-layout>

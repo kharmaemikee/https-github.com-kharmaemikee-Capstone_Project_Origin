@@ -1,0 +1,60 @@
+<x-app-layout>
+    <div class="d-flex flex-column flex-md-row">
+        <div class="vh-100 p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #A6A6A6;">
+            <h4 class="fw-bold text-white text-center">Resort Owner</h4>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item mt-2">
+                    <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Resort Information</a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Dashboard</a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Verified</a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Notification</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="d-md-none bg-light border-bottom p-2">
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+                &#9776;
+            </button>
+        </div>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #A6A6A6; color: white;">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title fw-bold text-white" id="mobileSidebarLabel">Resort Owner</h5>
+                <button type="button" class="btn btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item mt-2">
+                        <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Resort Information</a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Dashboard</a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Verified</a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="#" class="nav-link text-white bg-secondary rounded p-2 text-center">Notification</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="flex-grow-1 p-4">
+            <div class="container py-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p>{{ __("You're logged in!") }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
