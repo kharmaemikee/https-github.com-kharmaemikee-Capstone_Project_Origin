@@ -17,7 +17,7 @@
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                        <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                     </a>
                 </li>
@@ -27,34 +27,22 @@
                         Account Management
                     </a>
                 </li>
+                {{-- Notifications (Desktop) --}}
                 <li class="nav-item mt-2">
-                    <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                       data-bs-toggle="collapse" href="#notificationCollapseDesktop" role="button"
-                       aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseDesktop">
-                        {{-- Adjusted justify-content-start here --}}
-                        <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notification
-                        </span>
-                        {{-- Replaced triangle with down.png icon --}}
-                        <span class="collapse-icon">
-                            <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                        </span>
+                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseDesktop">
-                        <ul class="nav flex-column ps-3 mt-2">
-                            <li class="nav-item">
-                                <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                    Notifications List
-                                </a>
-                            </li>
-                            <li class="nav-item mt-1">
-                                <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                    Documentation
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                </li>
+                {{-- Documentation (Desktop) --}}
+                <li class="nav-item mt-2">
+                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Documentation
+                    </a>
                 </li>
             </ul>
         </div>
@@ -86,7 +74,7 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Resort Management
                         </a>
                     </li>
@@ -96,34 +84,22 @@
                             Account Management
                         </a>
                     </li>
+                    {{-- Notifications (Mobile) --}}
                     <li class="nav-item mt-2">
-                        <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                           data-bs-toggle="collapse" href="#notificationCollapseMobile" role="button"
-                           aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseMobile">
-                            {{-- Adjusted justify-content-start here --}}
-                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Notification
-                            </span>
-                            {{-- Replaced triangle with down.png icon --}}
-                            <span class="collapse-icon">
-                                <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                            </span>
+                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
-                        <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseMobile">
-                            <ul class="nav flex-column ps-3 mt-2">
-                                <li class="nav-item">
-                                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                        Notifications List
-                                    </a>
-                                </li>
-                                <li class="nav-item mt-1">
-                                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                        Documentation
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                    </li>
+                    {{-- Documentation (Mobile) --}}
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Documentation
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -138,6 +114,17 @@
             <div class="card shadow-sm p-4">
                 <form action="{{ route('resort.owner.rooms.store', $resort->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
+
+                    <div class="mb-3">
+                        <label for="accommodation_type" class="form-label">Type</label>
+                        <select class="form-select @error('accommodation_type') is-invalid @enderror" id="accommodation_type" name="accommodation_type" required>
+                            <option value="room" {{ old('accommodation_type', request('type', 'room')) === 'room' ? 'selected' : '' }}>Room</option>
+                            <option value="cottage" {{ old('accommodation_type', request('type')) === 'cottage' ? 'selected' : '' }}>Cottage</option>
+                        </select>
+                        @error('accommodation_type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                     <div class="mb-3">
                         <label for="room_name" class="form-label">Room Name</label>
@@ -156,7 +143,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="price_per_night" class="form-label">Price Per Night (₱)</label>
+                        <label for="price_per_night" class="form-label" id="priceLabel">Price Per Night (₱)</label>
                         <input type="number" step="0.01" class="form-control @error('price_per_night') is-invalid @enderror" id="price_per_night" name="price_per_night" value="{{ old('price_per_night') }}" required min="0">
                         @error('price_per_night')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -194,7 +181,7 @@
                     </div>
 
                     {{-- NEW: Rehabilitation Reason Field (conditionally displayed) --}}
-                    <div class="mb-3" id="rehabReasonGroup" style="display: {{ old('status') == 'rehab' ? 'block' : 'none' }};">
+                    <div class="mb-3" id="rehabReasonGroup" style="display: none;">
                         <label for="rehab_reason" class="form-label">Rehabilitation Reason</label>
                         <textarea class="form-control @error('rehab_reason') is-invalid @enderror" id="rehab_reason" name="rehab_reason" rows="3">{{ old('rehab_reason') }}</textarea>
                         @error('rehab_reason')
@@ -258,6 +245,18 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the state of the rehab reason field on page load
             toggleRehabReason();
+
+            // Update price label based on type (room vs cottage)
+            var typeSelect = document.getElementById('accommodation_type');
+            var priceLabel = document.getElementById('priceLabel');
+            function updatePriceLabel() {
+                if (!typeSelect || !priceLabel) return;
+                priceLabel.textContent = typeSelect.value === 'cottage' ? 'Price Per Stay (₱)' : 'Price Per Night (₱)';
+            }
+            updatePriceLabel();
+            if (typeSelect) {
+                typeSelect.addEventListener('change', updatePriceLabel);
+            }
 
             var collapseToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
 

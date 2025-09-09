@@ -20,7 +20,7 @@
                 <li class="nav-item mt-2">
                     @if(auth()->user()->canAccessMainFeatures())
                         <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Management
                         </a>
                     @else
@@ -44,7 +44,7 @@
                 <li class="nav-item mt-2">
                     <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
                         <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Notifications List
+                        Notifications
                         @if(isset($unreadCount) && $unreadCount > 0)
                             <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
                         @endif
@@ -82,7 +82,7 @@
                     <li class="nav-item mt-2">
                         @if(auth()->user()->canAccessMainFeatures())
                             <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                                <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                                 Boat Management
                             </a>
                         @else
@@ -106,7 +106,7 @@
                     <li class="nav-item mt-2">
                         <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
                             <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notifications List
+                            Notifications
                             @if(isset($unreadCount) && $unreadCount > 0)
                                 <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
                             @endif
@@ -184,21 +184,63 @@
                                                 <p class="mb-1">Resort: <strong>{{ $notification->booking->resort->resort_name }}</strong></p>
                                             @endif
                                             @if ($notification->booking->user)
-                                                <p class="mb-1">Tourist: <strong>{{ $notification->booking->user->name }}</strong></p>
+                                                <p class="mb-1">Tourist: <strong>
+                                                    {{ trim($notification->booking->user->first_name . ' ' . $notification->booking->user->middle_name . ' ' . $notification->booking->user->last_name) }}
+                                                </strong></p>
                                             @endif
                                             @if ($notification->booking->room)
                                                 <p class="mb-1">Room: <strong>{{ $notification->booking->room->room_name }}</strong></p>
                                             @endif
                                             <p class="mb-1">Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
-                                            <p class="mb-1">Check-in: <strong>{{ \Carbon\Carbon::parse($notification->booking->check_in_date)->format('M d, Y') }}</strong></p>
+                                            <p class="mb-1">Check-in: <strong>
+                                                @php
+                                                    try {
+                                                        echo \Carbon\Carbon::parse($notification->booking->check_in_date)->format('M d, Y');
+                                                    } catch(\Exception $e) {
+                                                        echo $notification->booking->check_in_date;
+                                                    }
+                                                @endphp
+                                            </strong></p>
                                             <p class="mb-1">Tour Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
                                             @if ($notification->booking->tour_type === 'day_tour')
-                                                <p class="mb-1">Departure Time: <strong>{{ \Carbon\Carbon::parse($notification->booking->day_tour_departure_time)->format('h:i A') }}</strong></p>
-                                                <p class="mb-1">Pick-up Time: <strong>{{ \Carbon\Carbon::parse($notification->booking->day_tour_time_of_pickup)->format('h:i A') }}</strong></p>
+                                                <p class="mb-1">Pick-up Time: <strong>
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($notification->booking->day_tour_time_of_pickup)->format('h:i A');
+                                                        } catch(\Exception $e) {
+                                                            echo $notification->booking->day_tour_time_of_pickup;
+                                                        }
+                                                    @endphp
+                                                </strong></p>
+                                                <p class="mb-1">Departure Time: <strong>
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($notification->booking->day_tour_departure_time)->format('h:i A');
+                                                        } catch(\Exception $e) {
+                                                            echo $notification->booking->day_tour_departure_time;
+                                                        }
+                                                    @endphp
+                                                </strong></p>
                                             @elseif ($notification->booking->tour_type === 'overnight')
-                                                <p class="mb-1">Date & Time of Pick-up: <strong>{{ \Carbon\Carbon::parse($notification->booking->overnight_date_time_of_pickup)->format('M d, Y h:i A') }}</strong></p>
+                                                <p class="mb-1">Date & Time of Pick-up: <strong>
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($notification->booking->overnight_date_time_of_pickup)->format('M d, Y h:i A');
+                                                        } catch(\Exception $e) {
+                                                            echo $notification->booking->overnight_date_time_of_pickup;
+                                                        }
+                                                    @endphp
+                                                </strong></p>
                                                 @if ($notification->booking->check_out_date)
-                                                    <p class="mb-1">Check-out Date: <strong>{{ \Carbon\Carbon::parse($notification->booking->check_out_date)->format('M d, Y') }}</strong></p>
+                                                    <p class="mb-1">Check-out Date: <strong>
+                                                        @php
+                                                            try {
+                                                                echo \Carbon\Carbon::parse($notification->booking->check_out_date)->format('M d, Y');
+                                                            } catch(\Exception $e) {
+                                                                echo $notification->booking->check_out_date;
+                                                            }
+                                                        @endphp
+                                                    </strong></p>
                                                 @endif
                                                 <p class="mb-1">Senior Citizens: <strong>{{ $notification->booking->num_senior_citizens }}</strong></p>
                                                 <p class="mb-1">PWDs: <strong>{{ $notification->booking->num_pwds }}</strong></p>

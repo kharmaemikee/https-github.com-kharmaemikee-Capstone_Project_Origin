@@ -506,16 +506,36 @@ class BookingController extends Controller
                         $pickupTime = explode(' ', $pickupTime)[1];
                     }
                     
-                    $newBookingStartTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $departureTime);
-                    $newBookingEndTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $pickupTime);
+                    try {
+                        $newBookingStartTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $departureTime);
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->with('error', 'Invalid departure time format. Please contact support.');
+                    }
+                    try {
+                        $newBookingEndTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $pickupTime);
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->with('error', 'Invalid pickup time format. Please contact support.');
+                    }
                     if ($newBookingEndTime->lessThan($newBookingStartTime)) {
                         $newBookingEndTime->addDay(); // Handle overnight day tours
                     }
                 }
             } elseif ($booking->tour_type === 'overnight') {
                 if ($booking->overnight_date_time_of_pickup && $booking->check_out_date) {
-                    $newBookingStartTime = Carbon::parse($booking->overnight_date_time_of_pickup);
-                    $newBookingEndTime = Carbon::parse($booking->check_out_date->format('Y-m-d') . ' 23:59:59'); // Assume end of day for overnight checkout
+                    try {
+                        $newBookingStartTime = Carbon::parse($booking->overnight_date_time_of_pickup);
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->with('error', 'Invalid pickup time format for overnight booking. Please contact support.');
+                    }
+                    try {
+                        $newBookingEndTime = Carbon::parse($booking->check_out_date->format('Y-m-d') . ' 23:59:59'); // Assume end of day for overnight checkout
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->with('error', 'Invalid checkout date format for overnight booking. Please contact support.');
+                    }
                 }
             }
 
@@ -998,8 +1018,15 @@ class BookingController extends Controller
             $compareAndAddChange($originalData['phone_number'], $freshBooking->phone_number, 'Contact Number', $changedFields);
 
             // For dates, compare formatted strings
+            $originalCheckIn = null;
+            try {
+                $originalCheckIn = Carbon::parse($originalData['check_in_date'])->toDateString();
+            } catch (\Exception $e) {
+                $originalCheckIn = $originalData['check_in_date'];
+            }
+            
             $compareAndAddChange(
-                Carbon::parse($originalData['check_in_date'])->toDateString(),
+                $originalCheckIn,
                 $freshBooking->check_in_date->toDateString(),
                 'Reservation Date',
                 $changedFields
@@ -1007,7 +1034,14 @@ class BookingController extends Controller
 
             // Check out date will change if check-in or num_nights change for overnight
             if ($originalData['tour_type'] === 'overnight' || $freshBooking->tour_type === 'overnight') {
-                $originalCheckout = isset($originalData['check_out_date']) && $originalData['check_out_date'] ? Carbon::parse($originalData['check_out_date'])->toDateString() : null;
+                $originalCheckout = null;
+                if (isset($originalData['check_out_date']) && $originalData['check_out_date']) {
+                    try {
+                        $originalCheckout = Carbon::parse($originalData['check_out_date'])->toDateString();
+                    } catch (\Exception $e) {
+                        $originalCheckout = $originalData['check_out_date'];
+                    }
+                }
                 $newCheckout = optional($freshBooking->check_out_date)->toDateString();
                 if ($originalCheckout !== $newCheckout) {
                     $changedFields[] = "Check-out Date (from '" . ($originalCheckout ?? 'N/A') . "' to '" . ($newCheckout ?? 'N/A') . "')";

@@ -54,78 +54,7 @@
     </head>
 
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
-        {{-- Desktop Sidebar --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                TOURIST
-            </h4>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item">
-                    <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Home
-                    </a>
-                </li>
-                @php
-                    $unreadCount = 0;
-                    try {
-                        if (Auth::check()) {
-                            $unreadCount = \App\Models\TouristNotification::where('user_id', Auth::id())->where('is_read', false)->count();
-                        }
-                    } catch (\Throwable $e) { $unreadCount = 0; }
-                @endphp
-                <li class="nav-item mt-2">
-                    {{-- Active class for the current page --}}
-                    <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 active d-flex align-items-center justify-content-start">
-                        <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Your Visit
-                        @if($unreadCount > 0)
-                            <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                </li>
-                {{-- Add other tourist sidebar links here if any --}}
-            </ul>
-        </div>
-
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-                &#9776;
-            </button>
-        </div>
-
-        {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    TOURIST
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Home
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start active">
-                        <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Your Visit
-                        @if(($unreadCount ?? 0) > 0)
-                            <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                        @endif
-                        </a>
-                    </li>
-                    {{-- Add other tourist sidebar links here if any --}}
-                </ul>
-            </div>
-        </div>
+        @include('tourist.partials.sidebar')
 
         {{-- Main Content Area --}}
         <main class="py-4 px-3 flex-grow-1">
@@ -171,11 +100,35 @@
                                         <span class="status-badge status-pending">{{ ucfirst($booking->status) }}</span>
                                     @endif
                                 </p>
-                                <p class="mb-1"><strong>Booked On:</strong> {{ \Carbon\Carbon::parse($booking->created_at)->format('F d, Y h:i A') }}</p>
+                                <p class="mb-1"><strong>Booked On:</strong> 
+                                    @php
+                                        try {
+                                            echo \Carbon\Carbon::parse($booking->created_at)->format('F d, Y h:i A');
+                                        } catch(\Exception $e) {
+                                            echo $booking->created_at;
+                                        }
+                                    @endphp
+                                </p>
                                 <p class="mb-1"><strong>Tour Type:</strong> {{ ucfirst(str_replace('_', ' ', $booking->tour_type)) }}</p>
-                                <p class="mb-1"><strong>Check-in Date:</strong> {{ \Carbon\Carbon::parse($booking->check_in_date)->format('F d, Y') }}</p>
+                                <p class="mb-1"><strong>Check-in Date:</strong> 
+                                    @php
+                                        try {
+                                            echo \Carbon\Carbon::parse($booking->check_in_date)->format('F d, Y');
+                                        } catch(\Exception $e) {
+                                            echo $booking->check_in_date;
+                                        }
+                                    @endphp
+                                </p>
                                 @if ($booking->tour_type === 'overnight' && $booking->check_out_date)
-                                    <p class="mb-1"><strong>Check-out Date:</strong> {{ \Carbon\Carbon::parse($booking->check_out_date)->format('F d, Y') }}</p>
+                                    <p class="mb-1"><strong>Check-out Date:</strong> 
+                                        @php
+                                            try {
+                                                echo \Carbon\Carbon::parse($booking->check_out_date)->format('F d, Y');
+                                            } catch(\Exception $e) {
+                                                echo $booking->check_out_date;
+                                            }
+                                        @endphp
+                                    </p>
                                 @endif
                                 <p class="mb-1"><strong>Number of Guests:</strong> {{ $booking->number_of_guests }}</p>
                                 @php
@@ -194,11 +147,35 @@
 
                                 @if ($booking->tour_type === 'day_tour')
                                     <h6 class="mt-3 fw-bold">Day Tour Specifics:</h6>
-                                    <p class="mb-1"><strong>Departure Time:</strong> {{ \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A') }}</p>
-                                    <p class="mb-1"><strong>Pickup Time:</strong> {{ \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A') }}</p>
+                                    <p class="mb-1"><strong>Departure Time:</strong> 
+                                        @php
+                                            try {
+                                                echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
+                                            } catch(\Exception $e) {
+                                                echo $booking->day_tour_departure_time;
+                                            }
+                                        @endphp
+                                    </p>
+                                    <p class="mb-1"><strong>Pickup Time:</strong> 
+                                        @php
+                                            try {
+                                                echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
+                                            } catch(\Exception $e) {
+                                                echo $booking->day_tour_time_of_pickup;
+                                            }
+                                        @endphp
+                                    </p>
                                 @elseif ($booking->tour_type === 'overnight')
                                     <h6 class="mt-3 fw-bold">Overnight Specifics:</h6>
-                                    <p class="mb-1"><strong>Pickup Date/Time:</strong> {{ \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('F d, Y h:i A') }}</p>
+                                    <p class="mb-1"><strong>Pickup Date/Time:</strong> 
+                                        @php
+                                            try {
+                                                echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('F d, Y h:i A');
+                                            } catch(\Exception $e) {
+                                                echo $booking->overnight_date_time_of_pickup;
+                                            }
+                                        @endphp
+                                    </p>
                                 @endif
                             </div>
 

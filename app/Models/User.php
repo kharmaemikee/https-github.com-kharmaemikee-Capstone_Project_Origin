@@ -66,10 +66,11 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        // Removed cast for phone_verified_at so we can store 6-digit OTP strings temporarily
+        // Custom accessor for phone_verified_at to handle both timestamps and OTP strings
         'password' => 'hashed',
         'birthday' => 'date', // Cast birthday to a date
         'is_approved' => 'boolean', // Cast is_approved to boolean
+        'phone_verified_at' => 'string', // Cast as string to prevent automatic Carbon parsing
     ];
 
     /**
@@ -209,6 +210,7 @@ class User extends Authenticatable
         return true;
     }
 
+
     /**
      * Determine if the user has verified their phone number.
      */
@@ -226,5 +228,14 @@ class User extends Authenticatable
 
         // Any non-6-digit value indicates a verification timestamp/value
         return true;
+    }
+
+    /**
+     * Check if the user can have a profile picture.
+     * Admins cannot have profile pictures.
+     */
+    public function canHaveProfilePicture(): bool
+    {
+        return $this->role !== 'admin';
     }
 }

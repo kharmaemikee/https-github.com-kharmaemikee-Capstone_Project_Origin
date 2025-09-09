@@ -43,11 +43,15 @@ class RegisteredUserController extends Controller
                 'date',
                 'before_or_equal:' . now()->subYears(18)->format('Y-m-d'), // Must be 18 or older
                 function ($attribute, $value, $fail) {
-                    $birthday = Carbon::parse($value);
-                    $age = $birthday->age;
-                    
-                    if ($age < 18) {
-                        $fail('You must be at least 18 years old to register. Your age is: ' . $age);
+                    try {
+                        $birthday = Carbon::parse($value);
+                        $age = $birthday->age;
+                        
+                        if ($age < 18) {
+                            $fail('You must be at least 18 years old to register. Your age is: ' . $age);
+                        }
+                    } catch (\Exception $e) {
+                        $fail('Invalid date format for birthday.');
                     }
                 },
             ],
@@ -155,17 +159,18 @@ class RegisteredUserController extends Controller
             Log::info('User created with phone_verified_at: ' . $user->phone_verified_at);
             Log::info('User created successfully with ID: ' . $user->id);
 
-            // If role is tourist and an image was uploaded, save it to public path and store relative path
-            if ($request->role === 'tourist' && $request->hasFile('owner_image')) {
+            // If an image was uploaded, save it to public path and store relative path for all user types
+            if ($request->hasFile('owner_image')) {
                 $file = $request->file('owner_image');
-                $filename = 'tourist_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+                $rolePrefix = $request->role === 'tourist' ? 'tourist' : ($request->role === 'resort_owner' ? 'resort' : 'boat');
+                $filename = $rolePrefix . '_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                 $destination = public_path('images/profiles');
                 if (!is_dir($destination)) {
                     @mkdir($destination, 0775, true);
                 }
                 $file->move($destination, $filename);
                 $user->owner_image_path = 'images/profiles/' . $filename;
-                $user->owner_pic_approved = true; // Tourists don't need approval
+                $user->owner_pic_approved = true; // No approval needed for any user type
                 $user->save();
             }
             

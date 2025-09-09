@@ -44,11 +44,15 @@ class ProfileUpdateRequest extends FormRequest
                 'before_or_equal:' . now()->subYears(18)->format('Y-m-d'), // Must be 18 or older
                 function ($attribute, $value, $fail) {
                     if ($value) {
-                        $birthday = Carbon::parse($value);
-                        $age = $birthday->age;
-                        
-                        if ($age < 18) {
-                            $fail('You must be at least 18 years old. Your age would be: ' . $age);
+                        try {
+                            $birthday = Carbon::parse($value);
+                            $age = $birthday->age;
+                            
+                            if ($age < 18) {
+                                $fail('You must be at least 18 years old. Your age would be: ' . $age);
+                            }
+                        } catch (\Exception $e) {
+                            $fail('Invalid date format for birthday.');
                         }
                     }
                 },

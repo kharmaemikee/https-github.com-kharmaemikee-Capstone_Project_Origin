@@ -3,78 +3,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     </head>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
-        {{-- Desktop Sidebar --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                {{-- Tourist Icon --}}
-                <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                Tourist
-            </h4>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item">
-                    <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        {{-- Home Icon --}}
-                        <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Home
-                    </a>
-                </li>
-                @php
-                    $unreadCount = 0;
-                    try {
-                        if (Auth::check()) {
-                            $unreadCount = \App\Models\TouristNotification::where('user_id', Auth::id())->where('is_read', false)->count();
-                        }
-                    } catch (\Throwable $e) { $unreadCount = 0; }
-                @endphp
-                <li class="nav-item mt-2">
-                    <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        {{-- Your Visit Icon --}}
-                        <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Your Visit
-                        @if($unreadCount > 0)
-                            <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-                &#9776;
-            </button>
-        </div>
-
-        {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Tourist
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Home
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Your Visit
-                            @if(($unreadCount ?? 0) > 0)
-                                <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        @include('tourist.partials.sidebar')
 
         {{-- Main Content Area (Resort Details and Rooms) --}}
         <main class="py-4 px-3 flex-grow-1">
@@ -145,20 +74,28 @@
             <div class="container py-4">
                 <div class="row">
                     <div class="col-md-12">
-                        <h2 class="mb-4">Our Rooms</h2>
+                        <h2 class="mb-3">View Accommodations</h2>
+                        <div class="d-flex gap-2 mb-4">
+                            <a href="{{ request()->fullUrlWithQuery(['show' => 'rooms']) }}" class="btn btn-book-now">View Rooms</a>
+                            <a href="{{ request()->fullUrlWithQuery(['show' => 'cottages']) }}" class="btn btn-outline-secondary">View Cottages</a>
+                        </div>
                         <hr class="mb-4">
                     </div>
                 </div>
 
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                    @forelse ($resort->rooms as $room)
+                    @php
+                        $show = request('show', 'rooms');
+                        $list = $show === 'cottages' ? $resort->rooms->where('accommodation_type','cottage') : $resort->rooms->where('accommodation_type','room');
+                    @endphp
+                    @forelse ($list as $room)
                         <div class="col">
                             {{-- The card itself is no longer the direct modal trigger --}}
                             <div class="card shadow-sm h-100 rounded">
                                 {{-- This new div will be the clickable area for the modal --}}
                                 <div class="room-card-content-clickable"
                                     data-bs-toggle="modal" data-bs-target="#roomDetailsModal"
-                                    data-room-image="{{ asset('storage/' . ($room->image_path ?? 'images/default_room.png')) }}"
+                                    data-room-image="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
                                     data-room-name="{{ $room->room_name }}"
                                     data-room-description="{{ $room->description }}"
                                     data-room-max-guests="{{ $room->max_guests }}"
@@ -178,11 +115,11 @@
                                     data-room-id="{{ $room->id }}" {{-- Pass room ID to the modal trigger --}}
                                     style="cursor: pointer;"> {{-- Add cursor pointer for visual cue --}}
 
-                                    <img src="{{ asset('storage/' . ($room->image_path ?? 'images/default_room.png')) }}"
+                                    <img src="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
                                         class="card-img-top rounded-top"
                                         alt="{{ $room->room_name }}"
                                         style="height: 150px; object-fit: cover;"
-                                        onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                        >
                                     <div class="card-body d-flex flex-column justify-content-between pb-0"> {{-- pb-0 to make space for button --}}
                                         <div>
                                             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -215,7 +152,7 @@
                                             </p>
                                             <p class="card-text text-muted small mb-3">
                                                 {{-- Price Icon --}}
-                                                <i class="bi bi-currency-dollar me-1"></i> Price: ₱{{ number_format($room->price_per_night, 2) }} / Night
+                                                <i class="bi bi-currency-dollar me-1"></i> Price: ₱{{ number_format($room->price_per_night, 2) }} {{ $room->accommodation_type === 'cottage' ? '/ Stay' : '/ Night' }}
                                             </p>
                                             @if($room->description)
                                                 <p class="card-text small room-description-truncated">{{ Str::limit($room->description, 100) }}</p>

@@ -17,7 +17,7 @@
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 active d-flex align-items-center" aria-current="page">
-                        <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                     </a>
                 </li>
@@ -27,35 +27,20 @@
                         Account Management
                     </a>
                 </li>
-                <li class="nav-item mt-2 position-relative">
-                    <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                        data-bs-toggle="collapse" href="#notificationCollapseDesktop" role="button"
-                        aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseDesktop">
-                        <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notification
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
-                            @endif
-                        </span>
-                        <span class="collapse-icon">
-                            <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 24px;">
-                        </span>
+                <li class="nav-item mt-2">
+                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseDesktop">
-                        <ul class="nav flex-column ps-3 mt-2">
-                            <li class="nav-item">
-                                <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                    Notifications List
-                                </a>
-                            </li>
-                            <li class="nav-item mt-1">
-                                <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                    Documentation
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                </li>
+                <li class="nav-item mt-2">
+                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Documentation
+                    </a>
                 </li>
             </ul>
         </div>
@@ -87,7 +72,7 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center active" aria-current="page">
-                                                    <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                                                    <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                         </a>
                     </li>
@@ -97,35 +82,20 @@
                             Account Management
                         </a>
                     </li>
-                    <li class="nav-item mt-2 position-relative">
-                        <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                            data-bs-toggle="collapse" href="#notificationCollapseMobile" role="button"
-                            aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseMobile">
-                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Notification
-                                @if(isset($unreadCount) && $unreadCount > 0)
-                                    <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                                @endif
-                            </span>
-                            <span class="collapse-icon">
-                                <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 24px;">
-                            </span>
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
-                        <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseMobile">
-                            <ul class="nav flex-column ps-3 mt-2">
-                                <li class="nav-item">
-                                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                        Notifications List
-                                    </a>
-                                </li>
-                                <li class="nav-item mt-1">
-                                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                        Documentation
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Documentation
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -164,12 +134,9 @@
                     <div class="row">
                         <div class="col-md-3">
                             @if ($resort->image_path)
-                                {{-- Debug: Show the actual image path --}}
-                                <small class="text-muted d-block mb-1">Path: {{ $resort->image_path }}</small>
-                                <img src="{{ asset('storage/' . $resort->image_path) }}"
+                                <img src="{{ asset($resort->image_path) }}"
                                     alt="{{ $resort->resort_name }}"
-                                    style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px;"
-                                    onerror="handleImageError(this, '{{ asset('images/default_resort.png') }}')">
+                                    style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px;">
                             @else
                                 <img src="{{ asset('images/default_resort.png') }}"
                                     alt="Default Resort Image"
@@ -225,7 +192,7 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="card-title text-dark mb-0">Rooms Management</h5>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('resort.owner.rooms.create', $resort->id) }}" class="btn btn-success btn-sm btn-icon" title="Add New Room">
+                        <a href="{{ route('resort.owner.rooms.create', ['resort' => $resort->id, 'type' => 'room']) }}" class="btn btn-success btn-sm btn-icon" title="Add New Room">
                             <i class="fas fa-plus"></i>
                         </a>
                         <a href="{{ route('resort.owner.rooms.archive.index', $resort->id) }}" class="btn btn-info btn-sm btn-icon" title="View Archived Rooms">
@@ -247,14 +214,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($rooms as $room)
+                                @forelse ($rooms->where('accommodation_type','room') as $room)
                                     <tr>
                                         <td>
                                             @if ($room->image_path)
-                                                <img src="{{ asset('storage/' . $room->image_path) }}"
+                                                <img src="{{ asset($room->image_path) }}"
                                                     alt="{{ $room->room_name }}"
                                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
-                                                    onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                                    >
                                             @else
                                                 <img src="{{ asset('images/default_room.png') }}"
                                                     alt="Default Room Image"
@@ -320,6 +287,114 @@
                                 @empty
                                     <tr>
                                         <td colspan="6" class="text-center">No rooms added for this resort yet. Click "Add Room" to get started!</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            {{-- Cottages Management Section --}}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title text-dark mb-0">Cottages Management</h5>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('resort.owner.rooms.create', ['resort' => $resort->id, 'type' => 'cottage']) }}" class="btn btn-success btn-sm btn-icon" title="Add New Cottage">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                        <a href="{{ route('resort.owner.rooms.archive.index', $resort->id) }}" class="btn btn-info btn-sm btn-icon" title="View Archived Cottages">
+                            <i class="fas fa-archive"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Cottage Name</th>
+                                    <th scope="col">Price / Day</th>
+                                    <th scope="col">Max Guests</th>
+                                    <th scope="col">Availability / Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($rooms->where('accommodation_type','cottage') as $room)
+                                    <tr>
+                                        <td>
+                                            @if ($room->image_path)
+                                                <img src="{{ asset($room->image_path) }}"
+                                                    alt="{{ $room->room_name }}"
+                                                    style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                                                    >
+                                            @else
+                                                <img src="{{ asset('images/default_room.png') }}"
+                                                    alt="Default Cottage Image"
+                                                    style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                            @endif
+                                        </td>
+                                        <td>{{ $room->room_name }}</td>
+                                        <td>₱{{ number_format($room->price_per_night, 2) }}</td>
+                                        <td>{{ $room->max_guests }}</td>
+                                        <td>
+                                            @php
+                                                $availabilityClass = $room->is_available ? 'badge-light-green text-dark' : 'badge-light-red text-dark';
+                                            @endphp
+                                            <span class="badge {{ $availabilityClass }}">
+                                                {{ $room->is_available ? 'Available' : 'Unavailable' }}
+                                            </span>
+                                            @php
+                                                $roomStatusClass = '';
+                                                $roomStatusText = ucfirst($room->status ?? 'Unknown');
+                                                switch ($room->status) {
+                                                    case 'open':
+                                                        $roomStatusClass = 'badge-light-green text-dark';
+                                                        break;
+                                                    case 'closed':
+                                                        $roomStatusClass = 'badge-light-black text-dark';
+                                                        break;
+                                                    case 'maintenance':
+                                                        $roomStatusClass = 'badge-light-yellow text-dark';
+                                                        break;
+                                                    case 'rejected':
+                                                        $roomStatusClass = 'badge-light-red text-dark';
+                                                        break;
+                                                    default:
+                                                        $roomStatusClass = 'badge-light-secondary text-dark';
+                                                        break;
+                                                }
+                                            @endphp
+                                            <span class="badge {{ $roomStatusClass }} ms-1">
+                                                {{ $roomStatusText }}
+                                            </span>
+                                            @if (($room->status ?? '') === 'maintenance' && $room->rehab_reason)
+                                                <div class="text-muted small mt-1">
+                                                    Reason: {{ Str::limit($room->rehab_reason, 50) }}
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ route('resort.owner.rooms.edit', $room->id) }}" class="btn btn-primary btn-sm btn-icon" title="Edit Cottage">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-warning btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#archiveRoomConfirmationModal" data-room-id="{{ $room->id }}" title="Archive Cottage">
+                                                    <i class="fas fa-archive"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#deleteRoomConfirmationModal" data-room-id="{{ $room->id }}" title="Delete Cottage">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center">No cottages added yet. Click "Add Cottage" to get started!</td>
                                     </tr>
                                 @endforelse
                             </tbody>

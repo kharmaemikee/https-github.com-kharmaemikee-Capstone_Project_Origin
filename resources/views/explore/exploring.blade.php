@@ -13,7 +13,7 @@
                         {{-- Added 'hover-effect-card' class to apply the hover animation --}}
                         <div class="card shadow-sm h-100 d-flex flex-column hover-effect-card">
                             @if ($resort->image_path)
-                                <img src="{{ asset('storage/' . $resort->image_path) }}"
+                                <img src="{{ asset($resort->image_path) }}"
                                      class="card-img-top"
                                      alt="{{ $resort->resort_name }}"
                                      style="height: 180px; object-fit: cover;" {{-- Adjusted height for more compact view --}}

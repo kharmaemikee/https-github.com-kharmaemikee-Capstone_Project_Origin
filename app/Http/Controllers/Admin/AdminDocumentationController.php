@@ -195,9 +195,27 @@ class AdminDocumentationController extends Controller
                 $booking->guest_nationality ?? 'N/A',
                 $booking->phone_number ?? 'N/A',
                 ucfirst($booking->tour_type ?? 'N/A'),
-                $booking->day_tour_time_of_pickup ? Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') : 'N/A',
-                $booking->day_tour_departure_time ? Carbon::parse($booking->day_tour_departure_time)->format('H:i') : 'N/A',
-                $booking->overnight_date_time_of_pickup ? Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i') : 'N/A',
+                $booking->day_tour_time_of_pickup ? (function($time) {
+                    try {
+                        return Carbon::parse($time)->format('H:i');
+                    } catch (\Exception $e) {
+                        return $time;
+                    }
+                })($booking->day_tour_time_of_pickup) : 'N/A',
+                $booking->day_tour_departure_time ? (function($time) {
+                    try {
+                        return Carbon::parse($time)->format('H:i');
+                    } catch (\Exception $e) {
+                        return $time;
+                    }
+                })($booking->day_tour_departure_time) : 'N/A',
+                $booking->overnight_date_time_of_pickup ? (function($time) {
+                    try {
+                        return Carbon::parse($time)->format('Y-m-d H:i');
+                    } catch (\Exception $e) {
+                        return $time;
+                    }
+                })($booking->overnight_date_time_of_pickup) : 'N/A',
                 $booking->num_senior_citizens ?? 0,
                 $booking->num_pwds ?? 0,
                 $booking->check_in_date ? $booking->check_in_date->format('Y-m-d') : 'N/A',

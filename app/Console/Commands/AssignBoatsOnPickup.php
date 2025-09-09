@@ -47,7 +47,11 @@ class AssignBoatsOnPickup extends Command
             if ($booking->tour_type === 'day_tour') {
                 // For day tours, check if pickup time has arrived
                 if ($booking->day_tour_time_of_pickup) {
-                    $pickupTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $booking->day_tour_time_of_pickup);
+                    try {
+                        $pickupTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $booking->day_tour_time_of_pickup);
+                    } catch (\Exception $e) {
+                        continue; // Skip this booking if time parsing fails
+                    }
                     $shouldAssign = $now->gte($pickupTime);
                 }
             } else {

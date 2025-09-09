@@ -18,7 +18,7 @@
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                        <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Boat Management
                     </a>
                 </li>
@@ -32,7 +32,10 @@
                 <li class="nav-item mt-2">
                     <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
                         <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Notification
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
                 </li>
             </ul>
@@ -66,7 +69,7 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Management
                         </a>
                     </li>
@@ -80,7 +83,10 @@
                     <li class="nav-item mt-2">
                         <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
                             <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notification
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
                     </li>
                 </ul>

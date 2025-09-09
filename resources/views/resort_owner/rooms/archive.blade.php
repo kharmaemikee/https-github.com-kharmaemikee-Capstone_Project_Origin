@@ -48,10 +48,10 @@
                                     <tr>
                                         <td>
                                             @if ($room->image_path)
-                                                <img src="{{ asset('storage/' . $room->image_path) }}"
+                                                <img src="{{ asset($room->image_path) }}"
                                                     alt="{{ $room->room_name }}"
                                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
-                                                    onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                                    >
                                             @else
                                                 <img src="{{ asset('images/default_room.png') }}"
                                                     alt="Default Room Image"

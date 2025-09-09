@@ -78,10 +78,18 @@ class ResortController extends Controller
         // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if it exists
-            if ($resort->image_path) {
-                Storage::disk('public')->delete($resort->image_path);
+            if ($resort->image_path && file_exists(public_path($resort->image_path))) {
+                @unlink(public_path($resort->image_path));
             }
-            $validatedData['image_path'] = $request->file('image')->store('resort_images', 'public');
+            
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+            $destination = public_path('image');
+            if (!is_dir($destination)) {
+                @mkdir($destination, 0775, true);
+            }
+            $file->move($destination, $filename);
+            $validatedData['image_path'] = 'image/' . $filename;
         }
 
         $resort->update($validatedData);

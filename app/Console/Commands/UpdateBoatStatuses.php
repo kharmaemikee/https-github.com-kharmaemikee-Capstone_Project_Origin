@@ -56,7 +56,11 @@ class UpdateBoatStatuses extends Command
                 if ($currentBooking->tour_type === 'day_tour') {
                     // For day tours, check if departure time has passed
                     if ($currentBooking->day_tour_departure_time) {
-                        $departureTime = Carbon::parse($currentBooking->check_in_date->format('Y-m-d') . ' ' . $currentBooking->day_tour_departure_time);
+                        try {
+                            $departureTime = Carbon::parse($currentBooking->check_in_date->format('Y-m-d') . ' ' . $currentBooking->day_tour_departure_time);
+                        } catch (\Exception $e) {
+                            continue; // Skip this booking if time parsing fails
+                        }
                         $bookingCompleted = $now->gte($departureTime);
                     }
                 } else {

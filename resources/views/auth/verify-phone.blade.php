@@ -116,7 +116,7 @@
         }
 
         .text-success {
-            color: #28a745;
+            color:rgb(247, 15, 15);
             font-size: 0.875em;
             margin-top: 0.25rem;
             text-align: left;
@@ -168,7 +168,7 @@
             </div>
 
             @if (session('status') == 'verification-code-sent')
-                <div class="mb-3 text-success">
+                <div class="mb-3 text-primary">
                     <small><i class="fas fa-check-circle"></i> A new verification code has been generated. Check the database phone_verified_at column for the code.</small>
                 </div>
             @endif

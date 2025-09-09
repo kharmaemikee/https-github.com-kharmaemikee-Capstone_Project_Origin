@@ -19,7 +19,7 @@
                 <li class="nav-item mt-2">
                     @if(auth()->user()->canAccessMainFeatures())
                         <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Resort Management
                         </a>
                     @else
@@ -39,36 +39,22 @@
                         Account Management
                     </a>
                 </li>
-                {{-- Notification with expandable Documentation (Desktop) --}}
-                <li class="nav-item mt-2 position-relative">
-                    <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                       data-bs-toggle="collapse" href="#notificationCollapseDesktop" role="button"
-                       aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseDesktop">
-                        <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notification
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
-                            @endif
-                        </span>
-                        <span class="collapse-icon">
-                            <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                        </span>
+                {{-- Notifications (Desktop) --}}
+                <li class="nav-item mt-2">
+                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseDesktop">
-                        <ul class="nav flex-column ps-3 mt-2">
-                            <li class="nav-item">
-                                <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                    Notifications List
-                                </a>
-                            </li>
-                            <li class="nav-item mt-1">
-                                <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                    Documentation
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                </li>
+                {{-- Documentation (Desktop) --}}
+                <li class="nav-item mt-2">
+                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Documentation
+                    </a>
                 </li>
             </ul>
         </div>
@@ -102,7 +88,7 @@
                     <li class="nav-item mt-2">
                         @if(auth()->user()->canAccessMainFeatures())
                             <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
-                                <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                                 Resort Management
                             </a>
                         @else
@@ -122,36 +108,22 @@
                             Account Management
                         </a>
                     </li>
-                    {{-- Notification with expandable Documentation (Mobile) --}}
-                    <li class="nav-item mt-2 position-relative">
-                        <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                           data-bs-toggle="collapse" href="#notificationCollapseMobile" role="button"
-                           aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseMobile">
-                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Notification
-                                @if(isset($unreadCount) && $unreadCount > 0)
-                                    <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                                @endif
-                            </span>
-                            <span class="collapse-icon">
-                                <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                            </span>
+                    {{-- Notifications (Mobile) --}}
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
-                        <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseMobile">
-                            <ul class="nav flex-column ps-3 mt-2">
-                                <li class="nav-item">
-                                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                        Notifications List
-                                    </a>
-                                </li>
-                                <li class="nav-item mt-1">
-                                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                        Documentation
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                    </li>
+                    {{-- Documentation (Mobile) --}}
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Documentation
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -244,9 +216,39 @@
                                             <td>{{ $booking->guest_nationality ?? '—' }}</td>
                                             <td>{{ $booking->phone_number ?? '—' }}</td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
-                                            <td>{{ $booking->day_tour_time_of_pickup ? (\Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i')) : '—' }}</td>
-                                            <td>{{ $booking->day_tour_departure_time ? (\Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i')) : '—' }}</td>
-                                            <td>{{ $booking->overnight_date_time_of_pickup ? (\Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i')) : '—' }}</td>
+                                            <td>
+                                                @if($booking->day_tour_time_of_pickup)
+                                                    @try
+                                                        {{ \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') }}
+                                                    @catch(\Exception $e)
+                                                        {{ $booking->day_tour_time_of_pickup }}
+                                                    @endtry
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($booking->day_tour_departure_time)
+                                                    @try
+                                                        {{ \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i') }}
+                                                    @catch(\Exception $e)
+                                                        {{ $booking->day_tour_departure_time }}
+                                                    @endtry
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($booking->overnight_date_time_of_pickup)
+                                                    @try
+                                                        {{ \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i') }}
+                                                    @catch(\Exception $e)
+                                                        {{ $booking->overnight_date_time_of_pickup }}
+                                                    @endtry
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
                                             <td>{{ $booking->num_senior_citizens ?? '—' }}</td>
                                             <td>{{ $booking->num_pwds ?? '—' }}</td>
                                             <td>{{ optional($booking->check_in_date)->format('Y-m-d') }}</td>

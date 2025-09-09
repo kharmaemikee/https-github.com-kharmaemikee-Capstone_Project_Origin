@@ -15,13 +15,13 @@
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                     </a>
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Boat Management
                     </a>
                 </li>
@@ -62,13 +62,13 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Resort Management
                         </a>
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Management
                         </a>
                     </li>
@@ -126,7 +126,29 @@
                             <td>{{ $user->last_name }}</td>
                             <td>{{ $user->username }}</td>
                             <td>{{ $user->phone }}</td>
-                            <td>{{ $user->phone_verified_at ? \Carbon\Carbon::parse($user->phone_verified_at)->format('Y-m-d') : 'N/A' }}</td>
+                            <td>
+                                @if($user->phone_verified_at)
+                                    @php
+                                        $phoneVerified = $user->phone_verified_at;
+                                        if (preg_match('/^\d{6}$/', $phoneVerified)) {
+                                            // It's an OTP string (6 digits), display as-is
+                                            echo $phoneVerified;
+                                        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}/', $phoneVerified)) {
+                                            // It's a date string, format it
+                                            echo \Carbon\Carbon::parse($phoneVerified)->format('Y-m-d');
+                                        } else {
+                                            // Try to parse as Carbon, fallback to original value
+                                            try {
+                                                echo \Carbon\Carbon::parse($phoneVerified)->format('Y-m-d');
+                                            } catch (\Exception $e) {
+                                                echo $phoneVerified;
+                                            }
+                                        }
+                                    @endphp
+                                @else
+                                    N/A
+                                @endif
+                            </td>
                             <td>{{ $user->birthday }}</td>
                             <td>{{ $user->gender }}</td>
                             <td>{{ $user->nationality ?? 'N/A' }}</td>
@@ -192,20 +214,7 @@
                              </td>
                              
                              <td class="permitCell" data-type="owner_image">
-                                 @if ($user->owner_pic_approved || $user->role === 'tourist')
-                                     <span class="badge badge-light-success">✔</span>
-                                 @elseif($user->owner_image_path)
-                                     <button class="btn btn-sm btn-primary py-0 px-1 viewPermitBtn"
-                                             data-bs-toggle="modal"
-                                             data-bs-target="#viewPermitModal"
-                                             data-image-url="{{ asset($user->owner_image_path) }}"
-                                             data-user-id="{{ $user->id }}"
-                                             data-document-type="owner_image">
-                                         View
-                                     </button>
-                                 @else
-                                     N/A
-                                 @endif
+                                 N/A
                              </td>
                              
                              {{-- LGU Resolution --}}

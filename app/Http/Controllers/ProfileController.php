@@ -64,6 +64,11 @@ class ProfileController extends Controller
      */
     public function updatePhoto(Request $request): RedirectResponse
     {
+        // Prevent admins from uploading profile pictures
+        if ($request->user()->role === 'admin') {
+            return Redirect::route('profile.edit')->with('status', 'Profile photos are not available for admin accounts.');
+        }
+
         $request->validate([
             'owner_image' => 'required|file|mimes:jpg,jpeg,png|max:2048',
         ]);

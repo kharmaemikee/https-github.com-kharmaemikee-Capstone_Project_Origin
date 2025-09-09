@@ -37,7 +37,7 @@ class NotificationController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\TouristNotification  $notification
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function markTouristNotificationAsRead(Request $request, TouristNotification $notification)
     {
@@ -49,7 +49,11 @@ class NotificationController extends Controller
         $notification->is_read = true;
         $notification->save();
 
-        // Redirect back or to a specific page
+        // Return JSON response if request expects JSON, otherwise redirect back
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
+        }
+
         return back()->with('success', 'Notification marked as read.');
     }
 
@@ -57,7 +61,7 @@ class NotificationController extends Controller
      * Delete a specific tourist notification.
      *
      * @param  \App\Models\TouristNotification  $notification
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function destroyTouristNotification(TouristNotification $notification)
     {
@@ -67,10 +71,72 @@ class NotificationController extends Controller
 
         try {
             $notification->delete();
+            
+            // Return JSON response if request expects JSON, otherwise redirect back
+            if (request()->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Notification deleted successfully.']);
+            }
+            
             return back()->with('success', 'Notification deleted successfully.');
         } catch (\Exception $e) {
             Log::error("Failed to delete tourist notification: " . $e->getMessage());
+            
+            // Return JSON response if request expects JSON, otherwise redirect back
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'Failed to delete notification. Please try again.'], 500);
+            }
+            
             return back()->with('error', 'Failed to delete notification. Please try again.');
+        }
+    }
+
+    /**
+     * Get tourist notifications via AJAX for the notification dropdown.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTouristNotificationsAjax(Request $request)
+    {
+        // Ensure only tourists can access this
+        if (Auth::user()->role !== 'tourist') {
+            return response()->json(['error' => 'Unauthorized access.'], 403);
+        }
+
+        try {
+            // Get notifications for the authenticated tourist, ordered by creation date (newest first)
+            $notifications = TouristNotification::where('user_id', Auth::id())
+                ->with('booking.room') // Eager load booking and room relationships
+                ->orderBy('created_at', 'desc')
+                ->limit(10) // Limit to 10 most recent notifications
+                ->get();
+
+            // Log for debugging
+            Log::info('Tourist notifications count: ' . $notifications->count());
+
+            // Transform the data for JSON response
+            $notificationsData = $notifications->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'message' => $notification->message,
+                    'is_read' => $notification->is_read,
+                    'created_at' => $notification->created_at,
+                    'booking' => $notification->booking ? [
+                        'room_name' => $notification->booking->room->room_name ?? 'N/A Room',
+                        'name_of_resort' => $notification->booking->name_of_resort,
+                        'status' => $notification->booking->status,
+                    ] : null,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'notifications' => $notificationsData,
+                'count' => $notificationsData->count(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to fetch tourist notifications: " . $e->getMessage());
+            return response()->json(['error' => 'Failed to load notifications.', 'message' => $e->getMessage()], 500);
         }
     }
 

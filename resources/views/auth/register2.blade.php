@@ -164,9 +164,9 @@
             cursor: pointer;
         }
 
-        /* Tourist upload visibility */
-        #touristImageGroup {
-            display: none;
+        /* Profile image upload visibility */
+        #profileImageGroup {
+            display: flex;
         }
     </style>
 </head>
@@ -184,7 +184,7 @@
             </div>
         </div>
         <div class="register-card text-center">
-            <h5 class="text-white">Create Account - Step 2</h5>
+            <h5 class="text-white">Create Account</h5>
             <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-2 input-group flex-wrap">
@@ -230,10 +230,10 @@
                     @enderror
                 </div>
 
-                <!-- Tourist Profile Image Upload (shown only if role is 'tourist') -->
-                <div id="touristImageGroup" class="mb-2 input-group flex-wrap">
+                <!-- Profile Image Upload (shown for all user types) -->
+                <div id="profileImageGroup" class="mb-2 input-group flex-wrap">
                     <span class="input-group-text"><i class="fas fa-image"></i></span>
-                    <input type="file" class="form-control" id="tourist_image" name="owner_image" accept="image/jpeg,image/png">
+                    <input type="file" class="form-control" id="profile_image" name="owner_image" accept="image/jpeg,image/png">
                     @error('owner_image')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -258,16 +258,8 @@
             });
         });
 
-        // Toggle tourist image field based on role selection
-        (function () {
-            const roleSelect = document.getElementById('roleSelect');
-            const touristImageGroup = document.getElementById('touristImageGroup');
-            function toggleTouristImage() {
-                touristImageGroup.style.display = roleSelect.value === 'tourist' ? 'flex' : 'none';
-            }
-            toggleTouristImage();
-            roleSelect.addEventListener('change', toggleTouristImage);
-        })();
+        // Profile image upload is now available for all user types
+        // No need to toggle visibility based on role selection
     </script>
 </body>
 </html>

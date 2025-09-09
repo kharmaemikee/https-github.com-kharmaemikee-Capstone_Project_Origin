@@ -14,6 +14,7 @@ class Room extends Model
 
     protected $fillable = [
         'resort_id',
+        'accommodation_type',
         'room_name',
         'description',
         'price_per_night',
@@ -36,6 +37,22 @@ class Room extends Model
         'archived_at' => 'datetime',
         'is_available' => 'boolean',
     ];
+
+    /**
+     * Scope for rooms only.
+     */
+    public function scopeOnlyRooms($query)
+    {
+        return $query->where('accommodation_type', 'room');
+    }
+
+    /**
+     * Scope for cottages only.
+     */
+    public function scopeOnlyCottages($query)
+    {
+        return $query->where('accommodation_type', 'cottage');
+    }
 
     /**
      * Get the resort that owns the room.
@@ -61,7 +78,12 @@ class Room extends Model
     {
         // Convert to Carbon instance if it's a string
         if (is_string($date)) {
-            $date = \Carbon\Carbon::parse($date);
+            try {
+                $date = \Carbon\Carbon::parse($date);
+            } catch (\Exception $e) {
+                // If parsing fails, return false for availability
+                return false;
+            }
         }
 
         // Check if there are any active (non-completed) bookings for this date
@@ -81,7 +103,12 @@ class Room extends Model
     {
         // Convert to Carbon instance if it's a string
         if (is_string($date)) {
-            $date = \Carbon\Carbon::parse($date);
+            try {
+                $date = \Carbon\Carbon::parse($date);
+            } catch (\Exception $e) {
+                // If parsing fails, return false for availability
+                return false;
+            }
         }
 
         return $this->bookings()
@@ -151,10 +178,18 @@ class Room extends Model
 
         // Convert to Carbon instances if they're strings
         if (is_string($checkInDate)) {
-            $checkInDate = \Carbon\Carbon::parse($checkInDate);
+            try {
+                $checkInDate = \Carbon\Carbon::parse($checkInDate);
+            } catch (\Exception $e) {
+                return false; // Return false for availability check
+            }
         }
         if (is_string($checkOutDate)) {
-            $checkOutDate = \Carbon\Carbon::parse($checkOutDate);
+            try {
+                $checkOutDate = \Carbon\Carbon::parse($checkOutDate);
+            } catch (\Exception $e) {
+                return false; // Return false for availability check
+            }
         }
 
         // Check for conflicting bookings
@@ -194,10 +229,18 @@ class Room extends Model
 
         // Convert to Carbon instances if they're strings
         if (is_string($checkInDate)) {
-            $checkInDate = \Carbon\Carbon::parse($checkInDate);
+            try {
+                $checkInDate = \Carbon\Carbon::parse($checkInDate);
+            } catch (\Exception $e) {
+                return false; // Return false for availability check
+            }
         }
         if (is_string($checkOutDate)) {
-            $checkOutDate = \Carbon\Carbon::parse($checkOutDate);
+            try {
+                $checkOutDate = \Carbon\Carbon::parse($checkOutDate);
+            } catch (\Exception $e) {
+                return false; // Return false for availability check
+            }
         }
 
         return $this->bookings()

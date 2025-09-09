@@ -21,7 +21,13 @@
                     <a href="{{ route('boat.owner.rehab') }}" class="nav-link text-white bg-secondary rounded p-2 text-center active">Maintenance</a>
                 </li>
                 <li class="nav-item mt-2">
-                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white bg-secondary rounded p-2 text-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">Notifications List</a>
+                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications List
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
                 </li>
             </ul>
         </div>
@@ -54,7 +60,13 @@
                         <a href="{{ route('boat.owner.rehab') }}" class="nav-link text-white bg-secondary rounded p-2 text-center active">Maintenance</a>
                     </li>
                     <li class="nav-item mt-2">
-                        <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white bg-secondary rounded p-2 text-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">Notifications List</a>
+                        <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications List
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
+                        </a>
                     </li>
                 </ul>
             </div>

@@ -17,13 +17,13 @@
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                     </a>
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Boat Management
                     </a>
                 </li>
@@ -69,13 +69,13 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Resort Information
                         </a>
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Information
                         </a>
                     </li>
@@ -189,9 +189,45 @@
                                             <td>{{ $booking->guest_nationality ?? '—' }}</td>
                                             <td>{{ $booking->phone_number ?? '—' }}</td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
-                                            <td>{{ $booking->day_tour_time_of_pickup ? (\Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i')) : '—' }}</td>
-                                            <td>{{ $booking->day_tour_departure_time ? (\Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i')) : '—' }}</td>
-                                            <td>{{ $booking->overnight_date_time_of_pickup ? (\Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i')) : '—' }}</td>
+                                            <td>
+                                                @if($booking->day_tour_time_of_pickup)
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i');
+                                                        } catch(\Exception $e) {
+                                                            echo $booking->day_tour_time_of_pickup;
+                                                        }
+                                                    @endphp
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($booking->day_tour_departure_time)
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i');
+                                                        } catch(\Exception $e) {
+                                                            echo $booking->day_tour_departure_time;
+                                                        }
+                                                    @endphp
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($booking->overnight_date_time_of_pickup)
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i');
+                                                        } catch(\Exception $e) {
+                                                            echo $booking->overnight_date_time_of_pickup;
+                                                        }
+                                                    @endphp
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
                                             <td>{{ $booking->num_senior_citizens ?? '—' }}</td>
                                             <td>{{ $booking->num_pwds ?? '—' }}</td>
                                             <td>{{ optional($booking->check_in_date)->format('Y-m-d') }}</td>

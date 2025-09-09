@@ -131,14 +131,14 @@
                                 <div id="day_tour_fields" style="display: {{ old('tour_type', $booking->tour_type) == 'day_tour' ? 'block' : 'none' }};">
                                     <div class="mb-3">
                                         <label for="day_tour_departure_time" class="form-label">Departure Time</label>
-                                        <input type="time" class="form-control @error('day_tour_departure_time') is-invalid @enderror" id="day_tour_departure_time" name="day_tour_departure_time" value="{{ old('day_tour_departure_time', $booking->day_tour_departure_time ? \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i') : '') }}">
+                                        <input type="time" class="form-control @error('day_tour_departure_time') is-invalid @enderror" id="day_tour_departure_time" name="day_tour_departure_time" value="{{ old('day_tour_departure_time', $booking->day_tour_departure_time ? (is_numeric($booking->day_tour_departure_time) ? date('H:i', strtotime($booking->day_tour_departure_time)) : \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i')) : '') }}">
                                         @error('day_tour_departure_time')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label for="day_tour_time_of_pickup" class="form-label">Time of Pickup</label>
-                                        <input type="time" class="form-control @error('day_tour_time_of_pickup') is-invalid @enderror" id="day_tour_time_of_pickup" name="day_tour_time_of_pickup" value="{{ old('day_tour_time_of_pickup', $booking->day_tour_time_of_pickup ? \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') : '') }}">
+                                        <input type="time" class="form-control @error('day_tour_time_of_pickup') is-invalid @enderror" id="day_tour_time_of_pickup" name="day_tour_time_of_pickup" value="{{ old('day_tour_time_of_pickup', $booking->day_tour_time_of_pickup ? (is_numeric($booking->day_tour_time_of_pickup) ? date('H:i', strtotime($booking->day_tour_time_of_pickup)) : \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i')) : '') }}">
                                         @error('day_tour_time_of_pickup')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -156,7 +156,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="overnight_date_time_of_pickup" class="form-label">Pickup Date/Time</label>
-                                        <input type="datetime-local" class="form-control @error('overnight_date_time_of_pickup') is-invalid @enderror" id="overnight_date_time_of_pickup" name="overnight_date_time_of_pickup" value="{{ old('overnight_date_time_of_pickup', $booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d\TH:i') : '') }}">
+                                        <input type="datetime-local" class="form-control @error('overnight_date_time_of_pickup') is-invalid @enderror" id="overnight_date_time_of_pickup" name="overnight_date_time_of_pickup" value="{{ old('overnight_date_time_of_pickup', $booking->overnight_date_time_of_pickup ? (is_numeric($booking->overnight_date_time_of_pickup) ? date('Y-m-d\TH:i', strtotime($booking->overnight_date_time_of_pickup)) : \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d\TH:i')) : '') }}">
                                         @error('overnight_date_time_of_pickup')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

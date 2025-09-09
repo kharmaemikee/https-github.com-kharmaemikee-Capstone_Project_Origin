@@ -62,6 +62,7 @@ class RoomController extends Controller
         }
 
         $rules = [
+            'accommodation_type' => ['required', Rule::in(['room', 'cottage'])],
             'room_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price_per_night' => 'required|numeric|min:0',
@@ -82,11 +83,19 @@ class RoomController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('room_image')) {
-            $imagePath = $request->file('room_image')->store('room_images', 'public');
+            $file = $request->file('room_image');
+            $filename = time() . '_' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+            $destination = public_path('image');
+            if (!is_dir($destination)) {
+                @mkdir($destination, 0775, true);
+            }
+            $file->move($destination, $filename);
+            $imagePath = 'image/' . $filename;
         }
 
         // Create the room associated with this specific resort
         $resort->rooms()->create([
+            'accommodation_type' => $validatedData['accommodation_type'],
             'room_name' => $validatedData['room_name'],
             'description' => $validatedData['description'],
             'price_per_night' => $validatedData['price_per_night'],
@@ -118,7 +127,11 @@ class RoomController extends Controller
 
         // Pass the resort to the view as well, for consistency and navigation
         $resort = $room->resort;
-        return view('resort_owner.rooms.edit', compact('room', 'resort'));
+        // Unread notifications count for sidebar badge
+        $unreadCount = \App\Models\ResortOwnerNotification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+        return view('resort_owner.rooms.edit', compact('room', 'resort', 'unreadCount'));
     }
 
     /**
@@ -136,6 +149,7 @@ class RoomController extends Controller
         }
 
         $rules = [
+            'accommodation_type' => ['required', Rule::in(['room', 'cottage'])],
             'room_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price_per_night' => 'required|numeric|min:0',
@@ -158,18 +172,26 @@ class RoomController extends Controller
         $imagePath = $room->image_path; // Keep existing image path by default
         if ($request->hasFile('room_image')) {
             // Delete old image if exists
-            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
-                Storage::disk('public')->delete($imagePath);
+            if ($imagePath && file_exists(public_path($imagePath))) {
+                @unlink(public_path($imagePath));
             }
-            $imagePath = $request->file('room_image')->store('room_images', 'public');
+            $file = $request->file('room_image');
+            $filename = time() . '_' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+            $destination = public_path('image');
+            if (!is_dir($destination)) {
+                @mkdir($destination, 0775, true);
+            }
+            $file->move($destination, $filename);
+            $imagePath = 'image/' . $filename;
         } elseif ($request->input('delete_image_flag')) { // Specific flag to delete existing image
-            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
-                Storage::disk('public')->delete($imagePath);
+            if ($imagePath && file_exists(public_path($imagePath))) {
+                @unlink(public_path($imagePath));
             }
             $imagePath = null;
         }
 
         $room->update([
+            'accommodation_type' => $validatedData['accommodation_type'],
             'room_name' => $validatedData['room_name'],
             'description' => $validatedData['description'],
             'price_per_night' => $validatedData['price_per_night'],
@@ -201,8 +223,8 @@ class RoomController extends Controller
         $resortId = $room->resort->id; // Get resort ID before deleting the room (for redirect)
 
         // Delete associated image file
-        if ($room->image_path && Storage::disk('public')->exists($room->image_path)) {
-            Storage::disk('public')->delete($room->image_path);
+        if ($room->image_path && file_exists(public_path($room->image_path))) {
+            @unlink(public_path($room->image_path));
         }
 
         $room->delete();

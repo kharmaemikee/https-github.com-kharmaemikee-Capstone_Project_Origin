@@ -18,6 +18,7 @@ use App\Http\Controllers\TouristController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Session;
 use App\Models\User; // Import User model
+use App\Console\Commands\UpdateBookingStatuses;
 use App\Models\Booking; // ADDED: Import the Booking model
 use Carbon\Carbon; // ADDED: Import Carbon for date manipulation
 use Illuminate\Support\Facades\Log; // ADDED: Import Log for debugging
@@ -704,6 +705,10 @@ Route::get('/tourist/visit', [BookingController::class, 'myBookings'])
     ->middleware(['auth'])
     ->name('tourist.visit');
 
+Route::get('/tourist/notifications', function () {
+    return view('tourist.notifications');
+})->middleware(['auth'])->name('tourist.notifications');
+
 
 // These static /tourist/booknow/* routes are problematic for dynamic data.
 Route::get('/tourist/booknow/kuyaboy1', function () {
@@ -756,6 +761,11 @@ Route::put('/tourist/notifications/{notification}/mark-as-read', [NotificationCo
 Route::delete('/tourist/notifications/{notification}', [NotificationController::class, 'destroyTouristNotification'])
     ->middleware(['auth'])
     ->name('tourist.notifications.destroy');
+
+// NEW: Route for AJAX loading of Tourist Notifications
+Route::get('/tourist/notifications/ajax', [NotificationController::class, 'getTouristNotificationsAjax'])
+    ->middleware(['auth'])
+    ->name('tourist.notifications.ajax');
 
 // --- NEW TOURIST BOOKING EDIT/DELETE ROUTES ---
 // Removed 'role:tourist' middleware as per your existing authorization logic in controllers

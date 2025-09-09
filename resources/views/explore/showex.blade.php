@@ -45,18 +45,26 @@
         <div class="container py-4">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="mb-4">Our Rooms</h2>
+                    <h2 class="mb-3">View Accommodations</h2>
+                    <div class="d-flex gap-2 mb-4">
+                        <a href="{{ request()->fullUrlWithQuery(['show' => 'rooms']) }}" class="btn btn-book-now">View Rooms</a>
+                        <a href="{{ request()->fullUrlWithQuery(['show' => 'cottages']) }}" class="btn btn-outline-secondary">View Cottages</a>
+                    </div>
                     <hr class="mb-4">
                 </div>
             </div>
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                @forelse ($resort->rooms as $room)
+                @php
+                    $show = request('show', 'rooms');
+                    $list = $show === 'cottages' ? $resort->rooms->where('accommodation_type','cottage') : $resort->rooms->where('accommodation_type','room');
+                @endphp
+                @forelse ($list as $room)
                     <div class="col">
                         <div class="card shadow-sm h-100 rounded">
                             <div class="room-card-content-clickable"
                                  data-bs-toggle="modal" data-bs-target="#roomDetailsModal"
-                                 data-room-image="{{ asset('storage/' . ($room->image_path ?? 'images/default_room.png')) }}"
+                                 data-room-image="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
                                  data-room-name="{{ $room->room_name }}"
                                  data-room-description="{{ $room->description }}"
                                  data-room-max-guests="{{ $room->max_guests }}"
@@ -75,11 +83,10 @@
                                  data-resort-status="{{ $resort->status ?? '' }}"
                                  data-room-id="{{ $room->id }}"
                                  style="cursor: pointer;">
-                                <img src="{{ asset('storage/' . ($room->image_path ?? 'images/default_room.png')) }}"
+                                <img src="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
                                      class="card-img-top rounded-top"
                                      alt="{{ $room->room_name }}"
-                                     style="height: 150px; object-fit: cover;"
-                                     onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                     style="height: 150px; object-fit: cover;">
 
                                 <div class="card-body d-flex flex-column justify-content-between pb-0">
                                     <div>
@@ -96,7 +103,7 @@
                                             <span class="badge {{ $roomStatusClass }} fs-6 px-3 py-1 rounded-pill">{{ ucfirst($room->status ?? 'Unknown') }}</span>
                                         </div>
                                         <p class="card-text text-muted small mb-1"><i class="bi bi-people-fill me-1"></i> Max Guests: {{ $room->max_guests }}</p>
-                                        <p class="card-text text-muted small mb-3"><i class="bi me-1"></i> Price: ₱{{ number_format($room->price_per_night, 2) }} / Night</p>
+                                        <p class="card-text text-muted small mb-3"><i class="bi me-1"></i> Price: ₱{{ number_format($room->price_per_night, 2) }} {{ $room->accommodation_type === 'cottage' ? '/ Stay' : '/ Night' }}</p>
                                         @if($room->description)
                                             <p class="card-text small room-description-truncated">{{ Str::limit($room->description, 100) }}</p>
                                         @endif

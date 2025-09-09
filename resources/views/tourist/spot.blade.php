@@ -1,63 +1,6 @@
 <x-app-layout>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
-        {{-- Desktop Sidebar --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                {{-- Tourist Icon --}}
-                <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                TOURIST
-            </h4>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item">
-                    <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        {{-- Home Icon --}}
-                        <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Home
-                    </a>
-                </li>
-                <li class="nav-item mt-2">
-                    <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        {{-- Your Visit Icon --}}
-                        <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Your Visit
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-                &#9776;
-            </button>
-        </div>
-
-        {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    TOURIST
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Home
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Your Visit
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        @include('tourist.partials.sidebar')
 
         {{-- Main Content Area (Tourist Spots) --}}
         <div class="container py-5 flex-grow-1">

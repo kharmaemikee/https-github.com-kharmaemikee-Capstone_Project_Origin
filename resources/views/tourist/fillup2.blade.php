@@ -3,75 +3,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     </head>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
-        {{-- Desktop Sidebar (same as fillup.blade.php) --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                Tourist
-            </h4>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item">
-                    <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Home
-                    </a>
-                </li>
-                @php
-                    $unreadCount = 0;
-                    try {
-                        if (Auth::check()) {
-                            $unreadCount = \App\Models\TouristNotification::where('user_id', Auth::id())->where('is_read', false)->count();
-                        }
-                    } catch (\Throwable $e) { $unreadCount = 0; }
-                @endphp
-                <li class="nav-item mt-2">
-                    <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                        <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Your Visit
-                        @if($unreadCount > 0)
-                            <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        {{-- Mobile Offcanvas Toggle Button (same as fillup.blade.php) --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-                &#9776;
-            </button>
-        </div>
-
-        {{-- Mobile Offcanvas Sidebar (same as fillup.blade.php) --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Tourist
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Home
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Your Visit
-                            @if(($unreadCount ?? 0) > 0)
-                                <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        @include('tourist.partials.sidebar')
 
         {{-- Main Content Area for Fill-up Form --}}
         <main class="py-4 px-3 flex-grow-1">
@@ -86,12 +18,27 @@
                         </h5>
                         <p class="mb-2">
                             <strong>Sorry!</strong> This room is no longer available for the selected date 
-                            <strong>{{ \Carbon\Carbon::parse($requestData['reservation_date'])->format('M d, Y') }}</strong>.
+                            <strong>
+                                @php
+                                    try {
+                                        echo \Carbon\Carbon::parse($requestData['reservation_date'])->format('M d, Y');
+                                    } catch(\Exception $e) {
+                                        echo $requestData['reservation_date'];
+                                    }
+                                @endphp
+                            </strong>.
                         </p>
                         <p class="mb-2">
                             <strong>Conflicting Booking:</strong> 
                             Guest: {{ $conflictingBooking->guest_name }} | 
-                            Date: {{ \Carbon\Carbon::parse($conflictingBooking->check_in_date)->format('M d, Y') }}
+                            Date: 
+                            @php
+                                try {
+                                    echo \Carbon\Carbon::parse($conflictingBooking->check_in_date)->format('M d, Y');
+                                } catch(\Exception $e) {
+                                    echo $conflictingBooking->check_in_date;
+                                }
+                            @endphp
                         </p>
                         <hr>
                         <div class="d-flex gap-2">
@@ -150,7 +97,7 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Age</label>
-                                    <input type="number" class="form-control @error('age') is-invalid @enderror" name="age" min="1" value="{{ old('age', $user ? \Carbon\Carbon::parse($user->birthday)->age : '') }}" required>
+                                    <input type="number" class="form-control @error('age') is-invalid @enderror" name="age" min="1" value="{{ old('age', $user ? (function($birthday) { try { return \Carbon\Carbon::parse($birthday)->age; } catch(\Exception $e) { return ''; } })($user->birthday) : '') }}" required>
                                     @error('age')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-3">
@@ -205,18 +152,18 @@
                             {{-- Fields that show for Day Tour --}}
                             <div id="dayTourSpecificFields" style="display: none;">
                                 <div class="mb-3">
-                                    <label for="day_tour_departure_time" class="form-label">Departure Time (Day Tour):</label>
-                                    <input type="time" class="form-control @error('day_tour_departure_time') is-invalid @enderror" id="day_tour_departure_time" name="day_tour_departure_time" value="{{ old('day_tour_departure_time') }}">
-                                    @error('day_tour_departure_time')
+                                    <label for="day_tour_time_of_pickup" class="form-label">Time of Pick-up (Day Tour):</label>
+                                    <input type="time" class="form-control @error('day_tour_time_of_pickup') is-invalid @enderror" id="day_tour_time_of_pickup" name="day_tour_time_of_pickup" value="{{ old('day_tour_time_of_pickup') }}">
+                                    @error('day_tour_time_of_pickup')
                                         <div class="invalid-feedback">
                                             {{ $message }}
                                         </div>
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label for="day_tour_time_of_pickup" class="form-label">Time of Pick-up (Day Tour):</label>
-                                    <input type="time" class="form-control @error('day_tour_time_of_pickup') is-invalid @enderror" id="day_tour_time_of_pickup" name="day_tour_time_of_pickup" value="{{ old('day_tour_time_of_pickup') }}">
-                                    @error('day_tour_time_of_pickup')
+                                    <label for="day_tour_departure_time" class="form-label">Departure Time (Day Tour):</label>
+                                    <input type="time" class="form-control @error('day_tour_departure_time') is-invalid @enderror" id="day_tour_departure_time" name="day_tour_departure_time" value="{{ old('day_tour_departure_time') }}">
+                                    @error('day_tour_departure_time')
                                         <div class="invalid-feedback">
                                             {{ $message }}
                                         </div>

@@ -20,7 +20,7 @@
                 <li class="nav-item mt-2">
                     @if(auth()->user()->canAccessMainFeatures())
                         <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Management
                         </a>
                     @else
@@ -40,31 +40,15 @@
                         Account Management
                     </a>
                 </li>
-                {{-- Notification (Desktop) --}}
+                {{-- Notification Direct Link (Desktop) --}}
                 <li class="nav-item mt-2">
-                    <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('boat.owner.notification')) ? 'active-parent' : '' }}"
-                       data-bs-toggle="collapse" href="#notificationCollapseDesktop" role="button"
-                       aria-expanded="{{ (request()->routeIs('boat.owner.notification')) ? 'true' : 'false' }}" aria-controls="notificationCollapseDesktop">
-                        <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                            Notification
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
-                            @endif
-                        </span>
-                        <span class="collapse-icon">
-                            <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                        </span>
+                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse {{ (request()->routeIs('boat.owner.notification')) ? 'show' : '' }}" id="notificationCollapseDesktop">
-                        <ul class="nav flex-column ps-3 mt-2">
-                            <li class="nav-item">
-                                <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                    Notifications List
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
                 </li>
             </ul>
         </div>
@@ -98,7 +82,7 @@
                     <li class="nav-item mt-2">
                         @if(auth()->user()->canAccessMainFeatures())
                             <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat') ? 'active' : '' }}">
-                                <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                                 Boat Management
                             </a>
                         @else
@@ -118,31 +102,15 @@
                             Account Management
                         </a>
                     </li>
-                    {{-- Notification (Mobile) --}}
+                    {{-- Notification Direct Link (Mobile) --}}
                     <li class="nav-item mt-2">
-                        <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('boat.owner.notification')) ? 'active-parent' : '' }}"
-                           data-bs-toggle="collapse" href="#notificationCollapseMobile" role="button"
-                           aria-expanded="{{ (request()->routeIs('boat.owner.notification')) ? 'true' : 'false' }}" aria-controls="notificationCollapseMobile">
-                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                                Notification
-                                @if(isset($unreadCount) && $unreadCount > 0)
-                                    <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                                @endif
-                            </span>
-                            <span class="collapse-icon">
-                                <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                            </span>
+                        <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
-                        <div class="collapse {{ (request()->routeIs('boat.owner.notification')) ? 'show' : '' }}" id="notificationCollapseMobile">
-                            <ul class="nav flex-column ps-3 mt-2">
-                                <li class="nav-item">
-                                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                        Notifications List
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
                     </li>
                 </ul>
             </div>

@@ -74,9 +74,17 @@ class Booking extends Model
                                 $timeParts = explode(' ', $timeString);
                                 $timeString = end($timeParts); // Get the last part which should be the time
                             }
-                            $departureDateTime = \Carbon\Carbon::parse($this->check_in_date->format('Y-m-d') . ' ' . $timeString);
+                            try {
+                                $departureDateTime = \Carbon\Carbon::parse($this->check_in_date->format('Y-m-d') . ' ' . $timeString);
+                            } catch (\Exception $e) {
+                                return false; // If parsing fails, consider booking not completed
+                            }
                         } else {
-                            $departureDateTime = \Carbon\Carbon::parse($this->day_tour_departure_time);
+                            try {
+                                $departureDateTime = \Carbon\Carbon::parse($this->day_tour_departure_time);
+                            } catch (\Exception $e) {
+                                return false; // If parsing fails, consider booking not completed
+                            }
                         }
                     }
                     // Only mark as completed if departure time has passed AND it's the check-in date

@@ -18,13 +18,13 @@
                 <li class="nav-item mt-2">
                     {{-- Active link for Resort Information --}}
                     <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                     </a>
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Boat Management
                     </a>
                 </li>
@@ -69,13 +69,13 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Resort Management
                         </a>
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information1.png') }}" alt="Boat Information Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Management
                         </a>
                     </li>
@@ -122,11 +122,10 @@
                 <div class="row">
                     <div class="col-md-4 text-center">
                         @if ($resort->image_path)
-                            <img src="{{ asset('storage/' . $resort->image_path) }}"
+                            <img src="{{ asset($resort->image_path) }}"
                                 alt="{{ $resort->resort_name }}"
                                 class="img-fluid rounded shadow-sm"
-                                style="max-height: 250px; object-fit: cover;"
-                                onerror="handleImageError(this, '{{ asset('images/default_resort.png') }}')">
+                                style="max-height: 250px; object-fit: cover;">
                         @else
                             <img src="{{ asset('images/default_resort.png') }}"
                                 alt="Default Resort Image"
@@ -206,11 +205,10 @@
                     <div class="card-body row align-items-center">
                         <div class="col-md-3 text-center">
                             @if ($room->image_path)
-                                <img src="{{ asset('storage/' . $room->image_path) }}"
+                                <img src="{{ asset($room->image_path) }}"
                                     alt="{{ $room->room_name }}"
                                     class="img-fluid rounded"
-                                    style="max-height: 120px; object-fit: cover;"
-                                    onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                    style="max-height: 120px; object-fit: cover;">
                             @else
                                 <img src="{{ asset('images/default_room.png') }}"
                                     alt="Default Room Image"
@@ -221,7 +219,7 @@
                         <div class="col-md-6">
                             <h5>{{ $room->room_name }}</h5>
                             <p class="mb-1">{{ $room->description }}</p>
-                            <p class="mb-1"><strong>Price:</strong> ${{ number_format($room->price_per_night, 2) }} per night</p>
+                            <p class="mb-1"><strong>Price:</strong> ₱{{ number_format($room->price_per_night, 2) }} per night</p>
                             <p class="mb-1"><strong>Max Guests:</strong> {{ $room->max_guests }}</p>
                             {{-- Display Availability --}}
                             <p class="mb-1">

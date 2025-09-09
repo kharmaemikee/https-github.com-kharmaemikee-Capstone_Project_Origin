@@ -18,7 +18,7 @@
                 <li class="nav-item mt-2">
                     {{-- Active class is dynamic based on route --}}
                     <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
-                        <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Resort Management
                     </a>
                 </li>
@@ -28,34 +28,22 @@
                         Account Management
                     </a>
                 </li>
+                {{-- Notifications (Desktop) --}}
                 <li class="nav-item mt-2">
-                    <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                       data-bs-toggle="collapse" href="#notificationCollapseDesktop" role="button"
-                       aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseDesktop">
-                        {{-- Adjusted justify-content-start here --}}
-                        <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notification
-                        </span>
-                        {{-- Replaced triangle with down.png icon --}}
-                        <span class="collapse-icon">
-                            <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                        </span>
+                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseDesktop">
-                        <ul class="nav flex-column ps-3 mt-2">
-                            <li class="nav-item">
-                                <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                    Notifications List
-                                </a>
-                            </li>
-                            <li class="nav-item mt-1">
-                                <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                    Documentation
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                </li>
+                {{-- Documentation (Desktop) --}}
+                <li class="nav-item mt-2">
+                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Documentation
+                    </a>
                 </li>
             </ul>
         </div>
@@ -87,7 +75,7 @@
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Resort Management
                         </a>
                     </li>
@@ -97,34 +85,22 @@
                             Account Management
                         </a>
                     </li>
+                    {{-- Notifications (Mobile) --}}
                     <li class="nav-item mt-2">
-                        <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'active-parent' : '' }}"
-                           data-bs-toggle="collapse" href="#notificationCollapseMobile" role="button"
-                           aria-expanded="{{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'true' : 'false' }}" aria-controls="notificationCollapseMobile">
-                            {{-- Adjusted justify-content-start here --}}
-                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Notification
-                            </span>
-                            {{-- Replaced triangle with down.png icon --}}
-                            <span class="collapse-icon">
-                                <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                            </span>
+                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
-                        <div class="collapse {{ (request()->routeIs('resort.owner.notification') || request()->routeIs('resort.owner.documentation')) ? 'show' : '' }}" id="notificationCollapseMobile">
-                            <ul class="nav flex-column ps-3 mt-2">
-                                <li class="nav-item">
-                                    <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                                        Notifications List
-                                    </a>
-                                </li>
-                                <li class="nav-item mt-1">
-                                    <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                                        Documentation
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                    </li>
+                    {{-- Documentation (Mobile) --}}
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Documentation
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -171,7 +147,7 @@
                             <tr>
                                 <td>
                                     @if ($room->image_path)
-                                        <img src="{{ asset('storage/' . $room->image_path) }}"
+                                        <img src="{{ asset($room->image_path) }}"
                                             alt="{{ $room->room_name }}"
                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
                                             onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">

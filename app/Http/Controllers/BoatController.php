@@ -47,7 +47,13 @@ class BoatController extends Controller
         if (Auth::user()?->role !== 'boat_owner') {
             abort(403, 'Unauthorized action.');
         }
-        return view('boat_owner.addboat'); // Ensure this matches your file name addboat.blade.php
+        
+        // Get unread notifications count for sidebar badge
+        $unreadCount = BoatOwnerNotification::where('user_id', Auth::id())
+                                            ->where('is_read', false)
+                                            ->count();
+        
+        return view('boat_owner.addboat', compact('unreadCount')); // Ensure this matches your file name addboat.blade.php
     }
 
     /**
@@ -122,7 +128,12 @@ class BoatController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('boat_owner.editboat', compact('boat'));
+        // Get unread notifications count for sidebar badge
+        $unreadCount = BoatOwnerNotification::where('user_id', Auth::id())
+                                            ->where('is_read', false)
+                                            ->count();
+
+        return view('boat_owner.editboat', compact('boat', 'unreadCount'));
     }
 
     /**

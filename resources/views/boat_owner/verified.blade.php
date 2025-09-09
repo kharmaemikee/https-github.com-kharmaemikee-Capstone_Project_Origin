@@ -19,7 +19,7 @@
                 <li class="nav-item mt-2">
                     @if(auth()->user()->canAccessMainFeatures())
                         <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Boat Management
                         </a>
                     @else
@@ -40,34 +40,15 @@
                         Account Management
                     </a>
                 </li>
-                {{-- Notification with expandable Documentation (Desktop) --}}
-                <li class="nav-item mt-2 position-relative">
-                    <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('boat.owner.notification')) ? 'active-parent' : '' }}"
-                       data-bs-toggle="collapse" href="#notificationCollapseDesktop" role="button"
-                       aria-expanded="{{ (request()->routeIs('boat.owner.notification')) ? 'true' : 'false' }}" aria-controls="notificationCollapseDesktop">
-                        <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notification
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
-                            @endif
-                        </span>
-                        <span class="collapse-icon">
-                            <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                        </span>
+                {{-- Notification Direct Link (Desktop) --}}
+                <li class="nav-item mt-2">
+                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                        Notifications
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse {{ (request()->routeIs('boat.owner.notification')) ? 'show' : '' }}" id="notificationCollapseDesktop">
-                        <ul class="nav flex-column ps-3 mt-2">
-                            <li class="nav-item">
-                                <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                                    Notifications List
-                                </a>
-                            </li>
-                            <li class="nav-item mt-1">
-                                
-                            </li>
-                        </ul>
-                    </div>
                 </li>
             </ul>
         </div>
@@ -101,7 +82,7 @@
                     <li class="nav-item mt-2">
                         @if(auth()->user()->canAccessMainFeatures())
                             <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                                <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                                 Boat Management
                             </a>
                         @else
@@ -122,34 +103,15 @@
                             Account Management
                         </a>
                     </li>
-                    {{-- Notification with expandable Documentation (Mobile) --}}
-                    <li class="nav-item mt-2 position-relative">
-                        <a class="nav-link text-white rounded p-2 d-flex justify-content-between align-items-center {{ (request()->routeIs('boat.owner.notification')) ? 'active-parent' : '' }}"
-                           data-bs-toggle="collapse" href="#notificationCollapseMobile" role="button"
-                           aria-expanded="{{ (request()->routeIs('boat.owner.notification')) ? 'true' : 'false' }}" aria-controls="notificationCollapseMobile">
-                            <span class="flex-grow-1 d-flex align-items-center justify-content-start">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Notification
-                                @if(isset($unreadCount) && $unreadCount > 0)
-                                    <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                                @endif
-                            </span>
-                            <span class="collapse-icon">
-                                <img src="{{ asset('images/down-chevron.png') }}" alt="Toggle Icon" style="width: 16px; height: 16px;">
-                            </span>
+                    {{-- Notification Direct Link (Mobile) --}}
+                    <li class="nav-item mt-2">
+                        <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
+                            Notifications
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                            @endif
                         </a>
-                        <div class="collapse {{ (request()->routeIs('boat.owner.notification')) ? 'show' : '' }}" id="notificationCollapseMobile">
-                            <ul class="nav flex-column ps-3 mt-2">
-                                <li class="nav-item">
-                                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                                        Notifications List
-                                    </a>
-                                </li>
-                                <li class="nav-item mt-1">
-                                    
-                                </li>
-                            </ul>
-                        </div>
                     </li>
                 </ul>
             </div>
@@ -191,11 +153,11 @@
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fw-bold">BIR Permit</span>
                                                         @if(auth()->user()->bir_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
+                                                            <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->bir_permit_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
+                                                            <span class="badge badge-light-warning">Pending Review</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
+                                                            <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -206,11 +168,11 @@
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fw-bold">DTI Permit</span>
                                                         @if(auth()->user()->dti_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
+                                                            <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->dti_permit_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
+                                                            <span class="badge badge-light-warning">Pending Review</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
+                                                            <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -221,41 +183,27 @@
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fw-bold">Business Permit</span>
                                                         @if(auth()->user()->business_permit_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
+                                                            <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->business_permit_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
+                                                            <span class="badge badge-light-warning">Pending Review</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
+                                                            <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="card mb-3 {{ auth()->user()->owner_pic_approved ? 'border-success' : 'border-warning' }}">
-                                                <div class="card-body p-3">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <span class="fw-bold">Owner Picture</span>
-                                                        @if(auth()->user()->owner_pic_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
-                                                        @elseif(auth()->user()->owner_image_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
-                                                        @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
 
                                             <div class="card mb-3 {{ auth()->user()->lgu_resolution_approved ? 'border-success' : 'border-warning' }}">
                                                 <div class="card-body p-3">
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fw-bold">LGU Resolution</span>
                                                         @if(auth()->user()->lgu_resolution_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
+                                                            <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->lgu_resolution_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
+                                                            <span class="badge badge-light-warning">Pending Review</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
+                                                            <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -266,11 +214,11 @@
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fw-bold">Marina CPC</span>
                                                         @if(auth()->user()->marina_cpc_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
+                                                            <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->marina_cpc_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
+                                                            <span class="badge badge-light-warning">Pending Review</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
+                                                            <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -281,11 +229,11 @@
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fw-bold">Boat Association</span>
                                                         @if(auth()->user()->boat_association_approved)
-                                                            <span class="badge bg-success">✓ Approved</span>
+                                                            <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->boat_association_path)
-                                                            <span class="badge bg-warning">Pending Review</span>
+                                                            <span class="badge badge-light-warning">Pending Review</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Not Submitted</span>
+                                                            <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -296,10 +244,10 @@
                                             <div class="alert alert-success">
                                                 <h6 class="mb-0">🎉 Congratulations! Your account has been fully approved.</h6>
                                             </div>
-                                        @elseif(!auth()->user()->bir_permit_path && !auth()->user()->dti_permit_path && !auth()->user()->business_permit_path && !auth()->user()->owner_image_path && !auth()->user()->lgu_resolution_path && !auth()->user()->marina_cpc_path && !auth()->user()->boat_association_path)
+                                        @elseif(!auth()->user()->bir_permit_path && !auth()->user()->dti_permit_path && !auth()->user()->business_permit_path && !auth()->user()->lgu_resolution_path && !auth()->user()->marina_cpc_path && !auth()->user()->boat_association_path)
                                             <div class="alert alert-info">
                                                 <h6 class="mb-0">👋 Welcome! You can explore your dashboard and access basic features.</h6>
-                                                <small class="mb-0">To unlock Boat Information, please upload your permits (BIR, DTI, Business Permit, Owner Picture, LGU Resolution, Marina CPC, and Boat Association Membership).</small>
+                                                <small class="mb-0">To unlock Boat Information, please upload your permits (BIR, DTI, Business Permit, LGU Resolution, Marina CPC, and Boat Association Membership).</small>
                                             </div>
                                         @else
                                             <div class="alert alert-warning">
@@ -347,16 +295,6 @@
                                                 <small class="form-text text-muted">Upload business permit (JPG, PNG, or PDF)</small>
                                             </div>
 
-                                            <div class="mb-3">
-                                                <label for="owner_image" class="form-label">Owner Picture <span class="text-danger">*</span></label>
-                                                <input type="file" class="form-control @error('owner_image') is-invalid @enderror" 
-                                                       id="owner_image" name="owner_image" accept="image/*"
-                                                       {{ auth()->user()->owner_pic_approved ? 'disabled' : '' }}>
-                                                @error('owner_image')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                                <small class="form-text text-muted">Upload your picture (JPG or PNG)</small>
-                                            </div>
 
                                             <div class="mb-3">
                                                 <label for="lgu_resolution" class="form-label">LGU Resolution <span class="text-danger">*</span></label>
@@ -446,6 +384,25 @@
 
         .text-white-50 {
             color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* Light Badge Styles */
+        .badge-light-success {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+            border: 1px solid #c3e6cb !important;
+        }
+
+        .badge-light-warning {
+            background-color: #fff3cd !important;
+            color: #85640a !important;
+            border: 1px solid #ffeeba !important;
+        }
+
+        .badge-light-secondary {
+            background-color: #e2e3e5 !important;
+            color: #383d41 !important;
+            border: 1px solid #d3d6da !important;
         }
     </style>
 
