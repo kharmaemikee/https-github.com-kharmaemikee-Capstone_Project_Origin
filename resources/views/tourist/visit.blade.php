@@ -9,7 +9,7 @@
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                Tourist
+                Menu
             </h4>
             
             @php
@@ -68,7 +68,7 @@
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Tourist
+                    Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -190,21 +190,21 @@
                                         {{-- Tour Type Specific Times --}}
                                         @if ($booking->tour_type === 'day_tour')
                                             <h6 class="mt-3 mb-2 fw-bold">Day Tour Details:</h6>
-                                            <p class="card-text mb-1"><small>Pickup Time: <strong>
-                                                @php
-                                                    try {
-                                                        echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
-                                                    } catch(\Exception $e) {
-                                                        echo $booking->day_tour_time_of_pickup;
-                                                    }
-                                                @endphp
-                                            </strong></small></p>
                                             <p class="card-text mb-1"><small>Departure Time: <strong>
                                                 @php
                                                     try {
                                                         echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
                                                     } catch(\Exception $e) {
                                                         echo $booking->day_tour_departure_time;
+                                                    }
+                                                @endphp
+                                            </strong></small></p>
+                                            <p class="card-text mb-1"><small>Pickup Time: <strong>
+                                                @php
+                                                    try {
+                                                        echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
+                                                    } catch(\Exception $e) {
+                                                        echo $booking->day_tour_time_of_pickup;
                                                     }
                                                 @endphp
                                             </strong></small></p>

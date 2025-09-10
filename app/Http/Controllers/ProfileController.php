@@ -85,13 +85,8 @@ class ProfileController extends Controller
                 }
                 $file->move($destination, $filename);
                 $user->owner_image_path = 'images/profiles/' . $filename;
-                // Tourists don't need approval; owners' photo change should reset approval status
-                if ($user->role === 'tourist') {
-                    // Tourists: no approval needed, image shows immediately
-                } else {
-                    // Resort/Boat owners: new photo requires admin approval
-                    $user->owner_pic_approved = false;
-                }
+                // Profile photos are automatically approved for all user types
+                $user->owner_pic_approved = true;
                 $user->save();
             }
         } catch (\Throwable $e) {

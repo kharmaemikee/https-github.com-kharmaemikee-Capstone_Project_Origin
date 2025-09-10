@@ -22,7 +22,7 @@
                                 <div class="col-12 @if ($room->image_path) col-md-8 @endif"> {{-- Text takes full width on small, 2/3 on medium+ if image exists --}}
                                     <h5 class="card-title">{{ $room->room_name }}</h5>
                                     <p class="card-text text-muted mb-1">Max Guests: {{ $room->max_guests }}</p>
-                                    <p class="card-text text-muted mb-1">Price: ₱{{ number_format($room->price_per_night, 2) }} / Night</p>
+                                    <p class="card-text text-muted mb-1">Price per Stay: ₱{{ number_format($room->price_per_night, 2) }}</p>
                                     {{-- Displaying description with bullets, ensuring each bullet is on a new line --}}
                                     @if ($room->description)
                                         @php

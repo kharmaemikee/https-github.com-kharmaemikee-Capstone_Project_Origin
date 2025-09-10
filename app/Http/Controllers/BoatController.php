@@ -83,7 +83,14 @@ class BoatController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image_path')) {
-            $imagePath = $request->file('image_path')->store('boat_images', 'public');
+            $file = $request->file('image_path');
+            $filename = 'boat_' . time() . '_' . Auth::id() . '.' . $file->getClientOriginalExtension();
+            $destination = public_path('image');
+            if (!is_dir($destination)) {
+                @mkdir($destination, 0775, true);
+            }
+            $file->move($destination, $filename);
+            $imagePath = 'image/' . $filename;
         }
 
         $boat = Auth::user()->boats()->create([
@@ -172,9 +179,19 @@ class BoatController extends Controller
         if ($request->hasFile('image_path')) {
             // Delete old image if exists
             if ($boat->image_path) {
-                Storage::disk('public')->delete($boat->image_path);
+                $oldImagePath = public_path($boat->image_path);
+                if (file_exists($oldImagePath)) {
+                    @unlink($oldImagePath);
+                }
             }
-            $updateData['image_path'] = $request->file('image_path')->store('boat_images', 'public');
+            $file = $request->file('image_path');
+            $filename = 'boat_' . time() . '_' . Auth::id() . '.' . $file->getClientOriginalExtension();
+            $destination = public_path('image');
+            if (!is_dir($destination)) {
+                @mkdir($destination, 0775, true);
+            }
+            $file->move($destination, $filename);
+            $updateData['image_path'] = 'image/' . $filename;
         }
 
         $boat->update($updateData);

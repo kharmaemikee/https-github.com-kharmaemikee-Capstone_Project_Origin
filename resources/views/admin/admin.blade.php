@@ -6,7 +6,7 @@
             {{-- Icon added here for Admin --}}
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                ADMIN
+                Admin Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item mt-2">
@@ -57,7 +57,7 @@
                 {{-- Icon added here for Admin in mobile sidebar --}}
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    ADMIN
+                    Admin Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -138,7 +138,7 @@
                                         <div class="p-2 rounded-circle d-flex align-items-center justify-content-center" style="background-color: #e6ffe6; width: 48px; height: 48px;">
                                             <img src="{{ asset('images/flag.png') }}" alt="Philippine Flag" style="width: 32px; height: 32px; object-fit: contain;">
                                         </div>
-                                        <h6 class="ms-3 mb-0 text-muted">Total Filipino</h6>
+                                        <h6 class="ms-3 mb-0 text-muted">Local Filipino</h6>
                                     </div>
                                     <div class="text-start">
                                         {{-- Display the actual count passed from the controller --}}
@@ -152,6 +152,44 @@
                     {{-- You can add more boxes here if needed, following the same structure --}}
 
                 </div>
+
+
+                {{-- Tour Type Statistics Bar Graph --}}
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="card shadow rounded-3 border-0">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h5 class="card-title fw-bold text-dark mb-0">Tour Type Statistics</h5>
+                                <p class="text-muted small mb-0">Distribution of day tours vs overnight stays</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <canvas id="tourTypeChart" width="400" height="200"></canvas>
+                                    </div>
+                                    <div class="col-md-4 d-flex flex-column justify-content-center">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="me-3" style="width: 20px; height: 20px; background-color: #3498db; border-radius: 4px;"></div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Day Tours</h6>
+                                                <span class="text-muted small">{{ $dayTourCount ?? 0 }} bookings</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3" style="width: 20px; height: 20px; background-color: #e74c3c; border-radius: 4px;"></div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Overnight Stays</h6>
+                                                <span class="text-muted small">{{ $overnightCount ?? 0 }} bookings</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
@@ -166,7 +204,10 @@
         }
     </style>
 
-    {{-- Custom JavaScript to handle offcanvas hiding --}}
+    {{-- Chart.js CDN --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {{-- Custom JavaScript to handle offcanvas hiding and chart --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- JavaScript for Offcanvas Hiding ---
@@ -186,7 +227,86 @@
                 // Add event listener for window resize
                 window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
-            // --- End JavaScript ---
+            // --- End JavaScript for Offcanvas ---
+
+            // --- JavaScript for Tour Type Chart ---
+            const ctx = document.getElementById('tourTypeChart').getContext('2d');
+            const tourTypeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Day Tours', 'Overnight Stays'],
+                    datasets: [{
+                        label: 'Number of Bookings',
+                        data: [{{ $dayTourCount ?? 0 }}, {{ $overnightCount ?? 0 }}],
+                        backgroundColor: [
+                            '#3498db', // Blue for day tours
+                            '#e74c3c'  // Red for overnight stays
+                        ],
+                        borderColor: [
+                            '#2980b9', // Darker blue border
+                            '#c0392b'  // Darker red border
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false // Hide legend since we have custom legend
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#ddd',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' bookings';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#666',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+            // --- End JavaScript for Chart ---
         });
     </script>
 </x-app-layout>

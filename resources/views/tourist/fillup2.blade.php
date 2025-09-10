@@ -152,18 +152,18 @@
                             {{-- Fields that show for Day Tour --}}
                             <div id="dayTourSpecificFields" style="display: none;">
                                 <div class="mb-3">
-                                    <label for="day_tour_time_of_pickup" class="form-label">Time of Pick-up (Day Tour):</label>
-                                    <input type="time" class="form-control @error('day_tour_time_of_pickup') is-invalid @enderror" id="day_tour_time_of_pickup" name="day_tour_time_of_pickup" value="{{ old('day_tour_time_of_pickup') }}">
-                                    @error('day_tour_time_of_pickup')
+                                    <label for="day_tour_departure_time" class="form-label">Departure Time (Day Tour):</label>
+                                    <input type="time" class="form-control @error('day_tour_departure_time') is-invalid @enderror" id="day_tour_departure_time" name="day_tour_departure_time" value="{{ old('day_tour_departure_time') }}">
+                                    @error('day_tour_departure_time')
                                         <div class="invalid-feedback">
                                             {{ $message }}
                                         </div>
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label for="day_tour_departure_time" class="form-label">Departure Time (Day Tour):</label>
-                                    <input type="time" class="form-control @error('day_tour_departure_time') is-invalid @enderror" id="day_tour_departure_time" name="day_tour_departure_time" value="{{ old('day_tour_departure_time') }}">
-                                    @error('day_tour_departure_time')
+                                    <label for="day_tour_time_of_pickup" class="form-label">Time of Pick-up (Day Tour):</label>
+                                    <input type="time" class="form-control @error('day_tour_time_of_pickup') is-invalid @enderror" id="day_tour_time_of_pickup" name="day_tour_time_of_pickup" value="{{ old('day_tour_time_of_pickup') }}">
+                                    @error('day_tour_time_of_pickup')
                                         <div class="invalid-feedback">
                                             {{ $message }}
                                         </div>

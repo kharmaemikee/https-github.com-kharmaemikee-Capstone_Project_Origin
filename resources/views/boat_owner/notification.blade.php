@@ -7,7 +7,7 @@
             {{-- Icon added here for Boat Owner using <img> --}}
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                {{ Auth::user()->username }}
+                Boat Menu
             </h4>
             <ul class="nav flex-column mt-3">
                
@@ -66,7 +66,7 @@
                 {{-- Icon added here for Boat Owner in mobile sidebar using <img> --}}
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    {{ Auth::user()->username }}
+                    Boat Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -139,6 +139,22 @@
                         @if ($boatOwnerNotifications->isEmpty())
                             <div class="alert alert-info">You have no notifications.</div>
                         @else
+                            {{-- Mark All as Read Button --}}
+                            @php
+                                $unreadCount = $boatOwnerNotifications->where('is_read', false)->count();
+                            @endphp
+                            @if($unreadCount > 0)
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted">{{ $unreadCount }} unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
+                                    <form action="{{ route('boat.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-check-all me-1"></i>Mark All as Read
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                             <div class="list-group">
                                 @foreach ($boatOwnerNotifications as $notification)
                                     <div class="list-group-item list-group-item-action {{ $notification->is_read ? 'text-muted' : 'border-primary' }}" id="notification-{{ $notification->id }}" data-notification-id="{{ $notification->id }}">
@@ -203,21 +219,21 @@
                                             </strong></p>
                                             <p class="mb-1">Tour Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
                                             @if ($notification->booking->tour_type === 'day_tour')
-                                                <p class="mb-1">Pick-up Time: <strong>
-                                                    @php
-                                                        try {
-                                                            echo \Carbon\Carbon::parse($notification->booking->day_tour_time_of_pickup)->format('h:i A');
-                                                        } catch(\Exception $e) {
-                                                            echo $notification->booking->day_tour_time_of_pickup;
-                                                        }
-                                                    @endphp
-                                                </strong></p>
                                                 <p class="mb-1">Departure Time: <strong>
                                                     @php
                                                         try {
                                                             echo \Carbon\Carbon::parse($notification->booking->day_tour_departure_time)->format('h:i A');
                                                         } catch(\Exception $e) {
                                                             echo $notification->booking->day_tour_departure_time;
+                                                        }
+                                                    @endphp
+                                                </strong></p>
+                                                <p class="mb-1">Pick-up Time: <strong>
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($notification->booking->day_tour_time_of_pickup)->format('h:i A');
+                                                        } catch(\Exception $e) {
+                                                            echo $notification->booking->day_tour_time_of_pickup;
                                                         }
                                                     @endphp
                                                 </strong></p>
@@ -276,13 +292,19 @@
                                                 @endif
                                             @endif
                                         @endif
-                                        @unless ($notification->is_read)
-                                            <form action="{{ route('boat.owner.notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline ms-3">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-outline-secondary btn-sm mt-2">Mark as Read</button>
-                                            </form>
-                                        @endunless
+                                        {{-- Action buttons for ALL notifications --}}
+                                        <div class="mt-3 d-flex justify-content-end align-items-center">
+                                            @unless ($notification->is_read)
+                                                <form action="{{ route('boat.owner.notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline me-2">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
+                                                </form>
+                                            @endunless
+                                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteNotificationModal" data-notification-id="{{ $notification->id }}">
+                                                Delete
+                                            </button>
+                                        </div>
 
                                     </div>
                                 @endforeach
@@ -297,6 +319,29 @@
         </div>
     </div>
 
+    {{-- Delete Notification Confirmation Modal --}}
+    <div class="modal fade" id="deleteNotificationModal" tabindex="-1" aria-labelledby="deleteNotificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteNotificationModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this notification? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteNotificationForm" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Permit Resubmit Upload Box if notification is type permit_resubmit --}}
     @if(isset($boatOwnerNotifications))
         <script>
@@ -305,6 +350,17 @@
                     const heading = item.querySelector('h5.mb-1');
                     if (!heading) return;
                 });
+
+                // Delete notification modal handling
+                var deleteNotificationModal = document.getElementById('deleteNotificationModal');
+                if (deleteNotificationModal) {
+                    deleteNotificationModal.addEventListener('show.bs.modal', function (event) {
+                        var button = event.relatedTarget;
+                        var notificationId = button.getAttribute('data-notification-id');
+                        var form = document.getElementById('deleteNotificationForm');
+                        form.action = '/boat-owner/notifications/' + notificationId;
+                    });
+                }
             });
         </script>
     @endif

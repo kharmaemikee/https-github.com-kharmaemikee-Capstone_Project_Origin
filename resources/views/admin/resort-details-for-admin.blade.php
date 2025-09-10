@@ -6,7 +6,7 @@
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                ADMIN
+                Admin Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item mt-2">
@@ -55,7 +55,7 @@
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    ADMIN
+                    Admin Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>

@@ -1,12 +1,15 @@
 <x-app-layout>
-    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+    <!-- Fixed background layer -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100vw 100vh; background-position: 0 0; z-index: -1; margin: 0; padding: 0;"></div>
+    
+    <div class="d-flex flex-column flex-md-row" style="min-height: 100vh; width: 100%; position: relative; z-index: 1; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
             {{-- Icon added here for Resort Owner using <img> --}}
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                {{ Auth::user()->username }}
+                Resorts Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 
@@ -72,7 +75,7 @@
                 {{-- Icon added here for Resort Owner in mobile sidebar using <img> --}}
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    {{ Auth::user()->username }}
+                    Resorts Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -170,6 +173,7 @@
                                 @endif
                             </small>
                             <div class="d-flex gap-2">
+                                <a href="{{ route('resort.owner.documentation.export', request()->query()) }}" class="btn btn-success">Export CSV</a>
                                 <button id="downloadPngBtn" type="button" class="btn btn-primary">Download File</button>
                             </div>
                         </div>
@@ -180,7 +184,7 @@
                                     <tr>
                                         <th>Resort</th>
                                         <th>Room</th>
-                                        <th>Guest (Account)</th>
+                                        <th>Tourist</th>
                                         <th>Name of Guests</th>
                                         <th>Age</th>
                                         <th>Gender</th>
@@ -188,8 +192,8 @@
                                         <th>Nationality</th>
                                         <th>Phone</th>
                                         <th>Tour Type</th>
+                                        <th>Departure Time</th>
                                         <th>Pick-up (Day)</th>
-                                        <th>Departure Time
                                         <th>Pick-up (Overnight)</th>
                                         <th>Seniors</th>
                                         <th>PWDs</th>
@@ -217,34 +221,57 @@
                                             <td>{{ $booking->phone_number ?? '—' }}</td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
                                             <td>
-                                                @if($booking->day_tour_time_of_pickup)
-                                                    @try
-                                                        {{ \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') }}
-                                                    @catch(\Exception $e)
-                                                        {{ $booking->day_tour_time_of_pickup }}
-                                                    @endtry
+                                                @if($booking->day_tour_departure_time)
+                                                    @php
+                                                        try {
+                                                            // Try to parse as time first
+                                                            if (preg_match('/^\d{1,2}:\d{2}$/', $booking->day_tour_departure_time)) {
+                                                                echo \Carbon\Carbon::createFromFormat('H:i', $booking->day_tour_departure_time)->format('H:i');
+                                                            } else {
+                                                                echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i');
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            echo $booking->day_tour_departure_time;
+                                                        }
+                                                    @endphp
                                                 @else
                                                     —
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($booking->day_tour_departure_time)
-                                                    @try
-                                                        {{ \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i') }}
-                                                    @catch(\Exception $e)
-                                                        {{ $booking->day_tour_departure_time }}
-                                                    @endtry
+                                                @if($booking->day_tour_time_of_pickup)
+                                                    @php
+                                                        try {
+                                                            // Try to parse as time first
+                                                            if (preg_match('/^\d{1,2}:\d{2}$/', $booking->day_tour_time_of_pickup)) {
+                                                                echo \Carbon\Carbon::createFromFormat('H:i', $booking->day_tour_time_of_pickup)->format('H:i');
+                                                            } else {
+                                                                echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i');
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            echo $booking->day_tour_time_of_pickup;
+                                                        }
+                                                    @endphp
                                                 @else
                                                     —
                                                 @endif
                                             </td>
                                             <td>
                                                 @if($booking->overnight_date_time_of_pickup)
-                                                    @try
-                                                        {{ \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i') }}
-                                                    @catch(\Exception $e)
-                                                        {{ $booking->overnight_date_time_of_pickup }}
-                                                    @endtry
+                                                    @php
+                                                        try {
+                                                            // Try to parse as datetime first
+                                                            if (preg_match('/^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}$/', $booking->overnight_date_time_of_pickup)) {
+                                                                echo \Carbon\Carbon::createFromFormat('Y-m-d H:i', $booking->overnight_date_time_of_pickup)->format('Y-m-d H:i');
+                                                            } elseif (preg_match('/^\d{1,2}:\d{2}$/', $booking->overnight_date_time_of_pickup)) {
+                                                                echo \Carbon\Carbon::createFromFormat('H:i', $booking->overnight_date_time_of_pickup)->format('H:i');
+                                                            } else {
+                                                                echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i');
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            echo $booking->overnight_date_time_of_pickup;
+                                                        }
+                                                    @endphp
                                                 @else
                                                     —
                                                 @endif

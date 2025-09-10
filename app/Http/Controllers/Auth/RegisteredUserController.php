@@ -159,8 +159,8 @@ class RegisteredUserController extends Controller
             Log::info('User created with phone_verified_at: ' . $user->phone_verified_at);
             Log::info('User created successfully with ID: ' . $user->id);
 
-            // If an image was uploaded, save it to public path and store relative path for all user types
-            if ($request->hasFile('owner_image')) {
+            // If an image was uploaded, save it to public path and store relative path for all user types (except admin)
+            if ($request->hasFile('owner_image') && $request->role !== 'admin') {
                 $file = $request->file('owner_image');
                 $rolePrefix = $request->role === 'tourist' ? 'tourist' : ($request->role === 'resort_owner' ? 'resort' : 'boat');
                 $filename = $rolePrefix . '_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
@@ -170,7 +170,12 @@ class RegisteredUserController extends Controller
                 }
                 $file->move($destination, $filename);
                 $user->owner_image_path = 'images/profiles/' . $filename;
-                $user->owner_pic_approved = true; // No approval needed for any user type
+                // Only tourists don't need approval; owners need admin approval
+                if ($request->role === 'tourist') {
+                    $user->owner_pic_approved = true; // Tourists: no approval needed
+                } else {
+                    $user->owner_pic_approved = false; // Resort/Boat owners: require admin approval
+                }
                 $user->save();
             }
             

@@ -44,7 +44,18 @@ Route::get('/admin/admin', function () {
     // Updated: Pass totalForeigners and totalFilipinos data to the view
     $totalForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->count();
     $totalFilipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->count();
-    return view('admin.admin', compact('totalForeigners', 'totalFilipinos'));
+    
+    // Add tour type statistics for bar graph
+    $dayTourCount = \App\Models\Booking::where('tour_type', 'day_tour')->where('status', '!=', 'rejected')->count();
+    $overnightCount = \App\Models\Booking::where('tour_type', 'overnight')->where('status', '!=', 'rejected')->count();
+    
+    
+    return view('admin.admin', compact(
+        'totalForeigners', 
+        'totalFilipinos', 
+        'dayTourCount', 
+        'overnightCount'
+    ));
 })->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('admin');
 
 
@@ -335,11 +346,12 @@ Route::get('/resort_owner/verified', function () {
                     $lastUploadedLabel = 'Business Permit';
                 }
                 
-                if ($request->hasFile('owner_image')) {
+                if ($request->hasFile('owner_image') && $user->role !== 'admin') {
                     $file = $request->file('owner_image');
                     $filename = 'owner_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/owner_images'), $filename);
                     $user->owner_image_path = 'images/permits/owner_images/' . $filename;
+                    $user->owner_pic_approved = false; // Owner images require admin approval
                     $lastUploadedLabel = 'Owner Image';
                 }
                 
@@ -383,6 +395,11 @@ Route::put('/resort_owner/bookings/{booking}/reject', [BookingController::class,
 Route::put('/resort_owner/notifications/{notification}/mark-as-read', [BookingController::class, 'markAsRead'])
     ->middleware(['auth'])
     ->name('resort.owner.notifications.markAsRead');
+
+// NEW: Route for marking all Resort Owner Notifications as Read
+Route::put('/resort_owner/notifications/mark-all-as-read', [BookingController::class, 'markAllResortOwnerNotificationsAsRead'])
+    ->middleware(['auth'])
+    ->name('resort.owner.notifications.markAllAsRead');
 
 // NEW: Route for deleting Resort Owner Notifications
 Route::delete('/resort_owner/notifications/{notification}', [BookingController::class, 'destroyResortOwnerNotification'])
@@ -573,11 +590,12 @@ Route::middleware(['auth'])->group(function () {
             $lastUploadedLabel = 'Business Permit';
         }
         
-        if ($request->hasFile('owner_image')) {
+        if ($request->hasFile('owner_image') && $user->role !== 'admin') {
             $file = $request->file('owner_image');
             $filename = 'owner_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/owner_images'), $filename);
             $user->owner_image_path = 'images/permits/owner_images/' . $filename;
+            $user->owner_pic_approved = false; // Owner images require admin approval
             $lastUploadedLabel = 'Owner Image';
         }
         
@@ -627,6 +645,10 @@ Route::middleware(['auth'])->group(function () {
     // NEW: Boat Owner Mark Notification as Read
     Route::put('/boat_owner/notifications/{notification}/mark-as-read', [NotificationController::class, 'markBoatOwnerNotificationAsRead'])
         ->name('boat.owner.notifications.markAsRead');
+
+    // NEW: Boat Owner Mark All Notifications as Read
+    Route::put('/boat_owner/notifications/mark-all-as-read', [NotificationController::class, 'markAllBoatOwnerNotificationsAsRead'])
+        ->name('boat.owner.notifications.markAllAsRead');
 
     // NEW: Route for deleting Boat Owner Notifications - CORRECTED CONTROLLER
     Route::delete('/boat_owner/notifications/{notification}', [NotificationController::class, 'destroyBoatOwnerNotification'])
@@ -757,6 +779,11 @@ Route::put('/tourist/notifications/{notification}/mark-as-read', [NotificationCo
     ->middleware(['auth'])
     ->name('tourist.notifications.markAsRead');
 
+// NEW: Route for marking all Tourist Notifications as Read
+Route::put('/tourist/notifications/mark-all-as-read', [NotificationController::class, 'markAllTouristNotificationsAsRead'])
+    ->middleware(['auth'])
+    ->name('tourist.notifications.markAllAsRead');
+
 // NEW: Route for deleting Tourist Notifications - CORRECTED CONTROLLER
 Route::delete('/tourist/notifications/{notification}', [NotificationController::class, 'destroyTouristNotification'])
     ->middleware(['auth'])
@@ -804,7 +831,18 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
         // Updated: Pass totalForeigners and totalFilipinos data to the view
         $totalForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->count();
         $totalFilipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->count();
-        return view('admin.admin', compact('totalForeigners', 'totalFilipinos'));
+        
+        // Add tour type statistics for bar graph
+        $dayTourCount = \App\Models\Booking::where('tour_type', 'day_tour')->where('status', '!=', 'rejected')->count();
+        $overnightCount = \App\Models\Booking::where('tour_type', 'overnight')->where('status', '!=', 'rejected')->count();
+        
+        
+        return view('admin.admin', compact(
+            'totalForeigners', 
+            'totalFilipinos', 
+            'dayTourCount', 
+            'overnightCount'
+        ));
     })->name('admin.dashboard');
 
     // Resort Management

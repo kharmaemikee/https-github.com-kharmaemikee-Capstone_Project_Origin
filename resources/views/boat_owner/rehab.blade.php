@@ -6,7 +6,7 @@
 
         {{-- Desktop Sidebar --}}
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #A6A6A6;">
-            <h4 class="fw-bold text-white text-center">{{ Auth::user()->username }}</h4>
+            <h4 class="fw-bold text-white text-center">Boat Menu</h4>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item mt-2">
                     <a href="{{ route('boat') }}" class="nav-link text-white bg-secondary rounded p-2 text-center {{ request()->routeIs('boat') ? 'active' : '' }}">Boat Management</a>
@@ -42,7 +42,7 @@
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #A6A6A6; color: white;">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold text-white" id="mobileSidebarLabel">{{ Auth::user()->username }}</h5>
+                <h5 class="offcanvas-title fw-bold text-white" id="mobileSidebarLabel">Boat Menu</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">

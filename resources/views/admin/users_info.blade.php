@@ -1,10 +1,14 @@
 <x-app-layout>
-    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
-        {{-- Desktop Sidebar --}}
+    <!-- Fixed background layer -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100vw 100vh; background-position: 0 0; z-index: -1; margin: 0; padding: 0;"></div>
+    
+    <div class="d-flex flex-column flex-md-row" style="min-height: 100vh; width: 100%; position: relative; z-index: 1; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+
+    {{-- Desktop Sidebar --}}
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                ADMIN
+                Admin Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item mt-2">
@@ -48,7 +52,7 @@
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    ADMIN
+                    Admin Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -214,7 +218,20 @@
                              </td>
                              
                              <td class="permitCell" data-type="owner_image">
-                                 N/A
+                                 @if ($user->owner_pic_approved)
+                                     <span class="badge badge-light-success">✔</span>
+                                 @elseif($user->owner_image_path)
+                                     <button class="btn btn-sm btn-primary py-0 px-1 viewPermitBtn"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#viewPermitModal"
+                                             data-image-url="{{ asset($user->owner_image_path) }}"
+                                             data-user-id="{{ $user->id }}"
+                                             data-document-type="owner_image">
+                                         View
+                                     </button>
+                                 @else
+                                     N/A
+                                 @endif
                              </td>
                              
                              {{-- LGU Resolution --}}

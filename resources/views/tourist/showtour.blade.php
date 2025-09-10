@@ -77,7 +77,7 @@
                         <h2 class="mb-3">View Accommodations</h2>
                         <div class="d-flex gap-2 mb-4">
                             <a href="{{ request()->fullUrlWithQuery(['show' => 'rooms']) }}" class="btn btn-book-now">View Rooms</a>
-                            <a href="{{ request()->fullUrlWithQuery(['show' => 'cottages']) }}" class="btn btn-outline-secondary">View Cottages</a>
+                            <a href="{{ request()->fullUrlWithQuery(['show' => 'cottages']) }}" class="btn btn-book-now">View Cottages</a>
                         </div>
                         <hr class="mb-4">
                     </div>
@@ -152,7 +152,7 @@
                                             </p>
                                             <p class="card-text text-muted small mb-3">
                                                 {{-- Price Icon --}}
-                                                <i class="bi bi-currency-dollar me-1"></i> Price: ₱{{ number_format($room->price_per_night, 2) }} {{ $room->accommodation_type === 'cottage' ? '/ Stay' : '/ Night' }}
+                                                <i class="bi bi-currency-dollar me-1"></i> Price per Stay: ₱{{ number_format($room->price_per_night, 2) }}
                                             </p>
                                             @if($room->description)
                                                 <p class="card-text small room-description-truncated">{{ Str::limit($room->description, 100) }}</p>

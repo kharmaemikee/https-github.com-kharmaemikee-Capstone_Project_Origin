@@ -1,12 +1,15 @@
 <x-app-layout>
-    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+    <!-- Fixed background layer -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100vw 100vh; background-position: 0 0; z-index: -1; margin: 0; padding: 0;"></div>
+    
+    <div class="d-flex flex-column flex-md-row" style="min-height: 100vh; width: 100%; position: relative; z-index: 1; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
             {{-- Icon added here for Admin --}}
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                ADMIN
+                Admin Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item mt-2">
@@ -55,7 +58,7 @@
                 {{-- Icon added here for Admin in mobile sidebar --}}
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    ADMIN
+                    Admin Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -137,7 +140,7 @@
                             </small>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.documentation.export', request()->query()) }}" class="btn btn-success">Export CSV</a>
-                                <button id="downloadPngBtn" type="button" class="btn btn-primary">Download PNG</button>
+                                <button id="downloadPngBtn" type="button" class="btn btn-primary">Download File</button>
                             </div>
                         </div>
 
@@ -156,8 +159,8 @@
                                         <th>Nationality</th>
                                         <th>Phone</th>
                                         <th>Tour Type</th>
-                                        <th>Pick-up (Day)</th>
                                         <th>Departure Time</th>
+                                        <th>Pick-up (Day)</th>
                                         <th>Pick-up (Overnight)</th>
                                         <th>Seniors</th>
                                         <th>PWDs</th>
@@ -190,12 +193,12 @@
                                             <td>{{ $booking->phone_number ?? '—' }}</td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
                                             <td>
-                                                @if($booking->day_tour_time_of_pickup)
+                                                @if($booking->day_tour_departure_time)
                                                     @php
                                                         try {
-                                                            echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i');
+                                                            echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i');
                                                         } catch(\Exception $e) {
-                                                            echo $booking->day_tour_time_of_pickup;
+                                                            echo $booking->day_tour_departure_time;
                                                         }
                                                     @endphp
                                                 @else
@@ -203,12 +206,12 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($booking->day_tour_departure_time)
+                                                @if($booking->day_tour_time_of_pickup)
                                                     @php
                                                         try {
-                                                            echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i');
+                                                            echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i');
                                                         } catch(\Exception $e) {
-                                                            echo $booking->day_tour_departure_time;
+                                                            echo $booking->day_tour_time_of_pickup;
                                                         }
                                                     @endphp
                                                 @else
@@ -249,7 +252,92 @@
 
                         @if(empty($showAll) || !$showAll)
                             <div class="mt-3">
-                                {{ $bookings->links() }}
+                                @if ($bookings->hasPages())
+                                    <nav class="d-flex justify-content-center">
+                                        <div class="d-flex justify-content-center flex-fill d-sm-none">
+                                            <ul class="pagination">
+                                                {{-- Previous Page Link --}}
+                                                @if ($bookings->onFirstPage())
+                                                    <li class="page-item disabled" aria-disabled="true">
+                                                        <span class="page-link">@lang('pagination.previous')</span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ $bookings->previousPageUrl() }}" rel="prev">@lang('pagination.previous')</a>
+                                                    </li>
+                                                @endif
+
+                                                {{-- Next Page Link --}}
+                                                @if ($bookings->hasMorePages())
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ $bookings->nextPageUrl() }}" rel="next">@lang('pagination.next')</a>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item disabled" aria-disabled="true">
+                                                        <span class="page-link">@lang('pagination.next')</span>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
+
+                                        <div class="d-none d-sm-flex flex-column align-items-center">
+                                            <div class="mb-2">
+                                                <p class="small text-muted mb-0">
+                                                    {!! __('Showing') !!}
+                                                    <span class="fw-semibold">{{ $bookings->firstItem() }}</span>
+                                                    {!! __('to') !!}
+                                                    <span class="fw-semibold">{{ $bookings->lastItem() }}</span>
+                                                    {!! __('of') !!}
+                                                    <span class="fw-semibold">{{ $bookings->total() }}</span>
+                                                    {!! __('results') !!}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <ul class="pagination">
+                                                    {{-- Previous Page Link --}}
+                                                    @if ($bookings->onFirstPage())
+                                                        <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
+                                                            <span class="page-link" aria-hidden="true">
+                                                                <i class="fas fa-chevron-left" style="font-size: 14px; width: 14px; height: 14px; display: inline-block; text-align: center;"></i>
+                                                            </span>
+                                                        </li>
+                                                    @else
+                                                        <li class="page-item">
+                                                            <a class="page-link" href="{{ $bookings->previousPageUrl() }}" rel="prev" aria-label="@lang('pagination.previous')">
+                                                                <i class="fas fa-chevron-left" style="font-size: 14px; width: 14px; height: 14px; display: inline-block; text-align: center;"></i>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+
+                                                    {{-- Pagination Elements --}}
+                                                    @foreach ($bookings->getUrlRange(1, $bookings->lastPage()) as $page => $url)
+                                                        @if ($page == $bookings->currentPage())
+                                                            <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
+                                                        @else
+                                                            <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                                                        @endif
+                                                    @endforeach
+
+                                                    {{-- Next Page Link --}}
+                                                    @if ($bookings->hasMorePages())
+                                                        <li class="page-item">
+                                                            <a class="page-link" href="{{ $bookings->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">
+                                                                <i class="fas fa-chevron-right" style="font-size: 14px; width: 14px; height: 14px; display: inline-block; text-align: center;"></i>
+                                                            </a>
+                                                        </li>
+                                                    @else
+                                                        <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
+                                                            <span class="page-link" aria-hidden="true">
+                                                                <i class="fas fa-chevron-right" style="font-size: 14px; width: 14px; height: 14px; display: inline-block; text-align: center;"></i>
+                                                            </span>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </nav>
+                                @endif
                             </div>
                         @endif
                     </div>
@@ -305,6 +393,51 @@
         .compact-table table th { white-space: normal; }
         .compact-table .table { margin-bottom: 0; }
         .compact-table .badge { font-size: 9px; padding: 2px 6px; }
+
+        /* Custom pagination styles matching vendor design */
+        .pagination {
+            margin-bottom: 0;
+        }
+        
+        .pagination .page-link {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.25;
+            color: #6c757d;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            margin: 0 0.125rem;
+        }
+        
+        .pagination .page-link:hover {
+            color: #495057;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .pagination .page-item.active .page-link {
+            color: #fff;
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            background-color: #fff;
+            border-color: #dee2e6;
+            opacity: 0.5;
+        }
+        
+        .pagination .page-item:first-child .page-link {
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .pagination .page-item:last-child .page-link {
+            border-top-right-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+        }
     </style>
 
     {{-- html2canvas for PNG export (client-side only) --}}

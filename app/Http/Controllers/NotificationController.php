@@ -214,4 +214,54 @@ class NotificationController extends Controller
             return response()->json(['error' => 'Failed to delete notification. Please try again.'], 500);
         }
     }
+
+    /**
+     * Mark all tourist notifications as read.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markAllTouristNotificationsAsRead(Request $request)
+    {
+        // Ensure only tourists can access this
+        if (Auth::user()->role !== 'tourist') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        try {
+            TouristNotification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            return redirect()->back()->with('success', 'All notifications marked as read.');
+        } catch (\Exception $e) {
+            Log::error("Failed to mark all tourist notifications as read: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to mark all notifications as read. Please try again.');
+        }
+    }
+
+    /**
+     * Mark all boat owner notifications as read.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markAllBoatOwnerNotificationsAsRead(Request $request)
+    {
+        // Ensure only boat owners can access this
+        if (Auth::user()->role !== 'boat_owner') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        try {
+            BoatOwnerNotification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            return redirect()->back()->with('success', 'All notifications marked as read.');
+        } catch (\Exception $e) {
+            Log::error("Failed to mark all boat owner notifications as read: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to mark all notifications as read. Please try again.');
+        }
+    }
 }

@@ -104,11 +104,6 @@ class DocumentationController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        if (!class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-            return redirect()->route('resort.owner.documentation', $request->query())
-                ->with('error', 'PDF export is unavailable. Please install barryvdh/laravel-dompdf.');
-        }
-
         $search = trim((string) $request->input('search'));
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');

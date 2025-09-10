@@ -6,7 +6,7 @@
             {{-- Icon added here for Boat Owner using <img> --}}
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                {{ Auth::user()->username }}
+                Boat Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 
@@ -66,7 +66,7 @@
                 {{-- Icon added here for Boat Owner in mobile sidebar using <img> --}}
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    {{ Auth::user()->username }}
+                    Boat Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>

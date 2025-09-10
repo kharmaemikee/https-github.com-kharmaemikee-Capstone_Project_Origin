@@ -583,8 +583,8 @@ class BookingController extends Controller
                 $foundBoat->load('user');
             }
             
-            $booking->boat_captain_crew = $foundBoat->user->name ?? 'N/A';
-            $booking->boat_contact_number = $foundBoat->user->phone ?? 'N/A';
+            $booking->boat_captain_crew = $foundBoat->captain_name ?? 'N/A';
+            $booking->boat_contact_number = $foundBoat->captain_contact ?? 'N/A';
             $booking->save();
 
             // DON'T mark the boat as assigned yet - this will happen on pickup day/time
@@ -706,6 +706,29 @@ class BookingController extends Controller
         }
 
         return back()->with('success', 'Notification marked as read.');
+    }
+
+    /**
+     * Mark all resort owner notifications as read.
+     * Accessible by PUT /resort_owner/notifications/mark-all-as-read
+     */
+    public function markAllResortOwnerNotificationsAsRead()
+    {
+        // Ensure only resort owners can access this
+        if (!Auth::check() || Auth::user()->role !== 'resort_owner') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        try {
+            ResortOwnerNotification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            return redirect()->back()->with('success', 'All notifications marked as read.');
+        } catch (\Exception $e) {
+            Log::error("Failed to mark all resort owner notifications as read: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to mark all notifications as read. Please try again.');
+        }
     }
 
     /**

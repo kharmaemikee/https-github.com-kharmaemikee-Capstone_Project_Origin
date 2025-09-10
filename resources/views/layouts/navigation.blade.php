@@ -29,7 +29,13 @@
             
             <div class="dropdown d-inline-block">
                 @auth
-                    @if(Auth::user()->owner_image_path)
+                    @if(Auth::user()->role === 'admin')
+                        {{-- Admin: Show only name without image --}}
+                        <button class="btn btn-light border-0 d-flex align-items-center" type="button" id="mobileMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 5px;">
+                            <span class="me-2 text-primary fw-bold">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
+                            <i class="fas fa-chevron-down text-primary"></i>
+                        </button>
+                    @elseif(Auth::user()->owner_image_path)
                         {{-- Show image for owners (approved only) or tourist (no approval needed) --}}
                         <button class="btn btn-light border-0" type="button" id="mobileMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 5px;">
                             <img src="{{ asset(Auth::user()->owner_image_path) }}" 
@@ -57,10 +63,14 @@
                     </button>
                 @endauth
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileMenuButton">
-                    <li></li>
+                    <li>
                         <h6 class="dropdown-header">
                             @auth
-                                {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}
+                                @if(Auth::user()->role === 'admin')
+                                    Admin: {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}
+                                @else
+                                    {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}
+                                @endif
                             @else
                                 Guest
                             @endauth
@@ -87,7 +97,13 @@
         <div class="d-none d-md-block ms-auto desktop-nav-container">
             <div class="dropdown d-inline-block">
                 @auth
-                @if(Auth::user()->owner_image_path)
+                    @if(Auth::user()->role === 'admin')
+                        {{-- Admin: Show only name without image --}}
+                        <a href="#" class="text-decoration-none d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 5px;">
+                            <span class="me-2 text-primary fw-bold">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
+                            <i class="fas fa-chevron-down text-primary"></i>
+                        </a>
+                    @elseif(Auth::user()->owner_image_path)
                         {{-- Show image only for owners (approved only) or tourist (no approval needed) --}}
                         <a href="#" class="text-decoration-none d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 5px;">
                         <span class="me-2 text-primary">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
@@ -100,7 +116,7 @@
                             <i class="fas fa-user"></i>
                         </div>
                     </a>
-                @else
+                    @else
                         {{-- Show default icon for other users or unapproved images --}}
                         <a href="#" class="text-decoration-none d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 5px;">
                             <span class="me-2 text-primary">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
@@ -108,7 +124,7 @@
                                 <i class="fas fa-user"></i>
                             </div>
                     </a>
-                @endif
+                    @endif
             @else
                     <a href="#" class="text-decoration-none d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 5px;">
                         <span class="me-2 text-primary">Guest</span>
@@ -119,21 +135,39 @@
             @endauth
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                 @auth
-                    @if(in_array(Auth::user()->role, ['resort_owner', 'boat_owner', 'tourist']))
+                    @if(Auth::user()->role === 'admin')
+                        {{-- Admin dropdown: Include profile option --}}
                         <li>
                             <h6 class="dropdown-header text-primary">
-                                Hi {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}!
+                               Hi {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}!
                             </h6>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="dropdown-item" type="submit">Log Out</button>
+                            </form>
+                        </li>
+                    @else
+                        {{-- Other users dropdown: Include profile option --}}
+                        @if(in_array(Auth::user()->role, ['resort_owner', 'boat_owner', 'tourist']))
+                            <li>
+                                <h6 class="dropdown-header text-primary">
+                                    Hi {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}!
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        @endif
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="dropdown-item" type="submit">Log Out</button>
+                            </form>
+                        </li>
                     @endif
-                    <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button class="dropdown-item" type="submit">Log Out</button>
-                        </form>
-                    </li>
                 @else
                     <li><a class="dropdown-item" href="{{ route('login') }}">Login</a></li>
                     <li><a class="dropdown-item" href="{{ route('register') }}">Register</a></li>

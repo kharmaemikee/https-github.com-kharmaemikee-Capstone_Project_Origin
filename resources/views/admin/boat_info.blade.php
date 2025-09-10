@@ -6,7 +6,7 @@
             {{-- Icon added here for Admin --}}
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                ADMIN
+                Admin Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item mt-2">
@@ -56,7 +56,7 @@
                 {{-- Icon added here for Admin in mobile sidebar --}}
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    ADMIN
+                    Admin Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -142,7 +142,7 @@
                             <tr>
                                 <td>
                                     @if ($boat->image_path)
-                                        <img src="{{ asset('storage/' . $boat->image_path) }}"
+                                        <img src="{{ asset($boat->image_path) }}"
                                              alt="{{ $boat->boat_name }}"
                                              style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
                                              onerror="handleImageError(this, '{{ asset('images/default_boat.png') }}')">
@@ -158,7 +158,16 @@
                                 <td>{{ $boat->boat_capacities }} pax</td>
                                 <td>{{ $boat->captain_name ?? 'N/A' }}</td>
                                 <td>{{ $boat->captain_contact ?? 'N/A' }}</td>
-                                <td>{{ $boat->user->name ?? 'N/A' }}</td>
+                                <td>
+                                    @if($boat->user)
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{ $boat->user->first_name }} {{ $boat->user->last_name }}</span>
+                                            <small class="text-muted">{{ $boat->user->email }}</small>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @php
                                         $badgeClass = '';

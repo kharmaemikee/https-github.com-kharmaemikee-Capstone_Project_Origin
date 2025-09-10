@@ -11,7 +11,7 @@
         <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
             <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
                 <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                {{ Auth::user()->username }}
+                Resorts Menu
             </h4>
             <ul class="nav flex-column mt-3">
                 {{-- Dashboard Nav Item --}}
@@ -84,7 +84,7 @@
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
                     <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    {{ Auth::user()->username }}
+                    Resorts Menu
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -182,6 +182,22 @@
             @if ($resortOwnerNotifications->isEmpty())
                 <div class="alert alert-info">You have no notifications.</div>
             @else
+                {{-- Mark All as Read Button --}}
+                @php
+                    $unreadCount = $resortOwnerNotifications->where('is_read', false)->count();
+                @endphp
+                @if($unreadCount > 0)
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">{{ $unreadCount }} unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
+                        <form action="{{ route('resort.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-check-all me-1"></i>Mark All as Read
+                            </button>
+                        </form>
+                    </div>
+                @endif
                 <div class="list-group">
                     @foreach ($resortOwnerNotifications as $notification)
                         <div class="list-group-item list-group-item-action {{ $notification->is_read ? 'text-muted' : 'border-primary' }}" data-notification-id="{{ $notification->id }}">
@@ -308,6 +324,11 @@
                                         $assignedBoatName = $notification->booking->assigned_boat ?? ($notification->booking->assignedBoat->boat_name ?? null);
                                         $captainName = $notification->booking->boat_captain_crew
                                             ?? ($notification->booking->assignedBoat->captain_name ?? null);
+                                        
+                                        // If captain name is still N/A or empty, try to get it from the boat
+                                        if (empty($captainName) || $captainName === 'N/A') {
+                                            $captainName = $notification->booking->assignedBoat->captain_name ?? 'N/A';
+                                        }
                                         $captainContact = $notification->booking->boat_contact_number ?? ($notification->booking->assignedBoat->captain_contact ?? null);
                                         $boatPrice = 0;
                                         if ($notification->booking->assignedBoat) {
@@ -429,7 +450,9 @@
                                         <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
                                     </form>
                                 @endunless
-
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteNotificationModal" data-notification-id="{{ $notification->id }}">
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     @endforeach
@@ -445,7 +468,28 @@
         </div>
     </div>
 
-
+    {{-- Delete Notification Confirmation Modal --}}
+    <div class="modal fade" id="deleteNotificationModal" tabindex="-1" aria-labelledby="deleteNotificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteNotificationModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this notification? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteNotificationForm" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <style>
         /* Custom CSS for sidebar nav-link hover and focus */
@@ -646,6 +690,17 @@
                     }
                 });
             });
+
+            // Delete notification modal handling
+            var deleteNotificationModal = document.getElementById('deleteNotificationModal');
+            if (deleteNotificationModal) {
+                deleteNotificationModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var notificationId = button.getAttribute('data-notification-id');
+                    var form = document.getElementById('deleteNotificationForm');
+                    form.action = '/resort-owner/notifications/' + notificationId;
+                });
+            }
         });
     </script>
 </x-app-layout>

@@ -58,6 +58,22 @@
             @if ($notifications->isEmpty())
                 <div class="alert alert-info">You have no notifications.</div>
             @else
+                {{-- Mark All as Read Button --}}
+                @php
+                    $unreadCount = $notifications->where('is_read', false)->count();
+                @endphp
+                @if($unreadCount > 0)
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">{{ $unreadCount }} unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
+                        <form action="{{ route('tourist.notifications.markAllAsRead') }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-check-all me-1"></i>Mark All as Read
+                            </button>
+                        </form>
+                    </div>
+                @endif
                 <div class="list-group">
                     @foreach ($notifications as $notification)
                         <div class="list-group-item list-group-item-action {{ $notification->is_read ? 'text-muted' : 'border-primary' }}" data-notification-id="{{ $notification->id }}">
@@ -71,8 +87,8 @@
                                 @php
                                     // Get boat information from assignedBoat relationship or direct fields
                                     $assignedBoatName = $notification->booking->assigned_boat ?? ($notification->booking->assignedBoat->boat_name ?? null);
-                                    $captainName = $notification->booking->boat_captain_crew ?? ($notification->booking->assignedBoat->captain_name ?? null);
-                                    $captainContact = $notification->booking->boat_contact_number ?? ($notification->booking->assignedBoat->captain_contact ?? null);
+                                    $captainName = $notification->booking->captain_name?? ($notification->booking->assignedBoat->captain_name ?? null);
+                                    $captainContact = $notification->booking->captain_contact ?? ($notification->booking->assignedBoat->captain_contact ?? null);
                                     $boatContact = null;
                                     if ($notification->booking->assignedBoat && $notification->booking->assignedBoat->user) {
                                         $boatContact = $notification->booking->assignedBoat->user->phone ?? null;
