@@ -2,6 +2,7 @@
     <head>
         {{-- Bootstrap Icons CDN --}}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icon.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <meta name="csrf-token" content="{{ csrf_token() }}">
     </head>
 
@@ -189,7 +190,7 @@
                 @if($unreadCount > 0)
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted">{{ $unreadCount }} unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
-                        <form action="{{ route('resort.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline">
+                        <form action="{{ route('resort.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline markAllAsReadForm">
                             @csrf
                             @method('PUT')
                             <button type="submit" class="btn btn-outline-primary btn-sm">
@@ -555,6 +556,9 @@
         }
     </style>
 
+    {{-- SweetAlert2 CDN --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     {{-- Custom JavaScript to handle arrow rotation and mobile sidebar behavior --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -630,9 +634,10 @@
                 }
             }
 
-            // Handle Mark as Read form submissions
+            // Handle Mark as Read (AJAX + SweetAlert2)
             document.addEventListener('submit', function(e) {
-                if (e.target.action && e.target.action.includes('markAsRead')) {
+                if (e.target.action && e.target.action.includes('mark-as-read')) {
+                    console.log('Intercepting markAsRead form submission');
                     e.preventDefault();
                     
                     fetch(e.target.action, {
@@ -643,9 +648,17 @@
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Response received:', response);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Data received:', data);
                         if (data.success) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ title: 'Notification Mark as Read', icon: 'success', draggable: true });
+                            }
+                            
                             // Update the notification item to show as read
                             var notificationItem = e.target.closest('.list-group-item');
                             if (notificationItem) {
@@ -671,10 +684,93 @@
                 }
             });
 
+            // Handle Mark All as Read form submission
+            document.addEventListener('submit', function(e) {
+                if (e.target.classList.contains('markAllAsReadForm')) {
+                    e.preventDefault();
+                    
+                    fetch(e.target.action, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show SweetAlert2 success message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    title: "All notifications marked as read!",
+                                    icon: "success",
+                                    draggable: true
+                                });
+                            } else {
+                                console.error('SweetAlert2 is not loaded');
+                                alert('All notifications marked as read!');
+                            }
+                            
+                            // Reload the page to update all notifications
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error marking all notifications as read:', error);
+                        // Fallback to normal form submission
+                        e.target.submit();
+                    });
+                }
+            });
+
 
 
             // --- End NEW JavaScript for notification count updates ---
 
+            // Handle delete notification form submission
+            document.getElementById('deleteNotificationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                fetch(this.action, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: "You deleted successfully!",
+                                icon: "success",
+                                draggable: true
+                            });
+                        }
+                        
+                        // Close the modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteNotificationModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        
+                        // Reload the page to update the notifications list
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting notification:', error);
+                    // Fallback to normal form submission
+                    this.submit();
+                });
+            });
 
             // Disable upload button and show thank-you message after resubmit
             document.querySelectorAll('.permit-resubmit-form').forEach(function(form){
@@ -698,7 +794,7 @@
                     var button = event.relatedTarget;
                     var notificationId = button.getAttribute('data-notification-id');
                     var form = document.getElementById('deleteNotificationForm');
-                    form.action = '/resort-owner/notifications/' + notificationId;
+                    form.action = '/resort_owner/notifications/' + notificationId;
                 });
             }
         });

@@ -233,5 +233,32 @@
     <div class="footer">&copy; 2025 Matnog Tourism</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[action="{{ route('verification.verify') }}"]');
+            
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show SweetAlert2 popup
+                    Swal.fire({
+                        title: 'Phone Verification Successful!',
+                        text: 'You are now registered.',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then(() => {
+                        // Submit the form after popup
+                        form.submit();
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>

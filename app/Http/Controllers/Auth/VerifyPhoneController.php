@@ -42,7 +42,7 @@
             event(new Verified($request->user()));
 
             // Redirect to dashboard after successful verification.
-            return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+            return redirect()->intended(route('dashboard', absolute: false).'?verified=1')->with('phone_verified_success', true);
         }
     }
     

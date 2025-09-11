@@ -28,7 +28,7 @@
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
                               title="Upload your permits first to unlock this feature">
-                            <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
                             Boat Management
                             <span class="badge bg-warning ms-2">Locked</span>
                         </span>
@@ -90,7 +90,7 @@
                                   data-bs-toggle="tooltip" 
                                   data-bs-placement="right" 
                                   title="Upload your permits first to unlock this feature">
-                                <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
                                 Boat Management
                                 <span class="badge bg-warning ms-2">Locked</span>
                             </span>

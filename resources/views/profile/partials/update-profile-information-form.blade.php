@@ -65,7 +65,6 @@
             <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
 
             @if (session('status') === 'profile-updated')
-                <div class="alert alert-success small" role="alert">{{ __('Saved.') }}</div>
             @endif
         </div>
     </form>

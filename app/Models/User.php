@@ -48,6 +48,13 @@ class User extends Authenticatable
         'marina_cpc_approved',
         'boat_association_approved',
         'tourism_registration_approved',
+        'bir_resubmitted',
+        'dti_resubmitted',
+        'business_permit_resubmitted',
+        'tourism_registration_resubmitted',
+        'lgu_resolution_resubmitted',
+        'marina_cpc_resubmitted',
+        'boat_association_resubmitted',
     ];
 
     /**
@@ -148,20 +155,18 @@ class User extends Authenticatable
         }
 
         if ($this->role === 'boat_owner') {
-            // Boat owners need: BIR, DTI, Business Permit, Owner Image, LGU Resolution, Marina CPC, Boat Association
+            // Boat owners need: BIR, DTI, Business Permit, LGU Resolution, Marina CPC, Boat Association
             return (bool) $this->bir_approved &&
                    (bool) $this->dti_approved &&
                    (bool) $this->business_permit_approved &&
-                   (bool) $this->owner_pic_approved &&
                    (bool) $this->lgu_resolution_approved &&
                    (bool) $this->marina_cpc_approved &&
                    (bool) $this->boat_association_approved;
         } else {
-            // Resort owners need: BIR, DTI, Business Permit, Owner Image, Tourism Registration
+            // Resort owners need: BIR, DTI, Business Permit, Tourism Registration
             return (bool) $this->bir_approved &&
                    (bool) $this->dti_approved &&
                    (bool) $this->business_permit_approved &&
-                   (bool) $this->owner_pic_approved &&
                    (bool) $this->tourism_registration_approved;
         }
     }
@@ -180,7 +185,6 @@ class User extends Authenticatable
             $hasSubmittedPermits = $this->bir_permit_path || 
                                   $this->dti_permit_path || 
                                   $this->business_permit_path || 
-                                  $this->owner_image_path ||
                                   $this->lgu_resolution_path ||
                                   $this->marina_cpc_path ||
                                   $this->boat_association_path;
@@ -188,7 +192,6 @@ class User extends Authenticatable
             $hasSubmittedPermits = $this->bir_permit_path || 
                                   $this->dti_permit_path || 
                                   $this->business_permit_path || 
-                                  $this->owner_image_path ||
                                   $this->tourism_registration_path;
         }
 

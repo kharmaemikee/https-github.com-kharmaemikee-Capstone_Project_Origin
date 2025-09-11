@@ -174,7 +174,7 @@
                             </small>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('resort.owner.documentation.export', request()->query()) }}" class="btn btn-success">Export CSV</a>
-                                <button id="downloadPngBtn" type="button" class="btn btn-primary">Download File</button>
+                                <a href="{{ route('resort.owner.documentation.export_pdf', request()->query()) }}" class="btn btn-danger">Export PDF</a>
                             </div>
                         </div>
 
@@ -185,12 +185,6 @@
                                         <th>Resort</th>
                                         <th>Room</th>
                                         <th>Tourist</th>
-                                        <th>Name of Guests</th>
-                                        <th>Age</th>
-                                        <th>Gender</th>
-                                        <th>Address</th>
-                                        <th>Nationality</th>
-                                        <th>Phone</th>
                                         <th>Tour Type</th>
                                         <th>Departure Time</th>
                                         <th>Pick-up (Day)</th>
@@ -199,7 +193,7 @@
                                         <th>PWDs</th>
                                         <th>Check-in Date</th>
                                         <th>Check-out Date</th>
-                                        <th>Guests (Count)</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -213,12 +207,6 @@
                                                 @endphp
                                                 {{ $acctName !== '' ? $acctName : (optional($booking->user)->username ?? '—') }}
                                             </td>
-                                            <td>{{ $booking->guest_name ?? '—' }}</td>
-                                            <td>{{ $booking->guest_age ?? '—' }}</td>
-                                            <td>{{ ucfirst($booking->guest_gender ?? '—') }}</td>
-                                            <td>{{ $booking->guest_address ?? '—' }}</td>
-                                            <td>{{ $booking->guest_nationality ?? '—' }}</td>
-                                            <td>{{ $booking->phone_number ?? '—' }}</td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
                                             <td>
                                                 @if($booking->day_tour_departure_time)
@@ -280,11 +268,24 @@
                                             <td>{{ $booking->num_pwds ?? '—' }}</td>
                                             <td>{{ optional($booking->check_in_date)->format('Y-m-d') }}</td>
                                             <td>{{ optional($booking->check_out_date)->format('Y-m-d') }}</td>
-                                            <td>{{ $booking->number_of_guests ?? '—' }}</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-info btn-sm viewDocBtn"
+                                                        title="View details" aria-label="View details"
+                                                        data-bs-toggle="modal" data-bs-target="#docViewModal"
+                                                        data-guest-name="{{ $booking->guest_name ?? '' }}"
+                                                        data-guest-age="{{ $booking->guest_age ?? '' }}"
+                                                        data-guest-gender="{{ $booking->guest_gender ?? '' }}"
+                                                        data-guest-address="{{ $booking->guest_address ?? '' }}"
+                                                        data-guest-nationality="{{ $booking->guest_nationality ?? '' }}"
+                                                        data-phone="{{ $booking->phone_number ?? '' }}"
+                                                        data-guest-count="{{ $booking->number_of_guests ?? '' }}">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="9" class="text-center text-muted">No bookings found.</td>
+                                            <td colspan="12" class="text-center text-muted">No bookings found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -415,71 +416,44 @@
         });
     </script>
 
-    {{-- html2canvas for PNG export (client-side only) --}}
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Modal for row details -->
+    <div class="modal fade" id="docViewModal" tabindex="-1" aria-labelledby="docViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="docViewModalLabel">Booking Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2"><strong>Name of Guests:</strong> <span id="docGuestName">N/A</span></div>
+                    <div class="mb-2"><strong>Age:</strong> <span id="docGuestAge">N/A</span></div>
+                    <div class="mb-2"><strong>Gender:</strong> <span id="docGuestGender">N/A</span></div>
+                    <div class="mb-2"><strong>Nationality:</strong> <span id="docGuestNationality">N/A</span></div>
+                    <div class="mb-2"><strong>Phone:</strong> <span id="docPhone">N/A</span></div>
+                    <div class="mb-2"><strong>Address:</strong> <span id="docGuestAddress">N/A</span></div>
+                    <div class="mb-2"><strong>Guests (Count):</strong> <span id="docGuestCount">N/A</span></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Wire up details modal
         document.addEventListener('DOMContentLoaded', function () {
-            const btn = document.getElementById('downloadPngBtn');
-            if (!btn) return;
-            btn.addEventListener('click', async function () {
-                const source = document.getElementById('docCapture');
-                if (!source) return;
-
-                // Stage a cloned, compact version sized to A4 LANDSCAPE and scale it so ALL rows fit on one page
-                const stage = document.createElement('div');
-                stage.id = 'exportStaging';
-                stage.style.position = 'fixed';
-                stage.style.left = '-99999px';
-                stage.style.top = '0';
-                stage.style.width = '1123px'; /* ~11.69in at 96dpi */
-                stage.style.height = '794px'; /* ~8.27in at 96dpi */
-                stage.style.overflow = 'hidden';
-                stage.style.backgroundColor = '#ffffff';
-
-                const cloneCard = document.createElement('div');
-                cloneCard.style.backgroundColor = '#ffffff';
-                cloneCard.style.padding = '8px';
-
-                const cloned = source.cloneNode(true);
-                // Apply compact styles
-                cloned.classList.add('compact-table');
-                // Ensure table width fits page
-                cloned.style.maxWidth = '100%';
-                cloned.style.overflow = 'visible';
-
-                cloneCard.appendChild(cloned);
-                stage.appendChild(cloneCard);
-                document.body.appendChild(stage);
-
-                // Compute scale to fit within A4 Landscape
-                await new Promise(r => setTimeout(r, 0)); // allow layout
-                const contentRect = cloneCard.getBoundingClientRect();
-                const scaleX = 1123 / Math.max(contentRect.width, 1);
-                const scaleY = 794 / Math.max(cloneCard.scrollHeight, 1);
-                const scale = Math.min(scaleX, scaleY, 1);
-                cloneCard.style.transformOrigin = 'top left';
-                cloneCard.style.transform = `scale(${scale})`;
-                cloneCard.style.width = contentRect.width + 'px';
-                cloneCard.style.height = cloneCard.scrollHeight + 'px';
-
-                const canvas = await html2canvas(stage, {
-                    width: 1123,
-                    height: 794,
-                    backgroundColor: '#ffffff',
-                    scale: 1,
-                    useCORS: true
+            document.querySelectorAll('.viewDocBtn').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 'N/A'; };
+                    setText('docGuestName', this.getAttribute('data-guest-name'));
+                    setText('docGuestAge', this.getAttribute('data-guest-age'));
+                    setText('docGuestGender', this.getAttribute('data-guest-gender'));
+                    setText('docGuestNationality', this.getAttribute('data-guest-nationality'));
+                    setText('docPhone', this.getAttribute('data-phone'));
+                    setText('docGuestAddress', this.getAttribute('data-guest-address'));
+                    setText('docGuestCount', this.getAttribute('data-guest-count'));
                 });
-
-                document.body.removeChild(stage);
-
-                const dataUrl = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                const ts = new Date().toISOString().replace(/[:.]/g, '-');
-                link.download = `resort-bookings-A4-landscape-${ts}.png`;
-                link.href = dataUrl;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
             });
         });
     </script>

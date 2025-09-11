@@ -130,154 +130,146 @@
                 @else
                     <div class="row">
                         @foreach ($bookings as $booking)
-                            <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <div class="card shadow-sm h-100">
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title fw-bold">Booking for {{ $booking->room->room_name ?? 'N/A' }}</h5>
-                                        <p class="card-text mb-1">Resort: <strong>{{ $booking->name_of_resort }}</strong></p>
-                                        <p class="card-text mb-1">Check-in Date: <strong>
-                                            @php
-                                                try {
-                                                    echo \Carbon\Carbon::parse($booking->check_in_date)->format('F d, Y');
-                                                } catch(\Exception $e) {
-                                                    echo $booking->check_in_date;
-                                                }
-                                            @endphp
-                                        </strong></p>
-                                        @if ($booking->tour_type === 'overnight' && $booking->check_out_date)
-                                            <p class="card-text mb-1">Check-out Date: <strong>
+                                    <div class="card-body d-flex flex-column flex-md-row align-items-start gap-3">
+                                        <div class="flex-shrink-0 d-flex align-items-center justify-content-center" style="min-width:64px; min-height:64px;">
+                                            <i class="bi bi-calendar2-week fs-1 text-primary"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex flex-wrap justify-content-between align-items-start">
+                                                <h5 class="card-title fw-bold me-2">Booking for {{ $booking->room->room_name ?? 'N/A' }}</h5>
+                                                <span class="badge bg-light text-dark">Guests: <strong>{{ $booking->number_of_guests }}</strong></span>
+                                            </div>
+                                            <p class="card-text mb-1">Resort: <strong>{{ $booking->name_of_resort }}</strong></p>
+                                            <p class="card-text mb-1">Check-in Date: <strong>
                                                 @php
-                                                    try {
-                                                        echo \Carbon\Carbon::parse($booking->check_out_date)->format('F d, Y');
-                                                    } catch(\Exception $e) {
-                                                        echo $booking->check_out_date;
-                                                    }
+                                                    try { echo \Carbon\Carbon::parse($booking->check_in_date)->format('F d, Y'); }
+                                                    catch(\Exception $e) { echo $booking->check_in_date; }
                                                 @endphp
                                             </strong></p>
-                                        @endif
-                                        <p class="card-text mb-1">Guests: <strong>{{ $booking->number_of_guests }}</strong></p>
-                                        
-                                        {{-- Room Price Information --}}
-                                        @if($booking->room)
-                                            <p class="card-text mb-1">Room Price: <strong>₱{{ number_format($booking->room->price_per_night, 2) }}</strong> per night</p>
-                                        @endif
+                                            @if ($booking->tour_type === 'overnight' && $booking->check_out_date)
+                                                <p class="card-text mb-1">Check-out Date: <strong>
+                                                    @php
+                                                        try { echo \Carbon\Carbon::parse($booking->check_out_date)->format('F d, Y'); }
+                                                        catch(\Exception $e) { echo $booking->check_out_date; }
+                                                    @endphp
+                                                </strong></p>
+                                            @endif
 
-                                        {{-- Boat Owner/Captain Information --}}
-                                        <h6 class="mt-3 mb-2 fw-bold">Boat Owner/Captain Information:</h6>
-                                        @if($booking->assignedBoat && $booking->assignedBoat->user)
-                                            <p class="card-text mb-1"><small>Name: <strong>{{ $booking->assignedBoat->user->name ?? 'N/A' }}</strong></small></p>
-                                            <p class="card-text mb-1"><small>Contact: <strong>{{ $booking->assignedBoat->user->phone ?? 'N/A' }}</strong></small></p>
-                                            <p class="card-text mb-1"><small>Boat: <strong>{{ $booking->assignedBoat->boat_name ?? 'N/A' }}</strong></small></p>
-                                            <p class="card-text mb-1"><small>Boat Price: <strong>₱{{ number_format($booking->assignedBoat->boat_prices ?? 0, 2) }}</strong></small></p>
-                                        @elseif($booking->boat_captain_crew && $booking->boat_captain_crew !== 'N/A')
-                                            <p class="card-text mb-1"><small>Name: <strong>{{ $booking->boat_captain_crew }}</strong></small></p>
-                                            <p class="card-text mb-1"><small>Contact: <strong>{{ $booking->boat_contact_number ?? 'N/A' }}</strong></small></p>
-                                            <p class="card-text mb-1"><small>Boat: <strong>{{ $booking->assigned_boat ?? 'N/A' }}</strong></small></p>
-                                            <p class="card-text mb-1"><small>Boat Price: <strong>₱{{ number_format($booking->boat_price ?? 0, 2) }}</strong></small></p>
-                                        @else
-                                            <p class="card-text mb-1"><small>Name: <strong>Not assigned yet</strong></small></p>
-                                            <p class="card-text mb-1"><small>Contact: <strong>Not assigned yet</strong></small></p>
-                                            <p class="card-text mb-1"><small>Boat: <strong>Not assigned yet</strong></small></p>
-                                            <p class="card-text mb-1"><small>Boat Price: <strong>Not assigned yet</strong></small></p>
-                                        @endif
-                                        @if ($booking->num_senior_citizens > 0)
-                                            <p class="card-text mb-1"><small>Senior Citizens: <strong>{{ $booking->num_senior_citizens }}</strong></small></p>
-                                        @endif
-                                        @if ($booking->num_pwds > 0)
-                                            <p class="card-text mb-1"><small>PWDs: <strong>{{ $booking->num_pwds }}</strong></small></p>
-                                        @endif
+                                            {{-- Room Price Information --}}
+                                            @if($booking->room)
+                                                <p class="card-text mb-1">Room Price: <strong>₱{{ number_format($booking->room->price_per_night, 2) }}</strong> per night</p>
+                                            @endif
 
-                                        {{-- Tour Type Specific Times --}}
-                                        @if ($booking->tour_type === 'day_tour')
-                                            <h6 class="mt-3 mb-2 fw-bold">Day Tour Details:</h6>
-                                            <p class="card-text mb-1"><small>Departure Time: <strong>
-                                                @php
-                                                    try {
-                                                        echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
-                                                    } catch(\Exception $e) {
-                                                        echo $booking->day_tour_departure_time;
-                                                    }
-                                                @endphp
-                                            </strong></small></p>
-                                            <p class="card-text mb-1"><small>Pickup Time: <strong>
-                                                @php
-                                                    try {
-                                                        echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
-                                                    } catch(\Exception $e) {
-                                                        echo $booking->day_tour_time_of_pickup;
-                                                    }
-                                                @endphp
-                                            </strong></small></p>
-                                        @elseif ($booking->tour_type === 'overnight')
-                                            <h6 class="mt-3 mb-2 fw-bold">Overnight Details:</h6>
-                                            <p class="card-text mb-1"><small>Pickup Date/Time: <strong>
-                                                @php
-                                                    try {
-                                                        echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('F d, Y h:i A');
-                                                    } catch(\Exception $e) {
-                                                        echo $booking->overnight_date_time_of_pickup;
-                                                    }
-                                                @endphp
-                                            </strong></small></p>
-                                        @endif
-
-                                        {{-- Total Price Calculation --}}
-                                        @php
-                                            $roomPrice = $booking->room ? $booking->room->price_per_night : 0;
-                                            $boatPrice = 0;
-                                            if ($booking->assignedBoat) {
-                                                $boatPrice = $booking->assignedBoat->boat_prices ?? 0;
-                                            } elseif ($booking->boat_price) {
-                                                $boatPrice = $booking->boat_price;
-                                            }
-                                            $totalPrice = $roomPrice + $boatPrice;
-                                        @endphp
-                                        
-                                        @if($totalPrice > 0)
-                                            <div class="mt-3 p-2 bg-light rounded">
-                                                <h6 class="mb-2 fw-bold text-primary">💰 Total Cost Breakdown:</h6>
-                                                @if($roomPrice > 0)
-                                                    <p class="mb-1"><small>Room: <strong>₱{{ number_format($roomPrice, 2) }}</strong></small></p>
+                                            {{-- Boat Owner/Captain Information --}}
+                                            <h6 class="mt-3 mb-2 fw-bold">Boat Owner/Captain Information:</h6>
+                                            <div class="d-flex flex-column flex-md-row flex-wrap gap-3">
+                                                @if($booking->assignedBoat && $booking->assignedBoat->user)
+                                                    <p class="mb-0"><small>Name: <strong>{{ $booking->assignedBoat->user->name ?? 'N/A' }}</strong></small></p>
+                                                    <p class="mb-0"><small>Contact: <strong>{{ $booking->assignedBoat->user->phone ?? 'N/A' }}</strong></small></p>
+                                                    <p class="mb-0"><small>Boat: <strong>{{ $booking->assignedBoat->boat_name ?? 'N/A' }}</strong></small></p>
+                                                    <p class="mb-0"><small>Boat Price: <strong>₱{{ number_format($booking->assignedBoat->boat_prices ?? 0, 2) }}</strong></small></p>
+                                                @elseif($booking->boat_captain_crew && $booking->boat_captain_crew !== 'N/A')
+                                                    <p class="mb-0"><small>Name: <strong>{{ $booking->boat_captain_crew }}</strong></small></p>
+                                                    <p class="mb-0"><small>Contact: <strong>{{ $booking->boat_contact_number ?? 'N/A' }}</strong></small></p>
+                                                    <p class="mb-0"><small>Boat: <strong>{{ $booking->assigned_boat ?? 'N/A' }}</strong></small></p>
+                                                    <p class="mb-0"><small>Boat Price: <strong>₱{{ number_format($booking->boat_price ?? 0, 2) }}</strong></small></p>
+                                                @else
+                                                    <p class="mb-0"><small>Name: <strong>Not assigned yet</strong></small></p>
+                                                    <p class="mb-0"><small>Contact: <strong>Not assigned yet</strong></small></p>
+                                                    <p class="mb-0"><small>Boat: <strong>Not assigned yet</strong></small></p>
+                                                    <p class="mb-0"><small>Boat Price: <strong>Not assigned yet</strong></small></p>
                                                 @endif
-                                                @if($boatPrice > 0)
-                                                    <p class="mb-1"><small>Boat: <strong>₱{{ number_format($boatPrice, 2) }}</strong></small></p>
+                                                @if ($booking->num_senior_citizens > 0)
+                                                    <p class="mb-0"><small>Senior Citizens: <strong>{{ $booking->num_senior_citizens }}</strong></small></p>
                                                 @endif
-                                                <hr class="my-1">
-                                                <p class="mb-0 fw-bold"><small>Total: <strong>₱{{ number_format($totalPrice, 2) }}</strong></small></p>
+                                                @if ($booking->num_pwds > 0)
+                                                    <p class="mb-0"><small>PWDs: <strong>{{ $booking->num_pwds }}</strong></small></p>
+                                                @endif
                                             </div>
-                                        @endif
 
-                                        <p class="card-text mb-2 mt-3">Status:
-                                            @if ($booking->display_status === 'pending')
-                                                <span class="status-badge status-pending">Awaiting Approval</span>
-                                            @elseif ($booking->display_status === 'approved')
-                                                <span class="status-badge status-approved">Approved!</span>
-                                            @elseif ($booking->display_status === 'rejected')
-                                                <span class="status-badge status-rejected">Rejected</span>
-                                            @elseif ($booking->display_status === 'cancelled')
-                                                <span class="status-badge status-rejected">Cancelled</span>
-                                            @elseif ($booking->display_status === 'completed')
-                                                <span class="status-badge status-completed">Completed</span>
+                                            {{-- Tour Type Specific Times --}}
+                                            @if ($booking->tour_type === 'day_tour')
+                                                <h6 class="mt-3 mb-2 fw-bold">Day Tour Details:</h6>
+                                                <div class="d-flex flex-column flex-md-row flex-wrap gap-3">
+                                                    <p class="mb-0"><small>Departure Time: <strong>
+                                                        @php
+                                                            try { echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A'); }
+                                                            catch(\Exception $e) { echo $booking->day_tour_departure_time; }
+                                                        @endphp
+                                                    </strong></small></p>
+                                                    <p class="mb-0"><small>Pickup Time: <strong>
+                                                        @php
+                                                            try { echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A'); }
+                                                            catch(\Exception $e) { echo $booking->day_tour_time_of_pickup; }
+                                                        @endphp
+                                                    </strong></small></p>
+                                                </div>
+                                            @elseif ($booking->tour_type === 'overnight')
+                                                <h6 class="mt-3 mb-2 fw-bold">Overnight Details:</h6>
+                                                <p class="mb-0"><small>Pickup Date/Time: <strong>
+                                                    @php
+                                                        try { echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('F d, Y h:i A'); }
+                                                        catch(\Exception $e) { echo $booking->overnight_date_time_of_pickup; }
+                                                    @endphp
+                                                </strong></small></p>
                                             @endif
-                                        </p>
-                                        {{-- Link to a detailed booking view --}}
-                                        <div class="mt-auto d-flex flex-wrap justify-content-end align-items-center pt-2"> {{-- Pushes the button to the bottom --}}
-                                            <a href="{{ route('bookings.show', $booking->id) }}" class="btn btn-sm btn-primary mt-2 me-2">View Details</a>
 
-                                            {{-- Conditional Buttons for Bookings --}}
-                                            @if ($booking->display_status === 'pending')
-                                                {{-- Cancel Button (only if pending) - Now triggers a modal --}}
-                                                <button type="button" class="btn btn-sm btn-warning text-dark mt-2" data-bs-toggle="modal" data-bs-target="#cancelBookingConfirmationModal" data-booking-id="{{ $booking->id }}">
-                                                    Cancel <i class="bi bi-x-circle"></i>
-                                                </button>
+                                            {{-- Total Price Calculation --}}
+                                            @php
+                                                $roomPrice = $booking->room ? $booking->room->price_per_night : 0;
+                                                $boatPrice = 0;
+                                                if ($booking->assignedBoat) {
+                                                    $boatPrice = $booking->assignedBoat->boat_prices ?? 0;
+                                                } elseif ($booking->boat_price) {
+                                                    $boatPrice = $booking->boat_price;
+                                                }
+                                                $totalPrice = $roomPrice + $boatPrice;
+                                            @endphp
+                                            
+                                            @if($totalPrice > 0)
+                                                <div class="mt-3 p-2 bg-light rounded">
+                                                    <h6 class="mb-2 fw-bold text-primary">💰 Total Cost Breakdown:</h6>
+                                                    <div class="d-flex flex-column flex-md-row flex-wrap gap-3">
+                                                        @if($roomPrice > 0)
+                                                            <p class="mb-0"><small>Room: <strong>₱{{ number_format($roomPrice, 2) }}</strong></small></p>
+                                                        @endif
+                                                        @if($boatPrice > 0)
+                                                            <p class="mb-0"><small>Boat: <strong>₱{{ number_format($boatPrice, 2) }}</strong></small></p>
+                                                        @endif
+                                                        <p class="mb-0 fw-bold"><small>Total: <strong>₱{{ number_format($totalPrice, 2) }}</strong></small></p>
+                                                    </div>
+                                                </div>
                                             @endif
 
-                                            {{-- Delete Button (for approved, rejected, cancelled, or completed bookings) - Triggers Modal --}}
-                                            @if (in_array($booking->display_status, ['approved', 'rejected', 'cancelled', 'completed']))
-                                                <button type="button" class="btn btn-sm btn-danger ms-2 mt-2" data-bs-toggle="modal" data-bs-target="#deleteBookingConfirmationModal" data-booking-id="{{ $booking->id }}">
-                                                    Delete <i class="bi bi-trash"></i>
-                                                </button>
-                                            @endif
+                                            <p class="card-text mb-2 mt-3">Status:
+                                                @if ($booking->display_status === 'pending')
+                                                    <span class="status-badge status-pending">Awaiting Approval</span>
+                                                @elseif ($booking->display_status === 'approved')
+                                                    <span class="status-badge status-approved">Approved!</span>
+                                                @elseif ($booking->display_status === 'rejected')
+                                                    <span class="status-badge status-rejected">Rejected</span>
+                                                @elseif ($booking->display_status === 'cancelled')
+                                                    <span class="status-badge status-rejected">Cancelled</span>
+                                                @elseif ($booking->display_status === 'completed')
+                                                    <span class="status-badge status-completed">Completed</span>
+                                                @endif
+                                            </p>
+
+                                            <div class="d-flex flex-wrap justify-content-end align-items-center pt-2">
+                                                <a href="{{ route('bookings.show', $booking->id) }}" class="btn btn-sm btn-primary mt-2 me-2">View Details</a>
+                                                @if ($booking->display_status === 'pending')
+                                                    <button type="button" class="btn btn-sm btn-warning text-dark mt-2" data-bs-toggle="modal" data-bs-target="#cancelBookingConfirmationModal" data-booking-id="{{ $booking->id }}">
+                                                        Cancel <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                @endif
+                                                @if (in_array($booking->display_status, ['approved', 'rejected', 'cancelled', 'completed']))
+                                                    <button type="button" class="btn btn-sm btn-danger ms-2 mt-2" data-bs-toggle="modal" data-bs-target="#deleteBookingConfirmationModal" data-booking-id="{{ $booking->id }}">
+                                                        Delete <i class="bi bi-trash"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

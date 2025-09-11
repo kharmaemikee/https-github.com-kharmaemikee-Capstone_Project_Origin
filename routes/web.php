@@ -327,6 +327,9 @@ Route::get('/resort_owner/verified', function () {
                     $filename = 'bir_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/bir'), $filename);
                     $user->bir_permit_path = 'images/permits/bir/' . $filename;
+                    // Resubmitting BIR resets its approval and resubmit flag
+                    $user->bir_approved = false;
+                    $user->bir_resubmitted = false;
                     $lastUploadedLabel = 'BIR Permit';
                 }
                 
@@ -335,6 +338,9 @@ Route::get('/resort_owner/verified', function () {
                     $filename = 'dti_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/dti'), $filename);
                     $user->dti_permit_path = 'images/permits/dti/' . $filename;
+                    // Resubmitting DTI resets its approval and resubmit flag
+                    $user->dti_approved = false;
+                    $user->dti_resubmitted = false;
                     $lastUploadedLabel = 'DTI Permit';
                 }
                 
@@ -343,6 +349,9 @@ Route::get('/resort_owner/verified', function () {
                     $filename = 'business_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/business'), $filename);
                     $user->business_permit_path = 'images/permits/business/' . $filename;
+                    // Resubmitting Business Permit resets its approval and resubmit flag
+                    $user->business_permit_approved = false;
+                    $user->business_permit_resubmitted = false;
                     $lastUploadedLabel = 'Business Permit';
                 }
                 
@@ -351,7 +360,8 @@ Route::get('/resort_owner/verified', function () {
                     $filename = 'owner_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/owner_images'), $filename);
                     $user->owner_image_path = 'images/permits/owner_images/' . $filename;
-                    $user->owner_pic_approved = false; // Owner images require admin approval
+                    // Owner images are auto-approved; no admin approval needed
+                    $user->owner_pic_approved = true;
                     $lastUploadedLabel = 'Owner Image';
                 }
                 
@@ -360,6 +370,9 @@ Route::get('/resort_owner/verified', function () {
                     $filename = 'tourism_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/tourism'), $filename);
                     $user->tourism_registration_path = 'images/permits/tourism/' . $filename;
+                    // Resubmitting Tourism Registration resets its approval and resubmit flag
+                    $user->tourism_registration_approved = false;
+                    $user->tourism_registration_resubmitted = false;
                     $lastUploadedLabel = 'Tourism Registration';
                 }
                 
@@ -375,7 +388,7 @@ Route::get('/resort_owner/verified', function () {
                     ]);
                 }
                 
-                return redirect()->route('resort.owner.verified')->with('success', 'Permits uploaded successfully!');
+                return redirect()->route('resort.owner.verified');
             })->middleware(['auth'])->name('resort.owner.upload-permits');
 
 // Resort Owner Notification Page
@@ -440,13 +453,7 @@ Route::middleware(['auth'])->group(function () {
     // Delete boat
     Route::delete('/boats/{boat}', [BoatController::class, 'destroy'])->name('boat.destroy');
 
-    // Route for Boat Owner Rehab Page (if you have a dedicated page for it)
-    Route::get('/boat_owner/rehab', function () {
-        if (Auth::user()->role !== 'boat_owner') {
-            abort(403, 'Unauthorized');
-        }
-        return view('boat_owner.rehab'); // This will look for resources/views/boat_owner/rehab.blade.php
-    })->name('boat.owner.rehab');
+    // (Removed boat owner rehab route)
 
     // Route for Boat Owner updating boat status (open/rehab/closed)
     Route::put('/boats/{boat}/status', [BoatController::class, 'updateStatus'])->name('boat.owner.update_status');
@@ -571,6 +578,9 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'bir_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/bir'), $filename);
             $user->bir_permit_path = 'images/permits/bir/' . $filename;
+            // Resubmitting BIR resets its approval and resubmit flag
+            $user->bir_approved = false;
+            $user->bir_resubmitted = false;
             $lastUploadedLabel = 'BIR Permit';
         }
         
@@ -579,6 +589,9 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'dti_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/dti'), $filename);
             $user->dti_permit_path = 'images/permits/dti/' . $filename;
+            // Resubmitting DTI resets its approval and resubmit flag
+            $user->dti_approved = false;
+            $user->dti_resubmitted = false;
             $lastUploadedLabel = 'DTI Permit';
         }
         
@@ -587,6 +600,9 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'business_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/business'), $filename);
             $user->business_permit_path = 'images/permits/business/' . $filename;
+            // Resubmitting Business Permit resets its approval and resubmit flag
+            $user->business_permit_approved = false;
+            $user->business_permit_resubmitted = false;
             $lastUploadedLabel = 'Business Permit';
         }
         
@@ -595,7 +611,8 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'owner_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/owner_images'), $filename);
             $user->owner_image_path = 'images/permits/owner_images/' . $filename;
-            $user->owner_pic_approved = false; // Owner images require admin approval
+            // Owner images are auto-approved; no admin approval needed
+            $user->owner_pic_approved = true;
             $lastUploadedLabel = 'Owner Image';
         }
         
@@ -604,6 +621,9 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'lgu_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/lgu'), $filename);
             $user->lgu_resolution_path = 'images/permits/lgu/' . $filename;
+            // Resubmitting LGU Resolution resets its approval and resubmit flag
+            $user->lgu_resolution_approved = false;
+            $user->lgu_resolution_resubmitted = false;
             $lastUploadedLabel = 'LGU Resolution';
         }
         
@@ -612,6 +632,9 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'marina_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/marina'), $filename);
             $user->marina_cpc_path = 'images/permits/marina/' . $filename;
+            // Resubmitting Marina CPC resets its approval and resubmit flag
+            $user->marina_cpc_approved = false;
+            $user->marina_cpc_resubmitted = false;
             $lastUploadedLabel = 'Marina CPC';
         }
         
@@ -620,6 +643,9 @@ Route::middleware(['auth'])->group(function () {
             $filename = 'association_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/boat_association'), $filename);
             $user->boat_association_path = 'images/permits/boat_association/' . $filename;
+            // Resubmitting Boat Association resets its approval and resubmit flag
+            $user->boat_association_approved = false;
+            $user->boat_association_resubmitted = false;
             $lastUploadedLabel = 'Boat Association Membership';
         }
         
@@ -635,7 +661,7 @@ Route::middleware(['auth'])->group(function () {
             ]);
         }
         
-        return redirect()->route('boat.owner.verified')->with('success', 'Permits uploaded successfully!');
+        return redirect()->route('boat.owner.verified');
     })->name('boat.owner.upload-permits');
 
     // Boat Owner Notification Page
@@ -672,6 +698,13 @@ Route::middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->
             default => abort(403, 'Unauthorized'),
         };
     })->name('dashboard');
+});
+
+// Admin filtered users
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/users/resorts', [\App\Http\Controllers\AdminUserController::class, 'resortUsers'])->name('admin.users.resorts');
+    Route::get('/admin/users/boats', [\App\Http\Controllers\AdminUserController::class, 'boatUsers'])->name('admin.users.boats');
+    Route::get('/admin/users/tourists', [\App\Http\Controllers\AdminUserController::class, 'touristUsers'])->name('admin.users.tourists');
 });
 
 
@@ -713,12 +746,7 @@ Route::get('/tourist/list', [ExploreController::class, 'index'])
     ->middleware(['auth'])
     ->name('tourist.list');
 
-Route::get('/tourist/spot', function () {
-    if (Auth::user()->role !== 'tourist') {
-        abort(403, 'Unauthorized');
-    }
-    return view('tourist.spot');
-})->middleware(['auth'])->name('tourist.spot');
+// (Removed tourist spot route)
 
 
 // This route previously returned a static view without data.
@@ -877,6 +905,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
     // Admin Documentation Page
     Route::get('/documentation', [\App\Http\Controllers\Admin\AdminDocumentationController::class, 'index'])->name('admin.documentation');
     Route::get('/documentation/export', [\App\Http\Controllers\Admin\AdminDocumentationController::class, 'export'])->name('admin.documentation.export');
+    Route::get('/documentation/export-pdf', [\App\Http\Controllers\Admin\AdminDocumentationController::class, 'exportPdf'])->name('admin.documentation.export_pdf');
 
 
     // Routes for Foreigners and Filipinos lists
@@ -884,13 +913,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/total-filipino', [AdminUserController::class, 'showFilipinos'])->name('admin.total-filipino');
 
     // Other admin-specific pages
-    Route::get('/pending_resort/{resort}', [AdminResortController::class, 'show'])->name('admin.pending_resort');
-    Route::get('/customers', function () {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-        return view('admin.customers');
-    })->name('admin.customers');
+    // (Removed admin.pending_resort and admin.customers routes)
 });
 
 

@@ -164,10 +164,7 @@
             cursor: pointer;
         }
 
-        /* Profile image upload visibility */
-        #profileImageGroup {
-            display: flex;
-        }
+        
     </style>
 </head>
 <body>
@@ -185,7 +182,7 @@
         </div>
         <div class="register-card text-center">
             <h5 class="text-white">Create Account</h5>
-            <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('register') }}">
                 @csrf
                 <div class="mb-2 input-group flex-wrap">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -230,14 +227,7 @@
                     @enderror
                 </div>
 
-                <!-- Profile Image Upload (shown for all user types) -->
-                <div id="profileImageGroup" class="mb-2 input-group flex-wrap">
-                    <span class="input-group-text"><i class="fas fa-image"></i></span>
-                    <input type="file" class="form-control" id="profile_image" name="owner_image" accept="image/jpeg,image/png">
-                    @error('owner_image')
-                        <div class="text-danger">{{ $message }}</div>
-                    @enderror
-                </div>
+                
 
                 <button type="submit" class="btn register-btn">Register</button>
             </form>
@@ -258,8 +248,7 @@
             });
         });
 
-        // Profile image upload is now available for all user types
-        // No need to toggle visibility based on role selection
+        
     </script>
 </body>
 </html>

@@ -332,7 +332,6 @@
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                         <div id="age-error" class="text-danger" style="display: none;"></div>
-                        <small class="text-white-50">You must be at least 18 years old to register.</small>
                     </div>
                 </div>
 

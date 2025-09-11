@@ -2,7 +2,7 @@
     <header>
         <p class="text-muted small">{{ __('Ensure your account is using a long, random password to stay secure.') }}</p>
     </header>
-    <form method="post" action="{{ route('password.update') }}" class="mt-3">
+    <form method="post" action="{{ route('password.update') }}" class="mt-3" id="passwordUpdateForm">
         @csrf
         @method('put')
         <div class="mb-3">
@@ -33,6 +33,16 @@
             </div>
         </div>
         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+        
+        @if ($errors->updatePassword->any())
+            <div class="alert alert-danger mt-3">
+                <ul class="mb-0">
+                    @foreach ($errors->updatePassword->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </form>
 </section>
 

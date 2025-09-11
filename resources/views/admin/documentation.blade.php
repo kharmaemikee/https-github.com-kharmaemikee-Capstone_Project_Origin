@@ -31,10 +31,24 @@
                     </a>
                 </li>
                 <li class="nav-item mt-2">
-                    <a href="{{ route('admin.users') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                    <button class="nav-link text-white rounded p-2 d-flex align-items-center w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapse" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapse">
                         <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Users
-                    </a>
+                        <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
+                    </button>
+                    <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapse">
+                        <ul class="nav flex-column ms-3 mt-1">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.resorts') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.boats') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.tourists') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item mt-2">
                     <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
@@ -83,10 +97,24 @@
                         </a>
                     </li>
                     <li class="nav-item mt-2">
-                        <a href="{{ route('admin.users') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                        <button class="nav-link text-white rounded p-2 d-flex align-items-center w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapseMobile" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapseMobile">
                             <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                             Users
-                        </a>
+                            <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
+                        </button>
+                        <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapseMobile">
+                            <ul class="nav flex-column ms-3 mt-1">
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.users.resorts') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.users.boats') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.users.tourists') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                     <li class="nav-item mt-2">
                         <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
@@ -140,7 +168,7 @@
                             </small>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.documentation.export', request()->query()) }}" class="btn btn-success">Export CSV</a>
-                                <button id="downloadPngBtn" type="button" class="btn btn-primary">Download File</button>
+                                <a href="{{ route('admin.documentation.export_pdf', request()->query()) }}" class="btn btn-danger">Export PDF</a>
                             </div>
                         </div>
 
@@ -148,35 +176,23 @@
                             <table class="table table-striped table-hover align-middle">
                                 <thead>
                                     <tr>
-                                        <th>Booking ID</th>
                                         <th>Resort</th>
                                         <th>Room</th>
                                         <th>Tourist Account</th>
-                                        <th>Guest Name</th>
-                                        <th>Age</th>
-                                        <th>Gender</th>
-                                        <th>Address</th>
-                                        <th>Nationality</th>
-                                        <th>Phone</th>
                                         <th>Tour Type</th>
                                         <th>Departure Time</th>
                                         <th>Pick-up (Day)</th>
                                         <th>Pick-up (Overnight)</th>
-                                        <th>Seniors</th>
-                                        <th>PWDs</th>
-                                        <th>Check-in Date</th>
-                                        <th>Check-out Date</th>
-                                        <th>Guests (Count)</th>
                                         <th>Assigned Boat</th>
                                         <th>Boat Number</th>
                                         <th>Boat Captain</th>
                                         <th>Boat Contact</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($bookings as $booking)
                                         <tr>
-                                            <td>{{ $booking->id }}</td>
                                             <td>{{ optional(optional($booking->room)->resort)->resort_name ?? ($booking->name_of_resort ?? '—') }}</td>
                                             <td>{{ optional($booking->room)->room_name ?? '—' }}</td>
                                             <td>
@@ -185,12 +201,7 @@
                                                 @endphp
                                                 {{ $acctName !== '' ? $acctName : (optional($booking->user)->username ?? '—') }}
                                             </td>
-                                            <td>{{ $booking->guest_name ?? '—' }}</td>
-                                            <td>{{ $booking->guest_age ?? '—' }}</td>
-                                            <td>{{ ucfirst($booking->guest_gender ?? '—') }}</td>
-                                            <td>{{ $booking->guest_address ?? '—' }}</td>
-                                            <td>{{ $booking->guest_nationality ?? '—' }}</td>
-                                            <td>{{ $booking->phone_number ?? '—' }}</td>
+                                            
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
                                             <td>
                                                 @if($booking->day_tour_departure_time)
@@ -231,19 +242,32 @@
                                                     —
                                                 @endif
                                             </td>
-                                            <td>{{ $booking->num_senior_citizens ?? '—' }}</td>
-                                            <td>{{ $booking->num_pwds ?? '—' }}</td>
-                                            <td>{{ optional($booking->check_in_date)->format('Y-m-d') }}</td>
-                                            <td>{{ optional($booking->check_out_date)->format('Y-m-d') }}</td>
-                                            <td>{{ $booking->number_of_guests ?? '—' }}</td>
                                             <td>{{ optional($booking->assignedBoat)->boat_name ?? $booking->assigned_boat ?? '—' }}</td>
                                             <td>{{ optional($booking->assignedBoat)->boat_number ?? '—' }}</td>
                                             <td>{{ optional($booking->assignedBoat)->captain_name ?? $booking->boat_captain_crew ?? '—' }}</td>
                                             <td>{{ optional($booking->assignedBoat)->captain_contact ?? $booking->boat_contact_number ?? '—' }}</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-info btn-sm viewDocBtn" 
+                                                    title="View details" aria-label="View details"
+                                                    data-bs-toggle="modal" data-bs-target="#docViewModal"
+                                                    data-guest-name="{{ $booking->guest_name ?? '' }}"
+                                                    data-guest-age="{{ $booking->guest_age ?? '' }}"
+                                                    data-guest-gender="{{ $booking->guest_gender ?? '' }}"
+                                                    data-guest-address="{{ $booking->guest_address ?? '' }}"
+                                                    data-guest-nationality="{{ $booking->guest_nationality ?? '' }}"
+                                                    data-phone="{{ $booking->phone_number ?? '' }}"
+                                                    data-checkin="{{ optional($booking->check_in_date)->format('Y-m-d') }}"
+                                                    data-checkout="{{ optional($booking->check_out_date)->format('Y-m-d') }}"
+                                                    data-seniors="{{ $booking->num_senior_citizens ?? '' }}"
+                                                    data-pwds="{{ $booking->num_pwds ?? '' }}"
+                                                    data-guest-count="{{ $booking->number_of_guests ?? '' }}">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="24" class="text-center text-muted">No bookings found.</td>
+                                            <td colspan="14" class="text-center text-muted">No bookings found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -346,6 +370,34 @@
         </div>
     </div>
 
+    <!-- Documentation Row View Modal -->
+    <div class="modal fade" id="docViewModal" tabindex="-1" aria-labelledby="docViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="docViewModalLabel">Booking Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2"><strong>Guest Name:</strong> <span id="docGuestName">N/A</span></div>
+                    <div class="mb-2"><strong>Age:</strong> <span id="docGuestAge">N/A</span></div>
+                    <div class="mb-2"><strong>Gender:</strong> <span id="docGuestGender">N/A</span></div>
+                    <div class="mb-2"><strong>Address:</strong> <span id="docGuestAddress">N/A</span></div>
+                    <div class="mb-2"><strong>Nationality:</strong> <span id="docGuestNationality">N/A</span></div>
+                    <div class="mb-2"><strong>Phone:</strong> <span id="docPhone">N/A</span></div>
+                    <div class="mb-2"><strong>Check-in Date:</strong> <span id="docCheckin">N/A</span></div>
+                    <div class="mb-2"><strong>Check-out Date:</strong> <span id="docCheckout">N/A</span></div>
+                    <div class="mb-2"><strong>Guests (Count):</strong> <span id="docGuestCount">N/A</span></div>
+                    <div class="mb-2"><strong>Seniors:</strong> <span id="docSeniors">N/A</span></div>
+                    <div class="mb-2"><strong>PWDs:</strong> <span id="docPWDs">N/A</span></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Custom CSS for sidebar nav-link hover and focus --}}
     <style>
         /* Custom CSS for sidebar nav-link hover and focus */
@@ -354,6 +406,8 @@
         .nav-link.text-white.active {
             background-color: rgb(6, 58, 170) !important; /* This is the specific blue from your provided images */
         }
+        .collapse-icon { transition: transform 0.3s ease; }
+        .collapse-icon.rotated { transform: rotate(180deg); }
 
         /* Light badge variants for readability in table */
         .badge-light-success {
@@ -439,6 +493,19 @@
             border-bottom-right-radius: 0.25rem;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ['usersCollapse','usersCollapseMobile'].forEach(function(id){
+                var container = document.getElementById(id);
+                if(!container) return;
+                var triggerBtn = document.querySelector('[data-bs-target="#'+id+'"]');
+                var arrow = triggerBtn ? triggerBtn.querySelector('.collapse-icon') : null;
+                if(!arrow) return;
+                container.addEventListener('show.bs.collapse', function(){ arrow.classList.add('rotated'); });
+                container.addEventListener('hide.bs.collapse', function(){ arrow.classList.remove('rotated'); });
+            });
+        });
+    </script>
 
     {{-- html2canvas for PNG export (client-side only) --}}
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -529,6 +596,40 @@
                 link.remove();
             });
             // --- End JavaScript for PNG Download ---
+        });
+    </script>
+
+    <script>
+        // Wire up Documentation View modal population
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.viewDocBtn').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    const guestName = this.getAttribute('data-guest-name') || 'N/A';
+                    const guestAge = this.getAttribute('data-guest-age') || 'N/A';
+                    const guestGender = this.getAttribute('data-guest-gender') || 'N/A';
+                    const guestAddress = this.getAttribute('data-guest-address') || 'N/A';
+                    const guestNationality = this.getAttribute('data-guest-nationality') || 'N/A';
+                    const phone = this.getAttribute('data-phone') || 'N/A';
+                    const seniors = this.getAttribute('data-seniors') || 'N/A';
+                    const pwds = this.getAttribute('data-pwds') || 'N/A';
+                    const guestCount = this.getAttribute('data-guest-count') || 'N/A';
+                    const checkin = this.getAttribute('data-checkin') || 'N/A';
+                    const checkout = this.getAttribute('data-checkout') || 'N/A';
+
+                    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+                    setText('docGuestName', guestName);
+                    setText('docGuestAge', guestAge);
+                    setText('docGuestGender', guestGender);
+                    setText('docGuestAddress', guestAddress);
+                    setText('docGuestNationality', guestNationality);
+                    setText('docPhone', phone);
+                    setText('docCheckin', checkin);
+                    setText('docCheckout', checkout);
+                    setText('docGuestCount', guestCount);
+                    setText('docSeniors', seniors);
+                    setText('docPWDs', pwds);
+                });
+            });
         });
     </script>
 </x-app-layout>

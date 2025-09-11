@@ -700,12 +700,8 @@ class BookingController extends Controller
 
         $notification->update(['is_read' => true]);
 
-        // Return JSON response if request expects JSON, otherwise redirect back
-        if (request()->expectsJson()) {
-            return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
-        }
-
-        return back()->with('success', 'Notification marked as read.');
+        // Return JSON response for AJAX requests
+        return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
     }
 
     /**
@@ -724,10 +720,10 @@ class BookingController extends Controller
                 ->where('is_read', false)
                 ->update(['is_read' => true]);
 
-            return redirect()->back()->with('success', 'All notifications marked as read.');
+            return response()->json(['success' => true, 'message' => 'All notifications marked as read.']);
         } catch (\Exception $e) {
             Log::error("Failed to mark all resort owner notifications as read: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to mark all notifications as read. Please try again.');
+            return response()->json(['error' => 'Failed to mark all notifications as read. Please try again.'], 500);
         }
     }
 

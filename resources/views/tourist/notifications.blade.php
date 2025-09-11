@@ -2,6 +2,8 @@
     <head>
         {{-- Bootstrap Icons CDN --}}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+        {{-- SweetAlert2 --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <meta name="csrf-token" content="{{ csrf_token() }}">
     </head>
 
@@ -267,9 +269,9 @@
                 }
             }
 
-            // Handle Mark as Read form submissions
+            // Handle Mark as Read (AJAX + SweetAlert2)
             document.addEventListener('submit', function(e) {
-                if (e.target.action && e.target.action.includes('markAsRead')) {
+                if (e.target.action && e.target.action.includes('mark-as-read')) {
                     e.preventDefault();
                     
                     fetch(e.target.action, {
@@ -283,6 +285,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ title: 'Notification Mark as Read', icon: 'success', draggable: true });
+                            }
                             var notificationItem = e.target.closest('.list-group-item');
                             if (notificationItem) {
                                 notificationItem.classList.remove('border-primary');
@@ -302,6 +307,48 @@
                         e.target.submit();
                     });
                 }
+            });
+
+            // Handle delete notification form submission
+            document.getElementById('deleteNotificationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                fetch(this.action, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: "You deleted successfully!",
+                                icon: "success",
+                                draggable: true
+                            });
+                        }
+                        
+                        // Close the modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteNotificationModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        
+                        // Reload the page to update the notifications list
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting notification:', error);
+                    // Fallback to normal form submission
+                    this.submit();
+                });
             });
         });
     </script>

@@ -1,5 +1,6 @@
 <x-app-layout>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
@@ -28,7 +29,7 @@
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
                               title="Upload your permits first to unlock this feature">
-                            <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
+                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
                             Boat Management
                             <span class="badge bg-warning ms-2">Locked</span>
                         </span>
@@ -90,7 +91,7 @@
                                   data-bs-toggle="tooltip" 
                                   data-bs-placement="right" 
                                   title="Upload your permits first to unlock this feature">
-                                <img src="{{ asset('images/information.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
                                 Boat Management
                                 <span class="badge bg-warning ms-2">Locked</span>
                             </span>
@@ -358,7 +359,7 @@
                         var button = event.relatedTarget;
                         var notificationId = button.getAttribute('data-notification-id');
                         var form = document.getElementById('deleteNotificationForm');
-                        form.action = '/boat-owner/notifications/' + notificationId;
+                        form.action = '/boat_owner/notifications/' + notificationId;
                     });
                 }
             });
@@ -494,9 +495,9 @@
                 }
             }
 
-            // Handle Mark as Read form submissions
+            // Handle Mark as Read (AJAX + SweetAlert2)
             document.addEventListener('submit', function(e) {
-                if (e.target.action && e.target.action.includes('markAsRead')) {
+                if (e.target.action && e.target.action.includes('mark-as-read')) {
                     e.preventDefault();
                     
                     fetch(e.target.action, {
@@ -510,6 +511,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ title: 'Notification Mark as Read', icon: 'success', draggable: true });
+                            }
                             // Update the notification item to show as read
                             var notificationItem = e.target.closest('.list-group-item');
                             if (notificationItem) {
@@ -537,6 +541,91 @@
 
             // --- End NEW JavaScript for notification count updates ---
 
+            // Handle delete notification form submission
+            document.getElementById('deleteNotificationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                fetch(this.action, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: "You deleted successfully!",
+                                icon: "success",
+                                draggable: true
+                            });
+                        }
+                        
+                        // Close the modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteNotificationModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        
+                        // Reload the page to update the notifications list
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting notification:', error);
+                    // Fallback to normal form submission
+                    this.submit();
+                });
+            });
+
+            // Handle "Mark All as Read" form submission
+            document.addEventListener('submit', function(e) {
+                if (e.target.action && e.target.action.includes('mark-all-as-read')) {
+                    e.preventDefault();
+                    
+                    fetch(e.target.action, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ title: 'Notification Mark as Read', icon: 'success', draggable: true });
+                            }
+                            
+                            // Update all notification items to show as read
+                            document.querySelectorAll('.list-group-item').forEach(function(item) {
+                                item.classList.remove('border-primary');
+                                item.classList.add('text-muted');
+                                
+                                // Hide all Mark as Read buttons
+                                var markAsReadBtn = item.querySelector('button[type="submit"]');
+                                if (markAsReadBtn) {
+                                    markAsReadBtn.style.display = 'none';
+                                }
+                            });
+                            
+                            // Update notification count to 0
+                            updateNotificationCount();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error marking all notifications as read:', error);
+                        // Fallback to normal form submission
+                        e.target.submit();
+                    });
+                }
+            });
 
             
             // Disable upload button and show thank-you message after resubmit

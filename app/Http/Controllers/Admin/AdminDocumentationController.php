@@ -9,6 +9,8 @@ use App\Models\Boat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Dompdf;
 
 class AdminDocumentationController extends Controller
 {
@@ -237,5 +239,81 @@ class AdminDocumentationController extends Controller
         }
 
         return $csvContent;
+    }
+
+    /**
+     * Export filtered bookings to PDF including all fields (table + modal fields).
+     */
+    public function exportPdf(Request $request)
+    {
+        // Ensure only admin can access this
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Reuse filters from index
+        $filters = [
+            'search' => $request->get('search', ''),
+            'start_date' => $request->get('start_date', ''),
+            'end_date' => $request->get('end_date', ''),
+        ];
+
+        $query = Booking::with(['user', 'room.resort', 'assignedBoat', 'resortOwner'])
+            ->orderBy('created_at', 'desc');
+
+        if (!empty($filters['search'])) {
+            $searchTerm = $filters['search'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('guest_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone_number', 'like', "%{$searchTerm}%")
+                  ->orWhere('guest_address', 'like', "%{$searchTerm}%")
+                  ->orWhereHas('user', function ($userQuery) use ($searchTerm) {
+                      $userQuery->where('first_name', 'like', "%{$searchTerm}%")
+                               ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                               ->orWhere('username', 'like', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('room.resort', function ($resortQuery) use ($searchTerm) {
+                      $resortQuery->where('resort_name', 'like', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('assignedBoat', function ($boatQuery) use ($searchTerm) {
+                      $boatQuery->where('boat_name', 'like', "%{$searchTerm}%")
+                               ->orWhere('boat_number', 'like', "%{$searchTerm}%");
+                  });
+            });
+        }
+
+        if (!empty($filters['start_date'])) {
+            $query->where('check_in_date', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $query->where('check_in_date', '<=', $filters['end_date']);
+        }
+
+        $bookings = $query->get();
+
+        $data = [
+            'bookings' => $bookings,
+            'filters' => $filters,
+            'generatedAt' => now(),
+        ];
+
+        $filename = 'admin-tourist-bookings-' . Carbon::now()->format('Y-m-d-H-i-s') . '.pdf';
+
+        // Prefer facade if available; otherwise fallback to raw Dompdf
+        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            $pdf = Pdf::loadView('admin.documentation-pdf', $data)->setPaper('a4', 'landscape');
+            return $pdf->download($filename);
+        }
+
+        // Fallback: use Dompdf directly
+        $html = view('admin.documentation-pdf', $data)->render();
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('a4', 'landscape');
+        $dompdf->render();
+        return response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

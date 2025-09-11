@@ -18,7 +18,7 @@
                             <img src="{{ Auth::user()->owner_image_path ? asset(Auth::user()->owner_image_path) : asset('images/default-avatar.png') }}" alt="Current Photo" class="rounded-circle me-3" style="width:64px;height:64px;object-fit:cover;border:1px solid #007bff;">
                             <div>
                                 <div class="text-muted small mb-1">{{ __('This photo appears in your navigation menu.') }}</div>
-                                <form action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+                                <form action="{{ route('profile.photo.update') }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2" id="profilePhotoForm">
                                     @csrf
                                     <input type="file" name="owner_image" accept="image/jpeg,image/png" class="form-control" style="max-width:300px;">
                                     <button type="submit" class="btn btn-sm btn-primary">{{ __('Change Photo') }}</button>
@@ -70,4 +70,65 @@
             </div>
         </div>
     </div>
+
+    {{-- SweetAlert2 for profile photo upload success --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            // Debug: Log session values
+            console.log('Profile info updated:', @json(session('profile_info_updated')));
+            console.log('Profile photo updated:', @json(session('profile_photo_updated')));
+            console.log('Password updated:', @json(session('password_updated')));
+            console.log('Status:', @json(session('status')));
+            console.log('All session data:', @json(session()->all()));
+
+            // Check if profile information was just updated (from server session)
+            @if(session('profile_info_updated'))
+                console.log('Showing profile info updated toast');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Your profile information has been saved',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    console.error('SweetAlert2 not loaded');
+                }
+            @endif
+
+            // Check if profile photo was just updated (from server session)
+            @if(session('profile_photo_updated'))
+                console.log('Showing profile photo updated toast');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Your profile photo has been saved',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    console.error('SweetAlert2 not loaded');
+                }
+            @endif
+
+            // Check if password was just updated (from server session)
+            @if(session('password_updated'))
+                console.log('Showing password updated toast');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Your password has been updated',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    console.error('SweetAlert2 not loaded');
+                }
+            @endif
+        });
+    </script>
 </x-app-layout>

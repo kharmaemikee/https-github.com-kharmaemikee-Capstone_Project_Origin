@@ -49,12 +49,8 @@ class NotificationController extends Controller
         $notification->is_read = true;
         $notification->save();
 
-        // Return JSON response if request expects JSON, otherwise redirect back
-        if (request()->expectsJson()) {
-            return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
-        }
-
-        return back()->with('success', 'Notification marked as read.');
+        // Return JSON response for AJAX requests
+        return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
     }
 
     /**
@@ -72,21 +68,13 @@ class NotificationController extends Controller
         try {
             $notification->delete();
             
-            // Return JSON response if request expects JSON, otherwise redirect back
-            if (request()->expectsJson()) {
-                return response()->json(['success' => true, 'message' => 'Notification deleted successfully.']);
-            }
-            
-            return back()->with('success', 'Notification deleted successfully.');
+            // Return JSON response for AJAX requests
+            return response()->json(['success' => true, 'message' => 'Notification deleted successfully.']);
         } catch (\Exception $e) {
             Log::error("Failed to delete tourist notification: " . $e->getMessage());
             
-            // Return JSON response if request expects JSON, otherwise redirect back
-            if (request()->expectsJson()) {
-                return response()->json(['error' => 'Failed to delete notification. Please try again.'], 500);
-            }
-            
-            return back()->with('error', 'Failed to delete notification. Please try again.');
+            // Return JSON response for AJAX requests
+            return response()->json(['error' => 'Failed to delete notification. Please try again.'], 500);
         }
     }
 
@@ -184,12 +172,8 @@ class NotificationController extends Controller
         $notification->is_read = true;
         $notification->save();
 
-        // Return JSON response if request expects JSON, otherwise redirect back
-        if (request()->expectsJson()) {
-            return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
-        }
-
-        return back()->with('success', 'Notification marked as read.');
+        // Return JSON response for AJAX requests
+        return response()->json(['success' => true, 'message' => 'Notification marked as read.']);
     }
 
     /**
@@ -233,10 +217,10 @@ class NotificationController extends Controller
                 ->where('is_read', false)
                 ->update(['is_read' => true]);
 
-            return redirect()->back()->with('success', 'All notifications marked as read.');
+            return response()->json(['success' => true, 'message' => 'All notifications marked as read.']);
         } catch (\Exception $e) {
             Log::error("Failed to mark all tourist notifications as read: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to mark all notifications as read. Please try again.');
+            return response()->json(['error' => 'Failed to mark all notifications as read. Please try again.'], 500);
         }
     }
 
@@ -258,10 +242,10 @@ class NotificationController extends Controller
                 ->where('is_read', false)
                 ->update(['is_read' => true]);
 
-            return redirect()->back()->with('success', 'All notifications marked as read.');
+            return response()->json(['success' => true, 'message' => 'All notifications marked as read.']);
         } catch (\Exception $e) {
             Log::error("Failed to mark all boat owner notifications as read: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to mark all notifications as read. Please try again.');
+            return response()->json(['error' => 'Failed to mark all notifications as read. Please try again.'], 500);
         }
     }
 }

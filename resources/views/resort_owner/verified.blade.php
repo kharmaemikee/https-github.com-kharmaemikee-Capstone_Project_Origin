@@ -26,7 +26,7 @@
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
                               title="Upload your permits first to unlock this feature">
-                            <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
+                            <img src="{{ asset('images/management.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
                             Resort Information
                             <span class="badge bg-warning ms-2">Locked</span>
                         </span>
@@ -158,6 +158,21 @@
 
                                 <div class="row">
                                     <div class="col-md-6">
+                                        @if(auth()->user()->is_approved)
+                                            <div class="alert alert-success mb-3">
+                                                <h6 class="mb-0">🎉 Congratulations! Your account has been fully approved.</h6>
+                                            </div>
+                                        @elseif(auth()->user()->bir_permit_path || auth()->user()->dti_permit_path || auth()->user()->business_permit_path || auth()->user()->tourism_registration_path)
+                                            <div class="alert alert-warning mb-3">
+                                                <h6 class="mb-0">⏳ Your permits are under review.</h6>
+                                                <small class="mb-0">Please wait for admin approval. You'll be able to access Resort Information once all permits are approved.</small>
+                                            </div>
+                                        @elseif(!auth()->user()->bir_permit_path && !auth()->user()->dti_permit_path && !auth()->user()->business_permit_path && !auth()->user()->tourism_registration_path)
+                                            <div class="alert alert-info mb-3">
+                                                <h6 class="mb-0">👋 Welcome! You can explore your dashboard and access basic features.</h6>
+                                                <small class="mb-0">To unlock Resort Information, please upload your permits (BIR, DTI, Business Permit, and Tourism Registration).</small>
+                                            </div>
+                                        @endif
                                         <h5 class="text-primary mb-3">Current Status</h5>
                                         <div class="status-cards">
                                             <div class="card mb-3 {{ auth()->user()->bir_approved ? 'border-success' : 'border-warning' }}">
@@ -167,7 +182,11 @@
                                                         @if(auth()->user()->bir_approved)
                                                             <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->bir_permit_path)
-                                                            <span class="badge badge-light-warning">Pending Review</span>
+                                                            @if(auth()->user()->bir_resubmitted)
+                                                                <span class="badge badge-light-warning">Please resubmit your permit</span>
+                                                            @else
+                                                                <span class="badge badge-light-warning">Pending Review</span>
+                                                            @endif
                                                         @else
                                                             <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
@@ -182,7 +201,11 @@
                                                         @if(auth()->user()->dti_approved)
                                                             <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->dti_permit_path)
-                                                            <span class="badge badge-light-warning">Pending Review</span>
+                                                            @if(auth()->user()->dti_resubmitted)
+                                                                <span class="badge badge-light-warning">Please resubmit your permit</span>
+                                                            @else
+                                                                <span class="badge badge-light-warning">Pending Review</span>
+                                                            @endif
                                                         @else
                                                             <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
@@ -197,7 +220,11 @@
                                                         @if(auth()->user()->business_permit_approved)
                                                             <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->business_permit_path)
-                                                            <span class="badge badge-light-warning">Pending Review</span>
+                                                            @if(auth()->user()->business_permit_resubmitted)
+                                                                <span class="badge badge-light-warning">Please resubmit your permit</span>
+                                                            @else
+                                                                <span class="badge badge-light-warning">Pending Review</span>
+                                                            @endif
                                                         @else
                                                             <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
@@ -213,7 +240,11 @@
                                                         @if(auth()->user()->tourism_registration_approved)
                                                             <span class="badge badge-light-success">✓ Approved</span>
                                                         @elseif(auth()->user()->tourism_registration_path)
-                                                            <span class="badge badge-light-warning">Pending Review</span>
+                                                            @if(auth()->user()->tourism_registration_resubmitted)
+                                                                <span class="badge badge-light-warning">Please resubmit your permit</span>
+                                                            @else
+                                                                <span class="badge badge-light-warning">Pending Review</span>
+                                                            @endif
                                                         @else
                                                             <span class="badge badge-light-secondary">Not Submitted</span>
                                                         @endif
@@ -222,21 +253,6 @@
                                             </div>
                                         </div>
 
-                                                                        @if(auth()->user()->is_approved)
-                                    <div class="alert alert-success">
-                                        <h6 class="mb-0">🎉 Congratulations! Your account has been fully approved.</h6>
-                                    </div>
-                                @elseif(!auth()->user()->bir_permit_path && !auth()->user()->dti_permit_path && !auth()->user()->business_permit_path && !auth()->user()->tourism_registration_path)
-                                    <div class="alert alert-info">
-                                        <h6 class="mb-0">👋 Welcome! You can explore your dashboard and access basic features.</h6>
-                                        <small class="mb-0">To unlock Resort Information, please upload your permits (BIR, DTI, Business Permit, and Tourism Registration).</small>
-                                    </div>
-                                @else
-                                    <div class="alert alert-warning">
-                                        <h6 class="mb-0">⏳ Your permits are under review.</h6>
-                                        <small class="mb-0">Please wait for admin approval. You'll be able to access Resort Information once all permits are approved.</small>
-                                    </div>
-                                @endif
                                     </div>
 
                                     <div class="col-md-6">
@@ -366,8 +382,69 @@
         }
     </style>
 
+    {{-- SweetAlert2 for notifications --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     {{-- Custom JavaScript to handle arrow rotation and mobile sidebar behavior --}}
     <script>
+        // Listen for real-time updates from admin panel
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'permit_resubmitted') {
+                const { documentType, reason } = event.data;
+                
+                // Update the status badge for the specific permit
+                const permitCards = document.querySelectorAll('.status-cards .card');
+                permitCards.forEach(card => {
+                    const permitName = card.querySelector('.fw-bold').textContent.toLowerCase();
+                    let permitType = '';
+                    
+                    // Map permit names to document types
+                    if (permitName.includes('bir')) permitType = 'bir_permit';
+                    else if (permitName.includes('dti')) permitType = 'dti_permit';
+                    else if (permitName.includes('business')) permitType = 'business_permit';
+                    else if (permitName.includes('tourism')) permitType = 'tourism_registration';
+                    
+                    if (permitType === documentType) {
+                        const badge = card.querySelector('.badge');
+                        if (badge) {
+                            badge.className = 'badge badge-light-warning';
+                            badge.textContent = 'Please resubmit your permit';
+                        }
+                        
+                        // Show a notification about the resubmit request
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: 'Permit Resubmission Required',
+                                text: `Your ${permitName} permit needs to be resubmitted. Reason: ${reason}`,
+                                icon: 'warning',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // Handle upload permits form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadForm = document.querySelector('form[action="{{ route('resort.owner.upload-permits') }}"]');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show SweetAlert2 popup
+                    Swal.fire({
+                        title: "You uploaded successfully!",
+                        icon: "success",
+                        draggable: true
+                    }).then(() => {
+                        // Submit the form after popup is closed
+                        uploadForm.submit();
+                    });
+                });
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             var collapseToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
 

@@ -20,8 +20,48 @@ class AdminUserController extends Controller
         if (Auth::user()?->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
-        $users = User::all(); // Assuming you want to display all users here
-        return view('admin.users_info', compact('users'));
+        $users = User::orderBy('created_at', 'desc')->get();
+        $userType = 'All Users';
+        return view('admin.users_info', compact('users', 'userType'));
+    }
+
+    /**
+     * List only resort owners.
+     */
+    public function resortUsers()
+    {
+        if (Auth::user()?->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+        $users = User::where('role', 'resort_owner')->orderBy('created_at', 'desc')->get();
+        $userType = 'Resort Users';
+        return view('admin.users_info', compact('users', 'userType'));
+    }
+
+    /**
+     * List only boat owners.
+     */
+    public function boatUsers()
+    {
+        if (Auth::user()?->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+        $users = User::where('role', 'boat_owner')->orderBy('created_at', 'desc')->get();
+        $userType = 'Boat Users';
+        return view('admin.users_info', compact('users', 'userType'));
+    }
+
+    /**
+     * List only tourists.
+     */
+    public function touristUsers()
+    {
+        if (Auth::user()?->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+        $users = User::where('role', 'tourist')->orderBy('created_at', 'desc')->get();
+        $userType = 'Tourist Users';
+        return view('admin.users_info', compact('users', 'userType'));
     }
 
     /**
@@ -66,16 +106,25 @@ class AdminUserController extends Controller
         }
 
         $validated = $request->validate([
-            'document_type' => 'required|string|in:bir_permit,dti_permit,business_permit,owner_image,lgu_resolution,marina_cpc,boat_association,tourism_registration',
+            // Owner image is auto-approved on upload; exclude from admin approval
+            'document_type' => 'required|string|in:bir_permit,dti_permit,business_permit,lgu_resolution,marina_cpc,boat_association,tourism_registration',
         ]);
 
         $user = User::findOrFail($id);
+
+        // Check if this permit has been requested for resubmission
+        $resubmitField = $validated['document_type'] . '_resubmitted';
+        if ($user->$resubmitField) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot approve permit that has been requested for resubmission. Please wait for the owner to upload a new permit.',
+            ], 400);
+        }
 
         $map = [
             'bir_permit' => 'bir_approved',
             'dti_permit' => 'dti_approved',
             'business_permit' => 'business_permit_approved',
-            'owner_image' => 'owner_pic_approved',
             'lgu_resolution' => 'lgu_resolution_approved',
             'marina_cpc' => 'marina_cpc_approved',
             'boat_association' => 'boat_association_approved',
@@ -94,7 +143,6 @@ class AdminUserController extends Controller
                 (bool) $user->bir_approved &&
                 (bool) $user->dti_approved &&
                 (bool) $user->business_permit_approved &&
-                (bool) $user->owner_pic_approved &&
                 (bool) $user->lgu_resolution_approved &&
                 (bool) $user->marina_cpc_approved &&
                 (bool) $user->boat_association_approved
@@ -105,7 +153,6 @@ class AdminUserController extends Controller
                 (bool) $user->bir_approved &&
                 (bool) $user->dti_approved &&
                 (bool) $user->business_permit_approved &&
-                (bool) $user->owner_pic_approved &&
                 (bool) $user->tourism_registration_approved
             );
         }
@@ -121,7 +168,6 @@ class AdminUserController extends Controller
             'bir_permit' => 'BIR Permit',
             'dti_permit' => 'DTI Permit',
             'business_permit' => 'Business Permit',
-            'owner_image' => 'Owner Image',
             'lgu_resolution' => 'LGU Resolution',
             'marina_cpc' => 'Marina CPC',
             'boat_association' => 'Boat Association Membership',
@@ -165,7 +211,9 @@ class AdminUserController extends Controller
         }
 
         $validated = $request->validate([
-            'document_type' => 'required|string|in:bir_permit,dti_permit,business_permit,owner_image,lgu_resolution,marina_cpc,boat_association,tourism_registration',
+            // Owner image is auto-approved; exclude from resubmit requests
+            'document_type' => 'required|string|in:bir_permit,dti_permit,business_permit,lgu_resolution,marina_cpc,boat_association,tourism_registration',
+            'reason' => 'required|string|max:500',
         ]);
 
         $user = User::findOrFail($id);
@@ -175,14 +223,17 @@ class AdminUserController extends Controller
             'bir_permit' => 'BIR Permit',
             'dti_permit' => 'DTI Permit',
             'business_permit' => 'Business Permit',
-            'owner_image' => 'Owner Image',
             'lgu_resolution' => 'LGU Resolution',
             'marina_cpc' => 'Marina CPC',
             'boat_association' => 'Boat Association Membership',
             'tourism_registration' => 'Tourism Registration',
         ];
 
-        $message = 'Please resubmit your ' . ($documentLabelMap[$validated['document_type']] ?? 'document') . ' because the previous file was not accepted.';
+        $message = 'Please resubmit your ' . ($documentLabelMap[$validated['document_type']] ?? 'document') . ' because the previous file was not accepted. Reason: ' . $validated['reason'];
+
+        // Set the resubmit flag for the specific document type
+        $resubmitField = $validated['document_type'] . '_resubmitted';
+        $user->update([$resubmitField => true]);
 
         if ($user->role === 'resort_owner') {
             ResortOwnerNotification::create([
@@ -252,7 +303,7 @@ class AdminUserController extends Controller
             abort(403, 'Unauthorized');
         }
         // Correct logic: Select users where nationality is not 'filipino' (case-insensitive)
-        $foreigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->get();
+        $foreigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->orderBy('created_at', 'desc')->get();
         return view('admin.foreign', compact('foreigners'));
     }
 
@@ -265,7 +316,7 @@ class AdminUserController extends Controller
             abort(403, 'Unauthorized');
         }
         // Correct logic: Select users where nationality is 'filipino' (case-insensitive)
-        $filipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->get();
+        $filipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->orderBy('created_at', 'desc')->get();
         return view('admin.total-filipino', compact('filipinos'));
     }
 }

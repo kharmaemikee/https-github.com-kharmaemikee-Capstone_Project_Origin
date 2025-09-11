@@ -28,10 +28,24 @@
                     </a>
                 </li>
                 <li class="nav-item mt-2">
-                    <a href="{{ route('admin.users') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                    <button class="nav-link text-white rounded p-2 d-flex align-items-center w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapse" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapse">
                         <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
                         Users
-                    </a>
+                        <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
+                    </button>
+                    <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapse">
+                        <ul class="nav flex-column ms-3 mt-1">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.resorts') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.boats') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.tourists') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 {{-- Documentation - now a direct link (Desktop) --}}
                 <li class="nav-item mt-2">
@@ -273,6 +287,8 @@
         .nav-link.text-white.active {
             background-color: rgb(6, 58, 170) !important; /* Specific blue for active/hover */
         }
+        .collapse-icon { transition: transform 0.3s ease; }
+        .collapse-icon.rotated { transform: rotate(180deg); }
 
         /* Custom Light Background Badges */
         .badge-light-success {
@@ -322,6 +338,28 @@
             padding: 8px 20px;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ['usersCollapse','usersCollapseMobile'].forEach(function(id){
+                var container = document.getElementById(id);
+                if(!container) return;
+                var triggerBtn = document.querySelector('[data-bs-target="#'+id+'"]');
+                var arrow = triggerBtn ? triggerBtn.querySelector('.collapse-icon') : null;
+                if(!arrow) return;
+                container.addEventListener('show.bs.collapse', function(){ arrow.classList.add('rotated'); });
+                container.addEventListener('hide.bs.collapse', function(){ arrow.classList.remove('rotated'); });
+            });
+            ['usersCollapse','usersCollapseMobile'].forEach(function(id){
+                var container = document.getElementById(id);
+                if(!container) return;
+                var triggerBtn = document.querySelector('[data-bs-target="#'+id+'"]');
+                var arrow = triggerBtn ? triggerBtn.querySelector('.collapse-icon') : null;
+                if(!arrow) return;
+                container.addEventListener('show.bs.collapse', function(){ arrow.classList.add('rotated'); });
+                container.addEventListener('hide.bs.collapse', function(){ arrow.classList.remove('rotated'); });
+            });
+        });
+    </script>
 
     {{-- Custom JavaScript to handle offcanvas hiding and modal logic --}}
     <script>
