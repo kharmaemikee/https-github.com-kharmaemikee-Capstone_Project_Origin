@@ -1,202 +1,251 @@
 <x-app-layout>
     <head>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
         @include('tourist.partials.sidebar')
 
         {{-- Main Content Area (Resort Details and Rooms) --}}
         <main class="py-4 px-3 flex-grow-1">
-            <h2 class="mb-2 d-flex align-items-center">
-                {{ $resort->resort_name }}
-                {{-- Display Resort Status Badge next to resort name, using custom light badges --}}
-                @php
-                    $resortStatusClass = '';
-                    $resortStatusText = ucfirst($resort->status ?? 'Unknown');
-                    switch ($resort->status) {
-                        case 'open':
-                            $resortStatusClass = 'badge-light-success';
-                            break;
-                        case 'closed':
-                            $resortStatusClass = 'badge-light-black';
-                            break;
-                        case 'maintenance':
-                            $resortStatusClass = 'badge-light-warning';
-                            break;
-                        default:
-                            $resortStatusClass = 'badge-light-secondary';
-                            break;
-                    }
-                @endphp
-                <span class="badge {{ $resortStatusClass }} ms-3 fs-6 px-3 py-2 rounded-pill">{{ $resortStatusText }}</span>
-            </h2>
+            {{-- Enhanced Header Section --}}
+            <div class="resort-header-section mb-5">
+                <div class="resort-header-content">
+                    <div class="resort-title-section">
+                        <h1 class="resort-title mb-3">
+                            <i class="fas fa-hotel text-primary me-3"></i>{{ $resort->resort_name }}
+                        </h1>
+                        {{-- Display Resort Status Badge --}}
+                        @php
+                            $resortStatusClass = '';
+                            $resortStatusText = ucfirst($resort->status ?? 'Unknown');
+                            switch ($resort->status) {
+                                case 'open':
+                                    $resortStatusClass = 'status-open';
+                                    break;
+                                case 'closed':
+                                    $resortStatusClass = 'status-closed';
+                                    break;
+                                case 'maintenance':
+                                    $resortStatusClass = 'status-maintenance';
+                                    break;
+                                default:
+                                    $resortStatusClass = 'status-unknown';
+                                    break;
+                            }
+                        @endphp
+                        <div class="resort-status-badge {{ $resortStatusClass }}">
+                            <i class="fas fa-circle me-2"></i>{{ $resortStatusText }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            {{-- Display Resort-level Maintenance Reason if applicable --}}
+            {{-- Resort Status Alerts --}}
             @if (($resort->status ?? '') === 'maintenance' && $resort->rehab_reason)
-                <div class="alert alert-warning mt-3" role="alert">
-                    <strong>Resort Under Maintenance:</strong> {{ $resort->rehab_reason }}
+                <div class="status-alert maintenance-alert">
+                    <div class="alert-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h5>Resort Under Maintenance</h5>
+                        <p>{{ $resort->rehab_reason }}</p>
+                    </div>
                 </div>
             @elseif (($resort->status ?? '') === 'closed')
-                <div class="alert alert-danger mt-3" role="alert">
-                    <strong>Resort Closed:</strong> This resort is currently not operating.
+                <div class="status-alert closed-alert">
+                    <div class="alert-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h5>Resort Closed</h5>
+                        <p>This resort is currently not operating.</p>
+                    </div>
                 </div>
             @endif
 
-            {{-- Display Contact Number if available --}}
-            @if ($resort->contact_number)
-                <p class="text-muted mb-1 d-flex align-items-center">
-                    <img src="{{ asset('images/phone.png') }}" alt="Phone Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    <strong style="margin-right: 10px;">Contact:</strong> {{ $resort->contact_number }}
-                </p>
-            @else
-                <p class="text-muted mb-1 d-flex align-items-center">
-                    <img src="{{ asset('images/phone.png') }}" alt="Phone Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    <strong>Contact:</strong> N/A
-                </p>
-            @endif
-
-            {{-- Display Facebook Page Link if available and valid URL --}}
-            @if ($resort->facebook_page_link)
-                <p class="text-muted mb-4 d-flex align-items-center">
-                    <img src="{{ asset('images/facebook.png') }}" alt="Facebook Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    <strong style="margin-right: 10px;">Facebook Page:</strong>
-                    <a href="{{ $resort->facebook_page_link }}" target="_blank" rel="noopener noreferrer">
-                        {{ $resort->facebook_page_link }}
-                    </a>
-                </p>
-            @else
-                <p class="text-muted mb-4 d-flex align-items-center">
-                    <img src="{{ asset('images/facebook.png') }}" alt="Facebook Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    <strong>Facebook Page:</strong> N/A
-                </p>
-            @endif
-
-            <div class="container py-4">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h2 class="mb-3">View Accommodations</h2>
-                        <div class="d-flex gap-2 mb-4">
-                            <a href="{{ request()->fullUrlWithQuery(['show' => 'rooms']) }}" class="btn btn-book-now">View Rooms</a>
-                            <a href="{{ request()->fullUrlWithQuery(['show' => 'cottages']) }}" class="btn btn-book-now">View Cottages</a>
+            {{-- Contact Information Section --}}
+            <div class="contact-info-section mb-5">
+                <div class="contact-cards">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
                         </div>
-                        <hr class="mb-4">
+                        <div class="contact-details">
+                            <h6>Contact Number</h6>
+                            <p>{{ $resort->contact_number ?? 'N/A' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fab fa-facebook"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h6>Facebook Page</h6>
+                            @if ($resort->facebook_page_link)
+                                <a href="{{ $resort->facebook_page_link }}" target="_blank" rel="noopener noreferrer" class="facebook-link">
+                                    Visit Page
+                                </a>
+                            @else
+                                <p>N/A</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Accommodations Section --}}
+            <div class="accommodations-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-bed me-3"></i>View Accommodations
+                    </h2>
+                    <div class="accommodation-tabs">
+                        <a href="{{ request()->fullUrlWithQuery(['show' => 'rooms']) }}" 
+                           class="accommodation-tab {{ request('show', 'rooms') === 'rooms' ? 'active' : '' }}">
+                            <i class="fas fa-bed me-2"></i>Rooms
+                        </a>
+                        <a href="{{ request()->fullUrlWithQuery(['show' => 'cottages']) }}" 
+                           class="accommodation-tab {{ request('show') === 'cottages' ? 'active' : '' }}">
+                            <i class="fas fa-home me-2"></i>Cottages
+                        </a>
                     </div>
                 </div>
 
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                    @php
-                        $show = request('show', 'rooms');
-                        $list = $show === 'cottages' ? $resort->rooms->where('accommodation_type','cottage') : $resort->rooms->where('accommodation_type','room');
-                    @endphp
-                    @forelse ($list as $room)
-                        <div class="col">
-                            {{-- The card itself is no longer the direct modal trigger --}}
-                            <div class="card shadow-sm h-100 rounded">
-                                {{-- This new div will be the clickable area for the modal --}}
-                                <div class="room-card-content-clickable"
-                                    data-bs-toggle="modal" data-bs-target="#roomDetailsModal"
-                                    data-room-image="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
-                                    data-room-name="{{ $room->room_name }}"
-                                    data-room-description="{{ $room->description }}"
-                                    data-room-max-guests="{{ $room->max_guests }}"
-                                    data-room-price="₱{{ number_format($room->price_per_night, 2) }} / Night"
-                                    data-room-status-text="{{ ucfirst($room->status ?? 'Unknown') }}"
-                                    data-room-status-class="@php
+                <div class="accommodations-grid">
+                    <div class="row g-4">
+                        @php
+                            $show = request('show', 'rooms');
+                            $list = $show === 'cottages' ? $resort->rooms->where('accommodation_type','cottage') : $resort->rooms->where('accommodation_type','room');
+                        @endphp
+                        @forelse ($list as $room)
+                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                <div class="accommodation-card modern-accommodation-card">
+                                    <div class="accommodation-image-container">
+                                        <img src="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
+                                             class="accommodation-image"
+                                             alt="{{ $room->room_name }}"
+                                             onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                        
+                                        <div class="accommodation-overlay">
+                                            <div class="overlay-content">
+                                                <i class="fas fa-eye overlay-icon"></i>
+                                                <span class="overlay-text">View Details</span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Room Status Badge --}}
+                                        @php
+                                            $roomStatusClass = '';
+                                            $roomStatusText = ucfirst($room->status ?? 'Unknown');
                                             switch ($room->status) {
-                                                case 'open': echo 'badge-light-success'; break;
-                                                case 'closed': echo 'badge-light-black'; break;
-                                                case 'maintenance': echo 'badge-light-warning'; break;
-                                                default: echo 'badge-light-secondary'; break;
+                                                case 'open':
+                                                    $roomStatusClass = 'status-open';
+                                                    break;
+                                                case 'closed':
+                                                    $roomStatusClass = 'status-closed';
+                                                    break;
+                                                case 'rehab':
+                                                    $roomStatusClass = 'status-rehab';
+                                                    break;
+                                                default:
+                                                    $roomStatusClass = 'status-unknown';
+                                                    break;
                                             }
                                         @endphp
-                                    data-room-rehab-reason="{{ (($room->status ?? '') === 'maintenance' && $room->rehab_reason) ? 'Reason: ' . $room->rehab_reason : '' }}"
-                                    data-room-admin-status="{{ $room->admin_status ?? '' }}"
-                                    data-resort-status="{{ $resort->status ?? '' }}"
-                                    data-room-id="{{ $room->id }}" {{-- Pass room ID to the modal trigger --}}
-                                    style="cursor: pointer;"> {{-- Add cursor pointer for visual cue --}}
+                                        <div class="status-badge {{ $roomStatusClass }}">
+                                            <i class="fas fa-circle me-1"></i>
+                                            {{ $roomStatusText }}
+                                        </div>
+                                    </div>
 
-                                    <img src="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
-                                        class="card-img-top rounded-top"
-                                        alt="{{ $room->room_name }}"
-                                        style="height: 150px; object-fit: cover;"
-                                        >
-                                    <div class="card-body d-flex flex-column justify-content-between pb-0"> {{-- pb-0 to make space for button --}}
-                                        <div>
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <h5 class="card-title mb-0">{{ $room->room_name }}</h5>
-                                                {{-- Display Room Status Badge, using custom light badges --}}
-                                                @php
-                                                    $roomStatusClass = '';
-                                                    $roomStatusText = ucfirst($room->status ?? 'Unknown');
-                                                    switch ($room->status) {
-                                                        case 'open':
-                                                            $roomStatusClass = 'badge-light-success';
-                                                            break;
-                                                        case 'closed':
-                                                            $roomStatusClass = 'badge-light-black';
-                                                            break;
-                                                        case 'rehab':
-                                                            $roomStatusClass = 'badge-light-warning';
-                                                            break;
-                                                        default:
-                                                            $roomStatusClass = 'badge-light-secondary';
-                                                            break;
-                                                    }
-                                                @endphp
-                                                <span class="badge {{ $roomStatusClass }} fs-6 px-3 py-1 rounded-pill">{{ $roomStatusText }}</span>
+                                    <div class="accommodation-content">
+                                        <div class="accommodation-header">
+                                            <h3 class="accommodation-title">{{ $room->room_name }}</h3>
+                                            <div class="accommodation-details">
+                                                <div class="detail-item">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    <span>{{ $room->max_guests }} guests</span>
+                                                </div>
+                                                <div class="detail-item price">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    <span>₱{{ number_format($room->price_per_night, 2) }}</span>
+                                                </div>
                                             </div>
-
-                                            <p class="card-text text-muted small mb-1">
-                                                {{-- Max Guests Icon --}}
-                                                <i class="bi bi-people-fill me-1"></i> Max Guests: {{ $room->max_guests }}
-                                            </p>
-                                            <p class="card-text text-muted small mb-3">
-                                                {{-- Price Icon --}}
-                                                <i class="bi bi-currency-dollar me-1"></i> Price per Stay: ₱{{ number_format($room->price_per_night, 2) }}
-                                            </p>
-                                            @if($room->description)
-                                                <p class="card-text small room-description-truncated">{{ Str::limit($room->description, 100) }}</p>
-                                            @endif
                                         </div>
-                                        <div>
-                                            {{-- Display Room Rehab Reason if applicable --}}
-                                            @if (($room->status ?? '') === 'rehab' && $room->rehab_reason)
-                                                <p class="card-text text-danger small mt-0 mb-3 text-start">
-                                                    <small>Reason: {{ $room->rehab_reason }}</small>
-                                                </p>
+
+                                        @if($room->description)
+                                            <div class="amenities-section">
+                                                <h6>Amenities:</h6>
+                                                <div class="amenities-list">
+                                                    @php
+                                                        $amenities = explode('•', $room->description);
+                                                    @endphp
+                                                    @foreach ($amenities as $amenity)
+                                                        @php
+                                                            $amenity = trim($amenity);
+                                                        @endphp
+                                                        @if (!empty($amenity))
+                                                            <div class="amenity-item">
+                                                                <i class="fas fa-check me-1"></i>
+                                                                {{ $amenity }}
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        {{-- Display Room Rehab Reason if applicable --}}
+                                        @if (($room->status ?? '') === 'rehab' && $room->rehab_reason)
+                                            <div class="rehab-reason">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                <span>{{ $room->rehab_reason }}</span>
+                                            </div>
+                                        @endif
+
+                                        <div class="accommodation-actions">
+                                            @if ($room->status === 'open' && $room->admin_status === 'approved' && ($resort->status === 'open' || $resort->status === 'rehab'))
+                                                <a href="#" class="btn btn-primary accommodation-btn"
+                                                   data-bs-toggle="modal" data-bs-target="#termsAndConditionsModal"
+                                                   data-room-id="{{ $room->id }}"
+                                                   data-room-name="{{ $room->room_name }}">
+                                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                                </a>
+                                            @elseif ($room->admin_status !== 'approved')
+                                                <button class="btn btn-secondary accommodation-btn" disabled>
+                                                    <i class="fas fa-clock me-2"></i>Awaiting Approval
+                                                </button>
+                                            @elseif ($room->status === 'closed')
+                                                <button class="btn btn-secondary accommodation-btn" disabled>
+                                                    <i class="fas fa-times-circle me-2"></i>Closed
+                                                </button>
+                                            @elseif ($room->status === 'rehab')
+                                                <button class="btn btn-secondary accommodation-btn" disabled>
+                                                    <i class="fas fa-tools me-2"></i>Under Rehab
+                                                </button>
                                             @else
-                                                <p class="card-text text-muted small mt-0 mb-3" style="min-height: 20px; text-align: start;">
-                                                    {{-- Placeholder to maintain consistent height --}}
-                                                </p>
+                                                <button class="btn btn-secondary accommodation-btn" disabled>
+                                                    <i class="fas fa-ban me-2"></i>Unavailable
+                                                </button>
                                             @endif
                                         </div>
-                                    </div> {{-- End room-card-content-clickable --}}
-                                </div>
-
-                                {{-- "Book Now" button remains a regular button, outside the modal trigger div --}}
-                                <div class="mt-auto text-end p-3 pt-0"> {{-- Added padding to align with card-body, pt-0 to prevent double padding --}}
-                                    @if ($room->status === 'open' && $room->admin_status === 'approved' && ($resort->status === 'open' || $resort->status === 'rehab'))
-                                        <a href="#" class="btn btn-sm btn-book-now"
-                                            data-bs-toggle="modal" data-bs-target="#termsAndConditionsModal"
-                                            data-room-id="{{ $room->id }}"
-                                            data-room-name="{{ $room->room_name }}">Book Now</a>
-                                    @elseif ($room->admin_status !== 'approved')
-                                        <button class="btn btn-secondary btn-sm" disabled>Awaiting Approval</button>
-                                    @elseif ($room->status === 'closed')
-                                        <button class="btn btn-secondary btn-sm" disabled>Closed</button>
-                                    @elseif ($room->status === 'rehab')
-                                        <button class="btn btn-secondary btn-sm" disabled>Under Rehab</button>
-                                    @else
-                                        <button class="btn btn-secondary btn-sm" disabled>Unavailable</button>
-                                    @endif
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-center text-muted">No rooms available for this resort yet.</p>
-                        </div>
-                    @endforelse
+                        @empty
+                            <div class="col-12">
+                                <div class="empty-accommodations">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-bed"></i>
+                                    </div>
+                                    <h3 class="empty-title">No Accommodations Available</h3>
+                                    <p class="empty-message">This resort doesn't have any {{ request('show', 'rooms') }} available yet. Please check back later!</p>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </main>
@@ -300,114 +349,529 @@
     </div>
 
     <style>
-        /* Custom CSS for sidebar nav-link hover and focus */
+        /* ===== MODERN RESORT DETAILS PAGE STYLES ===== */
+        
+        /* Sidebar Navigation */
         .nav-link.text-white:hover,
         .nav-link.text-white:focus,
         .nav-link.text-white.active {
-            background-color: rgb(6, 58, 170) !important; /* Maroon Red */
+            background-color: rgb(6, 58, 170) !important;
         }
 
-        /* Custom styles for cards, similar to your explore page */
-        .card {
-            border: 1px solid #e0e0e0;
-            border-radius: 0.5rem;
-            overflow: hidden;
+        /* ===== RESORT HEADER SECTION ===== */
+        .resort-header-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
         }
-        .card-img-top {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
+
+        .resort-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .card-body {
-            padding: 1rem;
-            background-color: var(--bs-light);
+
+        .resort-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 1rem;
         }
-        .card-title {
-            font-weight: bold;
-            color: #333;
-            font-size: 1.15rem;
+
+        .status-open {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
         }
-        .card-text {
-            font-size: 0.95rem;
+
+        .status-closed {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .status-maintenance {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .status-unknown {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        /* ===== STATUS ALERTS ===== */
+        .status-alert {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .maintenance-alert {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+        }
+
+        .closed-alert {
+            background: linear-gradient(135deg, #f8d7da, #fab1a0);
+            border: 2px solid #dc3545;
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: #856404;
+        }
+
+        .closed-alert .alert-icon {
+            color: #721c24;
+        }
+
+        .alert-content h5 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+        }
+
+        .alert-content p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* ===== CONTACT INFORMATION SECTION ===== */
+        .contact-info-section {
+            margin-bottom: 3rem;
+        }
+
+        .contact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(0, 123, 255, 0.1);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
+            border-color: rgba(0, 123, 255, 0.3);
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .contact-card:nth-child(1) .contact-icon {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .contact-card:nth-child(2) .contact-icon {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .contact-details h6 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .contact-details p {
+            margin: 0;
             color: #6c757d;
         }
-        .card-text strong {
-            font-weight: bold;
+
+        .facebook-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
-        /* Removed btn-primary overrides and added btn-book-now */
-        .flex-grow-1 {
-            flex-grow: 1;
+
+        .facebook-link:hover {
+            color: #0056b3;
         }
-        .h-100.d-flex.flex-column {
+
+        /* ===== ACCOMMODATIONS SECTION ===== */
+        .accommodations-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .accommodation-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .accommodation-tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            border: 2px solid transparent;
+        }
+
+        .accommodation-tab:hover {
+            background: rgba(0, 123, 255, 0.2);
+            color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .accommodation-tab.active {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        /* ===== ACCOMMODATION CARDS ===== */
+        .accommodations-grid {
+            margin-top: 2rem;
+        }
+
+        .modern-accommodation-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(0, 123, 255, 0.1);
+            overflow: hidden;
             height: 100%;
+            position: relative;
+        }
+
+        .modern-accommodation-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 123, 255, 0.15);
+            border-color: rgba(0, 123, 255, 0.3);
+        }
+
+        /* Accommodation Image Container */
+        .accommodation-image-container {
+            position: relative;
+            overflow: hidden;
+            height: 220px;
+        }
+
+        .accommodation-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.4s ease;
+        }
+
+        .modern-accommodation-card:hover .accommodation-image {
+            transform: scale(1.1);
+        }
+
+        /* Accommodation Overlay */
+        .accommodation-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.8) 0%, rgba(0, 86, 179, 0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modern-accommodation-card:hover .accommodation-overlay {
+            opacity: 1;
+        }
+
+        .overlay-content {
+            text-align: center;
+            color: white;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modern-accommodation-card:hover .overlay-content {
+            transform: translateY(0);
+        }
+
+        .overlay-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .overlay-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        /* Accommodation Content */
+        .accommodation-content {
+            padding: 1.5rem;
+        }
+
+        .accommodation-header {
+            margin-bottom: 1rem;
+        }
+
+        .accommodation-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .accommodation-details {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
         }
 
-        /* Make room card content clickable for modal */
-        .room-card-content-clickable {
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            height: 100%; /* Ensure this div fills the card height minus the button */
+        .detail-item {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .detail-item.price {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Amenities Section */
+        .amenities-section {
+            margin: 1rem 0;
+        }
+
+        .amenities-section h6 {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+        }
+
+        .amenities-list {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .room-card-content-clickable:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-size: 0.85rem;
         }
 
-        /* CUSTOM LIGHT BACKGROUND BADGES (Copied from previous response for consistency) */
-        .badge-light-success {
-            background-color: #d4edda !important;
-            color: #155724 !important;
-            border: 1px solid #c3e6cb !important;
+        .amenity-item i {
+            color: #28a745;
         }
 
-        .badge-light-warning {
-            background-color: #fff3cd !important;
-            color: #85640a !important;
-            border: 1px solid #ffeeba !important;
+        /* Rehab Reason */
+        .rehab-reason {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            color: #856404;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
         }
 
-        .badge-light-danger {
-            background-color: #f8d7da !important;
-            color: #721c24 !important;
-            border: 1px solid #f5c6cb !important;
+        /* Accommodation Actions */
+        .accommodation-actions {
+            margin-top: 1.5rem;
         }
 
-        .badge-light-info {
-            background-color: #e0f7fa !important;
-            color: #0c5460 !important;
-            border: 1px solid #b8daff !important;
+        .accommodation-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
         }
 
-        .badge-light-secondary {
-            background-color: #e2e3e5 !important;
-            color: #383d41 !important;
-            border: 1px solid #d3d6da !important;
+        .accommodation-btn.btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
-        .badge-light-black {
-            background-color: #f8f9fa !important; /* Very light gray, almost white */
-            color: #212529 !important; /* Dark text for contrast */
-            border: 1px solid #dee2e6 !important;
+        .accommodation-btn.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3, #004085);
         }
 
-        /* CUSTOM "BOOK NOW" BUTTON STYLE */
-        .btn-book-now {
-            background-color: rgb(9, 135, 219); /* Blue color from your explore page's "View Rooms" button */
-            border-color: rgb(9, 135, 219);
-            color: #fff;
-            border-radius: 6px; /* Added border-radius for rounded shape */
-            padding: 7px 10px;   /* Adjusted padding for smaller button */
-            font-weight: bold;
-            transition: background-color 0.2s, border-color 0.2s;
+        .accommodation-btn.btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
         }
 
-        .btn-book-now:hover {
-            background-color: rgb(5, 95, 155) !important;
-            border-color: rgb(5, 95, 155) !important;
+        /* ===== EMPTY STATE ===== */
+        .empty-accommodations {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(0, 123, 255, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .empty-message {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin: 0;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .resort-header-section {
+                padding: 1.5rem;
+            }
+
+            .resort-title {
+                font-size: 2rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .accommodation-tabs {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .contact-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .accommodation-image-container {
+                height: 200px;
+            }
+
+            .accommodation-content {
+                padding: 1.25rem;
+            }
+
+            .accommodation-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .resort-header-section {
+                padding: 1rem;
+            }
+
+            .resort-title {
+                font-size: 1.75rem;
+            }
+
+            .accommodation-image-container {
+                height: 180px;
+            }
+
+            .accommodation-content {
+                padding: 1rem;
+            }
+
+            .accommodation-title {
+                font-size: 1.1rem;
+            }
+
+            .status-badge {
+                top: 10px;
+                right: 10px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            .accommodation-tab {
+                padding: 0.6rem 1.25rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
 
@@ -545,4 +1009,226 @@
             });
         });
     </script>
+
+    <style>
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .notification-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Custom CSS for sidebar nav-link hover and focus */
+        .nav-link.text-white:hover,
+        .nav-link.text-white:focus,
+        .nav-link.text-white.active {
+            background-color: rgb(6, 58, 170) !important; /* Maroon Red */
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 2rem;
+            background: transparent;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 767.98px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
 </x-app-layout>

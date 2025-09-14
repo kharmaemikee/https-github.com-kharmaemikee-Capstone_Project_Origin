@@ -1,71 +1,126 @@
 <section>
     <header>
-        <p class="text-muted small">{{ __('Update your account\'s personal information.') }}</p>
+        <p>{{ __('Update your account\'s personal information.') }}</p>
     </header>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-3">
+    <form method="post" action="{{ route('profile.update') }}" class="modern-form">
         @csrf
         @method('patch')
 
-        <div class="mb-3">
-            <label for="first_name" class="form-label">{{ __('First Name') }}</label>
-            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ old('first_name', $user->first_name) }}" required autofocus>
-            @error('first_name') <div class="text-danger small">{{ $message }}</div> @enderror
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first_name" class="form-label">
+                    <i class="fas fa-user me-2"></i>{{ __('First Name') }}
+                </label>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ old('first_name', $user->first_name) }}" required autofocus>
+                @error('first_name') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="last_name" class="form-label">
+                    <i class="fas fa-user me-2"></i>{{ __('Last Name') }}
+                </label>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ old('last_name', $user->last_name) }}" required>
+                @error('last_name') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="middle_name" class="form-label">{{ __('Middle Name (optional)') }}</label>
-            <input type="text" class="form-control" id="middle_name" name="middle_name" value="{{ old('middle_name', $user->middle_name) }}">
-            @error('middle_name') <div class="text-danger small">{{ $message }}</div> @enderror
+        <div class="form-row">
+            <div class="form-group">
+                <label for="middle_name" class="form-label">
+                    <i class="fas fa-user me-2"></i>{{ __('Middle Name (optional)') }}
+                </label>
+                <input type="text" class="form-control" id="middle_name" name="middle_name" value="{{ old('middle_name', $user->middle_name) }}">
+                @error('middle_name') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="fas fa-at me-2"></i>{{ __('Username') }}
+                </label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ old('username', $user->username) }}" required>
+                @error('username') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="last_name" class="form-label">{{ __('Last Name') }}</label>
-            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ old('last_name', $user->last_name) }}" required>
-            @error('last_name') <div class="text-danger small">{{ $message }}</div> @enderror
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birthday" class="form-label">
+                    <i class="fas fa-birthday-cake me-2"></i>{{ __('Birthday') }}
+                </label>
+                <input type="date" class="form-control" id="birthday" name="birthday" value="{{ old('birthday', $user->birthday) }}" max="{{ date('Y-m-d') }}" onchange="validateProfileAge(this)">
+                @error('birthday') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+                <div id="profile-age-error" class="error-message" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="gender" class="form-label">
+                    <i class="fas fa-venus-mars me-2"></i>{{ __('Gender') }}
+                </label>
+                <select class="form-control" id="gender" name="gender">
+                    <option value="">{{ __('Select Gender') }}</option>
+                    <option value="male" {{ old('gender', $user->gender) === 'male' ? 'selected' : '' }}>{{ __('Male') }}</option>
+                    <option value="female" {{ old('gender', $user->gender) === 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
+                    <option value="other" {{ old('gender', $user->gender) === 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
+                </select>
+                @error('gender') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="username" class="form-label">{{ __('Username') }}</label>
-            <input type="text" class="form-control" id="username" name="username" value="{{ old('username', $user->username) }}" required>
-            @error('username') <div class="text-danger small">{{ $message }}</div> @enderror
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nationality" class="form-label">
+                    <i class="fas fa-flag me-2"></i>{{ __('Nationality') }}
+                </label>
+                <input type="text" class="form-control" id="nationality" name="nationality" value="{{ old('nationality', $user->nationality) }}">
+                @error('nationality') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="address" class="form-label">
+                    <i class="fas fa-map-marker-alt me-2"></i>{{ __('Address') }}
+                </label>
+                <input type="text" class="form-control" id="address" name="address" value="{{ old('address', $user->address) }}">
+                @error('address') 
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                    </div> 
+                @enderror
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="birthday" class="form-label">{{ __('Birthday') }}</label>
-            <input type="date" class="form-control" id="birthday" name="birthday" value="{{ old('birthday', $user->birthday) }}" max="{{ date('Y-m-d') }}" onchange="validateProfileAge(this)">
-            @error('birthday') <div class="text-danger small">{{ $message }}</div> @enderror
-            <div id="profile-age-error" class="text-danger small" style="display: none;"></div>
-        </div>
-
-        <div class="mb-3">
-            <label for="gender" class="form-label">{{ __('Gender') }}</label>
-            <select class="form-control" id="gender" name="gender">
-                <option value="">{{ __('Select Gender') }}</option>
-                <option value="male" {{ old('gender', $user->gender) === 'male' ? 'selected' : '' }}>{{ __('Male') }}</option>
-                <option value="female" {{ old('gender', $user->gender) === 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
-                <option value="other" {{ old('gender', $user->gender) === 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
-            </select>
-            @error('gender') <div class="text-danger small">{{ $message }}</div> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="nationality" class="form-label">{{ __('Nationality') }}</label>
-            <input type="text" class="form-control" id="nationality" name="nationality" value="{{ old('nationality', $user->nationality) }}">
-            @error('nationality') <div class="text-danger small">{{ $message }}</div> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="address" class="form-label">{{ __('Address') }}</label>
-            <input type="text" class="form-control" id="address" name="address" value="{{ old('address', $user->address) }}">
-            @error('address') <div class="text-danger small">{{ $message }}</div> @enderror
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-            <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
-
-            @if (session('status') === 'profile-updated')
-            @endif
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
+            </button>
         </div>
     </form>
 </section>

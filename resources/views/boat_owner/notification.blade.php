@@ -4,125 +4,159 @@
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            {{-- Icon added here for Boat Owner using <img> --}}
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                Boat Menu
-            </h4>
-            <ul class="nav flex-column mt-3">
-               
-                <li class="nav-item mt-2">
-                    <a href="{{ route('boat.owner.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                        <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Dashboard
+        <div class="modern-sidebar d-none d-md-block">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="brand-icon-img">
+                    </div>
+                    <div class="brand-text">
+                        <h4 class="brand-title">Welcome {{ auth()->user()->first_name }}</h4>
+                        <p class="brand-subtitle">Boat Owner Portal</p>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-nav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
+                    <li class="nav-item">
                     @if(auth()->user()->canAccessMainFeatures())
-                        <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Boat Management
+                            <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
                         </a>
                     @else
-                        <span class="nav-link text-white-50 rounded p-2 d-flex align-items-center disabled-link" 
+                            <span class="nav-link disabled-link" 
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
                               title="Upload your permits first to unlock this feature">
-                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
-                            Boat Management
-                            <span class="badge bg-warning ms-2">Locked</span>
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
+                                <span class="nav-badge">Locked</span>
                         </span>
                     @endif
                 </li>
-                <li class="nav-item mt-2">
-                    <a href="{{ route('boat.owner.verified') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                        <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Account Management
+                    <li class="nav-item">
+                        <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Account Management</span>
                     </a>
                 </li>
-                {{-- Notification (Desktop) --}}
-                <li class="nav-item mt-2">
-                    <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Notifications
+                    <li class="nav-item">
+                        <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Notifications</span>
                         @if(isset($unreadCount) && $unreadCount > 0)
-                            <span class="badge bg-danger ms-2" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                                <span class="nav-badge notification-badge" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
                         @endif
                     </a>
                 </li>
             </ul>
+            </div>
         </div>
 
         {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
                 {{-- Icon added here for Boat Owner in mobile sidebar using <img> --}}
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Boat Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Welcome {{ auth()->user()->first_name }}</h5>
+                        <p class="mobile-brand-subtitle">Boat Owner Portal</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
                 <ul class="nav flex-column">
-                    
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('boat.owner.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
+                        <li class="nav-item">
+                            <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
+                        <li class="nav-item">
                         @if(auth()->user()->canAccessMainFeatures())
-                            <a href="{{ route('boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Boat Management
+                                <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                    </div>
+                                    <span class="nav-text">Boat Management</span>
                             </a>
                         @else
-                            <span class="nav-link text-white-50 rounded p-2 d-flex align-items-center disabled-link" 
+                                <span class="nav-link disabled-link" 
                                   data-bs-toggle="tooltip" 
                                   data-bs-placement="right" 
                                   title="Upload your permits first to unlock this feature">
-                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
-                                Boat Management
-                                <span class="badge bg-warning ms-2">Locked</span>
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
+                                    </div>
+                                    <span class="nav-text">Boat Management</span>
+                                    <span class="nav-badge">Locked</span>
                             </span>
                         @endif
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('boat.owner.verified') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Account Management
+                        <li class="nav-item">
+                            <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Account Management</span>
                         </a>
                     </li>
-                    {{-- Notification (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('boat.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notifications
+                        <li class="nav-item">
+                            <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Notifications</span>
                             @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
                             @endif
                         </a>
                     </li>
                 </ul>
+                </div>
             </div>
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
-            <div class="container py-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h3>Boat Owner Notifications</h3>
+        <div class="main-content flex-grow-1">
+            <div class="container-fluid py-4">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-header mb-4">
+                            <h2 class="page-title">Notifications</h2>
+                            <p class="page-subtitle">Manage your boat owner notifications</p>
+                        </div>
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 {{ session('success') }}
@@ -138,31 +172,41 @@
                         @endif
 
                         @if ($boatOwnerNotifications->isEmpty())
-                            <div class="alert alert-info">You have no notifications.</div>
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-bell-slash"></i>
+                                </div>
+                                <h4>No Notifications</h4>
+                                <p>You don't have any notifications yet.</p>
+                            </div>
                         @else
                             {{-- Mark All as Read Button --}}
                             @php
                                 $unreadCount = $boatOwnerNotifications->where('is_read', false)->count();
                             @endphp
                             @if($unreadCount > 0)
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span class="text-muted">{{ $unreadCount }} unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
+                                <div class="notification-header">
+                                    <div class="unread-count">
+                                        <span class="count-badge">{{ $unreadCount }}</span>
+                                        <span class="count-text">unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
+                                    </div>
                                     <form action="{{ route('boat.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-check-all me-1"></i>Mark All as Read
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-check-double me-1"></i>Mark All as Read
                                         </button>
                                     </form>
                                 </div>
                             @endif
-                            <div class="list-group">
+                            <div class="notifications-list">
                                 @foreach ($boatOwnerNotifications as $notification)
-                                    <div class="list-group-item list-group-item-action {{ $notification->is_read ? 'text-muted' : 'border-primary' }}" id="notification-{{ $notification->id }}" data-notification-id="{{ $notification->id }}">
-                                        <div class="d-flex w-100 justify-content-between align-items-center">
-                                            <h5 class="mb-1">{{ $notification->message }}</h5>
-                                            <small class="text-nowrap">{{ $notification->created_at->diffForHumans() }}</small>
-                                        </div>
+                                    <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}" id="notification-{{ $notification->id }}" data-notification-id="{{ $notification->id }}">
+                                        <div class="notification-content">
+                                            <div class="notification-header">
+                                                <h5 class="notification-title">{{ $notification->message }}</h5>
+                                                <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
+                                            </div>
                                         @if ($notification->type === 'permit_resubmit')
                                             @php
                                                 $docMap = [
@@ -293,24 +337,27 @@
                                                 @endif
                                             @endif
                                         @endif
-                                        {{-- Action buttons for ALL notifications --}}
-                                        <div class="mt-3 d-flex justify-content-end align-items-center">
-                                            @unless ($notification->is_read)
-                                                <form action="{{ route('boat.owner.notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline me-2">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
-                                                </form>
-                                            @endunless
-                                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteNotificationModal" data-notification-id="{{ $notification->id }}">
-                                                Delete
-                                            </button>
+                                            {{-- Action buttons for ALL notifications --}}
+                                            <div class="notification-actions">
+                                                @unless ($notification->is_read)
+                                                    <form action="{{ route('boat.owner.notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline me-2">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-check me-1"></i>Mark as Read
+                                                        </button>
+                                                    </form>
+                                                @endunless
+                                                <button type="button" class="btn btn-outline-danger btn-sm delete-notification-btn" data-notification-id="{{ $notification->id }}">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </div>
                                         </div>
 
                                     </div>
                                 @endforeach
                             </div>
-                            <div class="d-flex justify-content-center mt-4">
+                            <div class="pagination-wrapper">
                                 {{ $boatOwnerNotifications->links('vendor.pagination.boat-owner') }}
                             </div>
                         @endif
@@ -320,28 +367,6 @@
         </div>
     </div>
 
-    {{-- Delete Notification Confirmation Modal --}}
-    <div class="modal fade" id="deleteNotificationModal" tabindex="-1" aria-labelledby="deleteNotificationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteNotificationModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this notification? This action cannot be undone.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form id="deleteNotificationForm" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- Permit Resubmit Upload Box if notification is type permit_resubmit --}}
     @if(isset($boatOwnerNotifications))
@@ -352,16 +377,6 @@
                     if (!heading) return;
                 });
 
-                // Delete notification modal handling
-                var deleteNotificationModal = document.getElementById('deleteNotificationModal');
-                if (deleteNotificationModal) {
-                    deleteNotificationModal.addEventListener('show.bs.modal', function (event) {
-                        var button = event.relatedTarget;
-                        var notificationId = button.getAttribute('data-notification-id');
-                        var form = document.getElementById('deleteNotificationForm');
-                        form.action = '/boat_owner/notifications/' + notificationId;
-                    });
-                }
             });
         </script>
     @endif
@@ -370,10 +385,461 @@
 
     {{-- Custom CSS for sidebar nav-link hover and focus and icon rotation --}}
     <style>
-        .nav-link.text-white:hover,
-        .nav-link.text-white:focus,
-        .nav-link.text-white.active {
-            background-color: rgb(6, 58, 170) !important;
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Modern Sidebar Styles */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: #2c3e50;
+            border-right: 1px solid #34495e;
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-badge {
+            background: #e74c3c;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            margin-left: auto;
+            font-weight: 600;
+        }
+
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: #2c3e50;
+            width: 85vw !important;
+            max-width: 350px;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.25rem 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        /* Simple Notifications Design */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h4 {
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #adb5bd;
+            margin: 0;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .unread-count {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .count-badge {
+            background: #e74c3c;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .count-text {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notification-item {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .notification-item.unread {
+            border-left: 4px solid #007bff;
+        }
+
+        .notification-item.read {
+            opacity: 0.7;
+        }
+
+        .notification-content {
+            padding: 1.5rem;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .notification-title {
+            color: #2c3e50;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            color: #6c757d;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+
+        .notification-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modern-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .notification-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .notification-header .notification-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .notification-time {
+                margin-left: 0;
+            }
+
+            .notification-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .notification-actions .btn {
+                width: 100%;
+            }
         }
         .collapse-icon {
             transition: transform 0.3s ease-in-out;
@@ -428,6 +894,55 @@
 
         .text-white-50 {
             color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* SweetAlert2 Responsive Styles */
+        .swal2-popup-responsive {
+            font-size: 14px !important;
+            max-width: 90% !important;
+        }
+
+        .swal2-title-responsive {
+            font-size: 18px !important;
+            line-height: 1.4 !important;
+        }
+
+        .swal2-content-responsive {
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+        }
+
+        .swal2-confirm-responsive {
+            font-size: 14px !important;
+            padding: 8px 16px !important;
+        }
+
+        .swal2-cancel-responsive {
+            font-size: 14px !important;
+            padding: 8px 16px !important;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .swal2-popup-responsive {
+                font-size: 12px !important;
+                max-width: 95% !important;
+                margin: 10px !important;
+            }
+
+            .swal2-title-responsive {
+                font-size: 16px !important;
+            }
+
+            .swal2-content-responsive {
+                font-size: 12px !important;
+            }
+
+            .swal2-confirm-responsive,
+            .swal2-cancel-responsive {
+                font-size: 12px !important;
+                padding: 6px 12px !important;
+            }
         }
     </style>
 
@@ -541,45 +1056,92 @@
 
             // --- End NEW JavaScript for notification count updates ---
 
-            // Handle delete notification form submission
-            document.getElementById('deleteNotificationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                fetch(this.action, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (typeof Swal !== 'undefined') {
+            // Handle delete notification button clicks
+            document.querySelectorAll('.delete-notification-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const notificationId = this.getAttribute('data-notification-id');
+                    const notificationItem = this.closest('.list-group-item');
+                    
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this! This will delete the notification.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                            popup: 'swal2-popup-responsive',
+                            title: 'swal2-title-responsive',
+                            content: 'swal2-content-responsive',
+                            confirmButton: 'swal2-confirm-responsive',
+                            cancelButton: 'swal2-cancel-responsive'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
                             Swal.fire({
-                                title: "You deleted successfully!",
-                                icon: "success",
-                                draggable: true
+                                title: "Deleting...",
+                                text: "Please wait while we delete the notification.",
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                },
+                                customClass: {
+                                    popup: 'swal2-popup-responsive',
+                                    title: 'swal2-title-responsive',
+                                    content: 'swal2-content-responsive'
+                                }
+                            });
+                            
+                            fetch(`/boat_owner/notifications/${notificationId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (notificationItem) notificationItem.remove();
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: "The notification has been deleted successfully.",
+                                        icon: "success",
+                                        customClass: {
+                                            popup: 'swal2-popup-responsive',
+                                            title: 'swal2-title-responsive',
+                                            content: 'swal2-content-responsive',
+                                            confirmButton: 'swal2-confirm-responsive'
+                                        }
+                                    });
+                                    
+                                    // Update notification count
+                                    updateNotificationCount();
+                                } else {
+                                    throw new Error('Delete failed');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error deleting notification:', error);
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Failed to delete notification. Please try again.",
+                                    icon: "error",
+                                    customClass: {
+                                        popup: 'swal2-popup-responsive',
+                                        title: 'swal2-title-responsive',
+                                        content: 'swal2-content-responsive',
+                                        confirmButton: 'swal2-confirm-responsive'
+                                    }
+                                });
                             });
                         }
-                        
-                        // Close the modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteNotificationModal'));
-                        if (modal) {
-                            modal.hide();
-                        }
-                        
-                        // Reload the page to update the notifications list
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting notification:', error);
-                    // Fallback to normal form submission
-                    this.submit();
+                    });
                 });
             });
 

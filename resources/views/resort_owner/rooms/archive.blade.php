@@ -76,10 +76,10 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-success btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#restoreRoomModal" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}" title="Restore Room">
+                                                <button type="button" class="btn btn-success btn-sm btn-icon restore-btn" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}" title="Restore Room">
                                                     <i class="fas fa-undo"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#deleteRoomModal" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}" title="Delete Room">
+                                                <button type="button" class="btn btn-danger btn-sm btn-icon delete-btn" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}" title="Delete Room">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -110,55 +110,8 @@
         </div>
     </div>
 
-    {{-- Restore Room Modal --}}
-    <div class="modal fade" id="restoreRoomModal" tabindex="-1" aria-labelledby="restoreRoomModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="restoreRoomModalLabel">Restore Room</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to restore <strong id="restoreRoomName"></strong>? This will make the room available again.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form id="restoreRoomForm" method="POST" style="display: inline;">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-success">Confirm Restore</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Delete Room Modal --}}
-    <div class="modal fade" id="deleteRoomModal" tabindex="-1" aria-labelledby="deleteRoomModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteRoomModalLabel">Permanently Delete Room</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Warning:</strong> This action cannot be undone. The room and all associated data will be permanently deleted.
-                    </div>
-                    Are you sure you want to permanently delete <strong id="deleteRoomName"></strong>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form id="deleteRoomForm" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Permanently Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- SweetAlert2 CDN --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         /* Custom CSS for icon buttons */
@@ -195,47 +148,248 @@
             padding: 6px 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
+
+        /* SweetAlert2 Responsive Styles */
+        .swal2-popup-responsive {
+            font-size: 14px !important;
+            max-width: 90% !important;
+        }
+
+        .swal2-title-responsive {
+            font-size: 18px !important;
+            line-height: 1.4 !important;
+        }
+
+        .swal2-content-responsive {
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+        }
+
+        .swal2-confirm-responsive {
+            font-size: 14px !important;
+            padding: 8px 16px !important;
+        }
+
+        .swal2-cancel-responsive {
+            font-size: 14px !important;
+            padding: 8px 16px !important;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .swal2-popup-responsive {
+                font-size: 12px !important;
+                max-width: 95% !important;
+                margin: 10px !important;
+            }
+
+            .swal2-title-responsive {
+                font-size: 16px !important;
+            }
+
+            .swal2-content-responsive {
+                font-size: 12px !important;
+            }
+
+            .swal2-confirm-responsive,
+            .swal2-cancel-responsive {
+                font-size: 12px !important;
+                padding: 6px 12px !important;
+            }
+        }
     </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle restore room modal
-            const restoreModal = document.getElementById('restoreRoomModal');
-            if (restoreModal) {
-                restoreModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    const roomId = button.getAttribute('data-room-id');
-                    const roomName = button.getAttribute('data-room-name');
-                    const form = restoreModal.querySelector('#restoreRoomForm');
-                    const nameSpan = restoreModal.querySelector('#restoreRoomName');
-                    
-                    form.action = '/resort_owner/rooms/restore/' + roomId;
-                    console.log('Restore form action set to:', form.action);
-                    console.log('Room ID for restore:', roomId);
-                    nameSpan.textContent = roomName;
-                });
-            }
-
-            // Handle delete room modal
-            const deleteModal = document.getElementById('deleteRoomModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    const roomId = button.getAttribute('data-room-id');
-                    const roomName = button.getAttribute('data-room-name');
-                    const form = deleteModal.querySelector('#deleteRoomForm');
-                    const nameSpan = deleteModal.querySelector('#deleteRoomName');
-                    
-                    form.action = '/resort_owner/rooms/' + roomId;
-                    nameSpan.textContent = roomName;
-                });
-            }
-
             // Image error handling
             window.handleImageError = function(imgElement, defaultImagePath) {
                 imgElement.onerror = null;
                 imgElement.src = defaultImagePath;
             };
+
+            // Restore room button logic
+            document.querySelectorAll('.restore-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const roomId = this.getAttribute('data-room-id');
+                    const roomName = this.getAttribute('data-room-name');
+                    const roomRow = this.closest('tr');
+                    
+                    Swal.fire({
+                        title: "Restore Room",
+                        html: `Are you sure you want to restore <strong>${roomName}</strong>? This will make the room available again.`,
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonColor: "#28a745",
+                        cancelButtonColor: "#6c757d",
+                        confirmButtonText: "Yes, restore it!",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                            popup: 'swal2-popup-responsive',
+                            title: 'swal2-title-responsive',
+                            content: 'swal2-content-responsive',
+                            confirmButton: 'swal2-confirm-responsive',
+                            cancelButton: 'swal2-cancel-responsive'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: "Restoring...",
+                                text: "Please wait while we restore the room.",
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                },
+                                customClass: {
+                                    popup: 'swal2-popup-responsive',
+                                    title: 'swal2-title-responsive',
+                                    content: 'swal2-content-responsive'
+                                }
+                            });
+                            
+                            const formData = new FormData();
+                            formData.append('_token', '{{ csrf_token() }}');
+                            formData.append('_method', 'PUT');
+                            
+                            fetch(`/resort_owner/rooms/restore/${roomId}`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    if (roomRow) roomRow.remove();
+                                    Swal.fire({
+                                        title: "Restored!",
+                                        text: "The room has been restored successfully.",
+                                        icon: "success",
+                                        customClass: {
+                                            popup: 'swal2-popup-responsive',
+                                            title: 'swal2-title-responsive',
+                                            content: 'swal2-content-responsive',
+                                            confirmButton: 'swal2-confirm-responsive'
+                                        }
+                                    });
+                                } else {
+                                    throw new Error('Restore failed');
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Failed to restore room. Please try again.",
+                                    icon: "error",
+                                    customClass: {
+                                        popup: 'swal2-popup-responsive',
+                                        title: 'swal2-title-responsive',
+                                        content: 'swal2-content-responsive',
+                                        confirmButton: 'swal2-confirm-responsive'
+                                    }
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+
+            // Delete room button logic
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const roomId = this.getAttribute('data-room-id');
+                    const roomName = this.getAttribute('data-room-name');
+                    const roomRow = this.closest('tr');
+                    
+                    Swal.fire({
+                        title: "Permanently Delete Room",
+                        html: `
+                            <div class="alert alert-warning mb-3">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Warning:</strong> This action cannot be undone. The room and all associated data will be permanently deleted.
+                            </div>
+                            Are you sure you want to permanently delete <strong>${roomName}</strong>?
+                        `,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#dc3545",
+                        cancelButtonColor: "#6c757d",
+                        confirmButtonText: "Yes, delete permanently!",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                            popup: 'swal2-popup-responsive',
+                            title: 'swal2-title-responsive',
+                            content: 'swal2-content-responsive',
+                            confirmButton: 'swal2-confirm-responsive',
+                            cancelButton: 'swal2-cancel-responsive'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: "Deleting...",
+                                text: "Please wait while we permanently delete the room.",
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                },
+                                customClass: {
+                                    popup: 'swal2-popup-responsive',
+                                    title: 'swal2-title-responsive',
+                                    content: 'swal2-content-responsive'
+                                }
+                            });
+                            
+                            const formData = new FormData();
+                            formData.append('_token', '{{ csrf_token() }}');
+                            formData.append('_method', 'DELETE');
+                            
+                            fetch(`/resort_owner/rooms/${roomId}`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    if (roomRow) roomRow.remove();
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: "The room has been permanently deleted.",
+                                        icon: "success",
+                                        customClass: {
+                                            popup: 'swal2-popup-responsive',
+                                            title: 'swal2-title-responsive',
+                                            content: 'swal2-content-responsive',
+                                            confirmButton: 'swal2-confirm-responsive'
+                                        }
+                                    });
+                                } else {
+                                    throw new Error('Delete failed');
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Failed to delete room. Please try again.",
+                                    icon: "error",
+                                    customClass: {
+                                        popup: 'swal2-popup-responsive',
+                                        title: 'swal2-title-responsive',
+                                        content: 'swal2-content-responsive',
+                                        confirmButton: 'swal2-confirm-responsive'
+                                    }
+                                });
+                            });
+                        }
+                    });
+                });
+            });
             
             // Initialize Bootstrap tooltips for better tooltip functionality
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));

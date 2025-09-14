@@ -1,5 +1,7 @@
 <x-app-layout>
     <head>
+        {{-- Font Awesome CDN for Icons --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         {{-- Bootstrap Icons CDN --}}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
         {{-- SweetAlert2 --}}
@@ -20,28 +22,47 @@
         {{-- Include Shared Sidebar --}}
         @include('tourist.partials.sidebar')
 
-        {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
-            <h2 class="mb-4">Tourist Notifications</h2>
+        {{-- Main Content --}}
+        <main class="main-content">
+            {{-- Modern Header Section --}}
+            <div class="page-header">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1 class="page-title">Notifications</h1>
+                        <p class="page-subtitle">Stay updated with your booking notifications</p>
+                    </div>
+                </div>
+                <div class="header-decoration">
+                    <div class="decoration-circle"></div>
+                    <div class="decoration-circle"></div>
+                    <div class="decoration-circle"></div>
+                </div>
+            </div>
 
-            {{-- Display Session Messages --}}
+            {{-- Alerts Section --}}
+            <div class="alerts-container">
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
-            {{-- Display Error Messages from Validation --}}
             @if ($errors->any())
                 <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -49,6 +70,7 @@
                     </ul>
                 </div>
             @endif
+            </div>
 
             @php
                 $notifications = \App\Models\TouristNotification::where('user_id', Auth::id())
@@ -57,34 +79,61 @@
                     ->get();
             @endphp
 
+            {{-- Notifications Section --}}
+            <div class="notifications-section">
             @if ($notifications->isEmpty())
-                <div class="alert alert-info">You have no notifications.</div>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+                        <h3 class="empty-title">No Notifications</h3>
+                        <p class="empty-description">You don't have any notifications yet. Check back later for updates!</p>
+                    </div>
             @else
-                {{-- Mark All as Read Button --}}
+                    {{-- Notifications Header --}}
+                    <div class="notifications-header">
+                        <div class="header-info">
+                            <h2 class="section-title">
+                                <i class="fas fa-bell me-2"></i>
+                                Your Notifications
+                            </h2>
+                            <p class="section-subtitle">Stay updated with your booking information</p>
+                        </div>
                 @php
                     $unreadCount = $notifications->where('is_read', false)->count();
                 @endphp
                 @if($unreadCount > 0)
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-muted">{{ $unreadCount }} unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
+                            <div class="unread-info">
+                                <span class="unread-badge">{{ $unreadCount }} unread</span>
                         <form action="{{ route('tourist.notifications.markAllAsRead') }}" method="POST" class="d-inline">
                             @csrf
                             @method('PUT')
-                            <button type="submit" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-check-all me-1"></i>Mark All as Read
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check-double me-1"></i>Mark All as Read
                             </button>
                         </form>
                     </div>
                 @endif
-                <div class="list-group">
+                    </div>
+
+                    {{-- Notifications List --}}
+                    <div class="notifications-list">
                     @foreach ($notifications as $notification)
-                        <div class="list-group-item list-group-item-action {{ $notification->is_read ? 'text-muted' : 'border-primary' }}" data-notification-id="{{ $notification->id }}">
-                            <div class="d-flex w-100 justify-content-between align-items-center">
-                                <h5 class="mb-1">{{ $notification->message }}</h5>
-                                <small class="text-nowrap">{{ $notification->created_at->diffForHumans() }}</small>
+                            <div class="notification-card {{ $notification->is_read ? 'read' : 'unread' }}" data-notification-id="{{ $notification->id }}">
+                                <div class="notification-header">
+                                    <div class="notification-icon">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <h5 class="notification-title">{{ $notification->message }}</h5>
+                                        <p class="notification-time">{{ $notification->created_at->diffForHumans() }}</p>
+                                    </div>
+                                    @unless ($notification->is_read)
+                                        <div class="unread-indicator"></div>
+                                    @endunless
                             </div>
 
-                            {{-- Display only boat assignment information --}}
+                                {{-- Boat Assignment Information --}}
                             @if ($notification->booking && ($notification->booking->assignedBoat || $notification->booking->boat_captain_crew))
                                 @php
                                     // Get boat information from assignedBoat relationship or direct fields
@@ -103,45 +152,67 @@
                                     }
                                 @endphp
                                 
-                                <hr class="my-2">
-                                <h6>🚤 Your Assigned Boat Information:</h6>
-                                
+                                    <div class="boat-info-section">
+                                        <div class="boat-info-header">
+                                            <i class="fas fa-ship"></i>
+                                            <h6>Boat Assignment Details</h6>
+                                        </div>
+                                        <div class="boat-info-grid">
                                 @if($assignedBoatName)
-                                    <p class="mb-1">Boat Name: <strong>{{ $assignedBoatName }}</strong></p>
+                                                <div class="info-item">
+                                                    <span class="info-label">Boat Name:</span>
+                                                    <span class="info-value">{{ $assignedBoatName }}</span>
+                                                </div>
                                 @endif
                                 
                                 @if($captainName)
-                                    <p class="mb-1">Boat Captain: <strong>{{ $captainName }}</strong></p>
+                                                <div class="info-item">
+                                                    <span class="info-label">Captain:</span>
+                                                    <span class="info-value">{{ $captainName }}</span>
+                                                </div>
                                 @endif
                                 
                                 @if($captainContact)
-                                    <p class="mb-1">Captain Contact: <strong>{{ $captainContact }}</strong></p>
+                                                <div class="info-item">
+                                                    <span class="info-label">Captain Contact:</span>
+                                                    <span class="info-value">{{ $captainContact }}</span>
+                                                </div>
                                 @endif
                                 
                                 @if($boatContact)
-                                    <p class="mb-1">Boat Contact: <strong>{{ $boatContact }}</strong></p>
+                                                <div class="info-item">
+                                                    <span class="info-label">Boat Contact:</span>
+                                                    <span class="info-value">{{ $boatContact }}</span>
+                                                </div>
                                 @endif
                                 
                                 @if($boatPrice > 0)
-                                    <p class="mb-1">Boat Price: <strong>₱{{ number_format($boatPrice, 2) }}</strong></p>
+                                                <div class="info-item">
+                                                    <span class="info-label">Boat Price:</span>
+                                                    <span class="info-value">₱{{ number_format($boatPrice, 2) }}</span>
+                                                </div>
                                 @endif
-                                
-                                <div class="alert alert-info mt-2 mb-0">
-                                    <small><i class="fas fa-info-circle me-1"></i> Please contact your assigned boat captain for any questions about your trip.</small>
+                                        </div>
+                                        <div class="boat-info-note">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Please contact your assigned boat captain for any questions about your trip.</span>
+                                        </div>
                                 </div>
                             @endif
                             
-                            {{-- Action buttons for ALL notifications --}}
-                            <div class="mt-3 d-flex justify-content-end align-items-center">
+                                {{-- Action Buttons --}}
+                                <div class="notification-actions">
                                 @unless ($notification->is_read)
-                                    <form action="{{ route('tourist.notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline me-2">
+                                        <form action="{{ route('tourist.notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-check me-1"></i>Mark as Read
+                                            </button>
                                     </form>
                                 @endunless
-                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteNotificationModal" data-notification-id="{{ $notification->id }}">
-                                    Delete
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-notification-btn" data-notification-id="{{ $notification->id }}">
+                                        <i class="fas fa-trash me-1"></i>Delete
                                 </button>
                             </div>
                         </div>
@@ -149,37 +220,636 @@
                 </div>
             @endif
         </div>
+        </main>
     </div>
 
-    {{-- Delete Notification Confirmation Modal --}}
-    <div class="modal fade" id="deleteNotificationModal" tabindex="-1" aria-labelledby="deleteNotificationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteNotificationModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this notification? This action cannot be undone.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form id="deleteNotificationForm" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <style>
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .notification-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 2rem;
+            background: transparent;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 767.98px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
         /* Custom CSS for sidebar nav-link hover and focus */
         .nav-link.text-white:hover,
         .nav-link.text-white:focus,
         .nav-link.text-white.active {
             background-color: rgb(6, 58, 170) !important;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 2rem;
+            background: transparent;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 767.98px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        /* Page Header */
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .header-decoration {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            opacity: 0.1;
+        }
+
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+
+        .decoration-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20px;
+            right: 20px;
+        }
+
+        .decoration-circle:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60px;
+            right: 60px;
+        }
+
+        .decoration-circle:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            top: 100px;
+            right: 100px;
+        }
+
+        /* Alerts */
+        .alerts-container {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+
+        /* Notifications Section */
+        .notifications-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            color: #6c757d;
+            font-size: 3rem;
+        }
+
+        .empty-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+
+        .empty-description {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        /* Notifications Header */
+        .notifications-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .unread-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .unread-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Notifications List */
+        .notifications-list {
+            padding: 0;
+        }
+
+        .notification-card {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .notification-card:last-child {
+            border-bottom: none;
+        }
+
+        .notification-card.unread {
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-left: 4px solid #007bff;
+        }
+
+        .notification-card:hover {
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #212529;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .notification-time {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .unread-indicator {
+            width: 12px;
+            height: 12px;
+            background: #007bff;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 0.5rem;
+        }
+
+        /* Boat Info Section */
+        .boat-info-section {
+            margin: 1rem 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 4px solid #28a745;
+        }
+
+        .boat-info-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #28a745;
+        }
+
+        .boat-info-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .boat-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .boat-info-grid .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .boat-info-grid .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .boat-info-grid .info-value {
+            font-size: 0.95rem;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .boat-info-note {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        /* Notification Actions */
+        .notification-actions {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 2rem 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .notifications-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .unread-info {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .boat-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-actions {
+                flex-direction: column;
+            }
+
+            .notification-actions .btn {
+                width: 100%;
+            }
         }
 
         /* Custom styles for status badges */
@@ -212,6 +882,55 @@
             color: #842029;
             border: 1px solid #f5c2c7;
         }
+
+        /* SweetAlert2 Responsive Styles */
+        .swal2-popup-responsive {
+            font-size: 14px !important;
+            max-width: 90% !important;
+        }
+
+        .swal2-title-responsive {
+            font-size: 18px !important;
+            line-height: 1.4 !important;
+        }
+
+        .swal2-content-responsive {
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+        }
+
+        .swal2-confirm-responsive {
+            font-size: 14px !important;
+            padding: 8px 16px !important;
+        }
+
+        .swal2-cancel-responsive {
+            font-size: 14px !important;
+            padding: 8px 16px !important;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .swal2-popup-responsive {
+                font-size: 12px !important;
+                max-width: 95% !important;
+                margin: 10px !important;
+            }
+
+            .swal2-title-responsive {
+                font-size: 16px !important;
+            }
+
+            .swal2-content-responsive {
+                font-size: 12px !important;
+            }
+
+            .swal2-confirm-responsive,
+            .swal2-cancel-responsive {
+                font-size: 12px !important;
+                padding: 6px 12px !important;
+            }
+        }
     </style>
 
     {{-- Custom JavaScript for mobile sidebar behavior and modal handling --}}
@@ -232,16 +951,6 @@
                 window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
 
-            // Delete notification modal handling
-            var deleteNotificationModal = document.getElementById('deleteNotificationModal');
-            if (deleteNotificationModal) {
-                deleteNotificationModal.addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget;
-                    var notificationId = button.getAttribute('data-notification-id');
-                    var form = document.getElementById('deleteNotificationForm');
-                    form.action = '/tourist/notifications/' + notificationId;
-                });
-            }
 
             // Function to update notification count badges
             function updateNotificationCount() {
@@ -309,45 +1018,92 @@
                 }
             });
 
-            // Handle delete notification form submission
-            document.getElementById('deleteNotificationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                fetch(this.action, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (typeof Swal !== 'undefined') {
+            // Handle delete notification button clicks
+            document.querySelectorAll('.delete-notification-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const notificationId = this.getAttribute('data-notification-id');
+                    const notificationItem = this.closest('.list-group-item');
+                    
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this! This will delete the notification.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                            popup: 'swal2-popup-responsive',
+                            title: 'swal2-title-responsive',
+                            content: 'swal2-content-responsive',
+                            confirmButton: 'swal2-confirm-responsive',
+                            cancelButton: 'swal2-cancel-responsive'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
                             Swal.fire({
-                                title: "You deleted successfully!",
-                                icon: "success",
-                                draggable: true
+                                title: "Deleting...",
+                                text: "Please wait while we delete the notification.",
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                },
+                                customClass: {
+                                    popup: 'swal2-popup-responsive',
+                                    title: 'swal2-title-responsive',
+                                    content: 'swal2-content-responsive'
+                                }
+                            });
+                            
+                            fetch(`/tourist/notifications/${notificationId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (notificationItem) notificationItem.remove();
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: "The notification has been deleted successfully.",
+                                        icon: "success",
+                                        customClass: {
+                                            popup: 'swal2-popup-responsive',
+                                            title: 'swal2-title-responsive',
+                                            content: 'swal2-content-responsive',
+                                            confirmButton: 'swal2-confirm-responsive'
+                                        }
+                                    });
+                                    
+                                    // Update notification count
+                                    updateNotificationCount();
+                                } else {
+                                    throw new Error('Delete failed');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error deleting notification:', error);
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Failed to delete notification. Please try again.",
+                                    icon: "error",
+                                    customClass: {
+                                        popup: 'swal2-popup-responsive',
+                                        title: 'swal2-title-responsive',
+                                        content: 'swal2-content-responsive',
+                                        confirmButton: 'swal2-confirm-responsive'
+                                    }
+                                });
                             });
                         }
-                        
-                        // Close the modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteNotificationModal'));
-                        if (modal) {
-                            modal.hide();
-                        }
-                        
-                        // Reload the page to update the notifications list
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting notification:', error);
-                    // Fallback to normal form submission
-                    this.submit();
+                    });
                 });
             });
         });

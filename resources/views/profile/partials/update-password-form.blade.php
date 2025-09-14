@@ -1,12 +1,16 @@
 <section>
     <header>
-        <p class="text-muted small">{{ __('Ensure your account is using a long, random password to stay secure.') }}</p>
+        <p>{{ __('Ensure your account is using a long, random password to stay secure.') }}</p>
     </header>
-    <form method="post" action="{{ route('password.update') }}" class="mt-3" id="passwordUpdateForm">
+    
+    <form method="post" action="{{ route('password.update') }}" class="modern-form" id="passwordUpdateForm">
         @csrf
         @method('put')
-        <div class="mb-3">
-            <label for="current_password" class="form-label">{{ __('Current Password') }}</label>
+        
+        <div class="form-group">
+            <label for="current_password" class="form-label">
+                <i class="fas fa-lock me-2"></i>{{ __('Current Password') }}
+            </label>
             <div class="input-group">
                 <input type="password" class="form-control" id="current_password" name="current_password" autocomplete="current-password">
                 <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
@@ -14,8 +18,11 @@
                 </button>
             </div>
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">{{ __('New Password') }}</label>
+        
+        <div class="form-group">
+            <label for="password" class="form-label">
+                <i class="fas fa-key me-2"></i>{{ __('New Password') }}
+            </label>
             <div class="input-group">
                 <input type="password" class="form-control" id="password" name="password" autocomplete="new-password">
                 <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
@@ -23,8 +30,11 @@
                 </button>
             </div>
         </div>
-        <div class="mb-3">
-            <label for="password_confirmation" class="form-label">{{ __('Confirm Password') }}</label>
+        
+        <div class="form-group">
+            <label for="password_confirmation" class="form-label">
+                <i class="fas fa-check-circle me-2"></i>{{ __('Confirm Password') }}
+            </label>
             <div class="input-group">
                 <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" autocomplete="new-password">
                 <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirmation">
@@ -32,15 +42,24 @@
                 </button>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>{{ __('Update Password') }}
+            </button>
+        </div>
         
         @if ($errors->updatePassword->any())
-            <div class="alert alert-danger mt-3">
-                <ul class="mb-0">
-                    @foreach ($errors->updatePassword->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                    <strong>{{ __('Please correct the following errors:') }}</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->updatePassword->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         @endif
     </form>

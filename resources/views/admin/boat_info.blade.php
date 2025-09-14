@@ -2,239 +2,358 @@
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            {{-- Icon added here for Admin --}}
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                Admin Menu
-            </h4>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Dashboard
+        <div class="modern-sidebar d-none d-md-block">
+            {{-- Sidebar Header --}}
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" class="brand-icon-img">
+                    </div>
+                    <div class="brand-text">
+                        <h4 class="brand-title">Admin Menu</h4>
+                        <p class="brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
+            </div>
+            
+            {{-- Sidebar Navigation --}}
+            <div class="sidebar-nav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Resort Management
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.resort') }}" class="nav-link {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Resort Management</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Boat Management
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.boat') }}" class="nav-link {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Boat Management</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    <button class="nav-link text-white rounded p-2 d-flex align-items-center w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapse" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapse">
-                        <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Users
+                    
+                    <li class="nav-item">
+                        <button class="nav-link w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapse" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapse">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Users</span>
                         <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
                     </button>
                     <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapse">
                         <ul class="nav flex-column ms-3 mt-1">
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.resorts') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                                    <a href="{{ route('admin.users.resorts') }}" class="nav-link {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.boats') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                                    <a href="{{ route('admin.users.boats') }}" class="nav-link {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.tourists') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                                    <a href="{{ route('admin.users.tourists') }}" class="nav-link {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
                             </li>
                         </ul>
                     </div>
                 </li>
-                {{-- Documentation - now a direct link (Desktop) --}}
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
-                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Documentation
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.documentation') }}" class="nav-link {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Documentation</span>
                     </a>
                 </li>
             </ul>
+            </div>
         </div>
 
         {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                {{-- Icon added here for Admin in mobile sidebar --}}
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Admin Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Admin Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
                 <ul class="nav flex-column">
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
+                        <li class="nav-item">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Resort Management
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.resort') }}" class="nav-link {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Resort Management</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Boat Management
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.boat') }}" class="nav-link {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.users') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active' : '' }}">
-                            <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Users
-                        </a>
+                        
+                        <li class="nav-item">
+                            <button class="nav-link w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapseMobile" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapseMobile">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Users</span>
+                                <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
+                            </button>
+                            <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapseMobile">
+                                <ul class="nav flex-column ms-3 mt-1">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.users.resorts') }}" class="nav-link {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
                     </li>
-                    {{-- Documentation - now a direct link (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
-                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Documentation
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.users.boats') }}" class="nav-link {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.users.tourists') }}" class="nav-link {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.documentation') }}" class="nav-link {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
                         </a>
                     </li>
                 </ul>
+                </div>
             </div>
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
-            <h4 class="fw-bold">BOAT INFORMATION</h4>
-            <h5 class="text-muted">MANAGE BOATS</h5>
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                {{-- The h2 "Manage Boats" from the original is replaced by the updated heading above --}}
-                {{-- No "Add Boat" button for Admin (as per original request) --}}
+        <div class="main-content flex-grow-1">
+            {{-- Page Header --}}
+            <div class="page-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="page-title-section">
+                        <h1 class="page-title">
+                            <i class="fas fa-ship me-2"></i>
+                            Boat Information
+                        </h1>
+                        <p class="page-subtitle">Manage and monitor all boat registrations</p>
+                    </div>
+                    <div class="page-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ $boats->count() }}</div>
+                            <div class="stat-label">Total Boats</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            {{-- Alert Messages --}}
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show modern-alert" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show modern-alert" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
+            {{-- Boats Table --}}
+            <div class="table-container">
             <div class="table-responsive">
-                <table class="table table-hover table-striped">
-                    <thead>
+                    <table class="table modern-table">
+                        <thead class="table-header">
                         <tr>
-                            <th scope="col">Boat Image</th>
+                                <th scope="col" class="text-center">Image</th>
                             <th scope="col">Boat Name</th>
                             <th scope="col">Boat No</th>
                             <th scope="col">Price</th>
                             <th scope="col">Capacity</th>
-                            <th scope="col">Boat Captain</th>
-                            <th scope="col">Captain Contact</th>
+                                <th scope="col">Captain</th>
                             <th scope="col">Owner</th>
-                            <th scope="col">Status</th> {{-- Added Status Column --}}
-                            <th scope="col">Actions</th>
+                                <th scope="col" class="text-center">Status</th>
+                                <th scope="col" class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($boats as $boat)
-                            <tr>
-                                <td>
+                                <tr class="table-row">
+                                    <td class="image-cell">
+                                        <div class="boat-image-wrapper">
                                     @if ($boat->image_path)
                                         <img src="{{ asset($boat->image_path) }}"
                                              alt="{{ $boat->boat_name }}"
-                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                                                    class="boat-table-image"
                                              onerror="handleImageError(this, '{{ asset('images/default_boat.png') }}')">
                                     @else
                                         <img src="{{ asset('images/default_boat.png') }}"
                                              alt="Default Boat Image"
-                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                                    class="boat-table-image">
                                     @endif
+                                        </div>
                                 </td>
-                                <td>{{ $boat->boat_name }}</td>
-                                <td>{{ $boat->boat_number }}</td>
-                                <td>₱{{ number_format($boat->boat_prices, 2) }}</td>
-                                <td>{{ $boat->boat_capacities }} pax</td>
-                                <td>{{ $boat->captain_name ?? 'N/A' }}</td>
-                                <td>{{ $boat->captain_contact ?? 'N/A' }}</td>
-                                <td>
+                                    <td class="boat-name-cell">
+                                        <div class="boat-name">{{ $boat->boat_name }}</div>
+                                    </td>
+                                    <td class="boat-number-cell">
+                                        <div class="boat-number">
+                                            <i class="fas fa-hashtag text-primary me-1"></i>
+                                            {{ $boat->boat_number }}
+                                        </div>
+                                    </td>
+                                    <td class="price-cell">
+                                        <div class="price-info">
+                                            <i class="fas fa-tag text-success me-1"></i>
+                                            ₱{{ number_format($boat->boat_prices, 2) }}
+                                        </div>
+                                    </td>
+                                    <td class="capacity-cell">
+                                        <div class="capacity-info">
+                                            <i class="fas fa-users text-info me-1"></i>
+                                            {{ $boat->boat_capacities }} pax
+                                        </div>
+                                    </td>
+                                    <td class="captain-cell">
+                                        <div class="captain-info">
+                                            <div class="captain-name">
+                                                <i class="fas fa-user-tie text-warning me-1"></i>
+                                                {{ $boat->captain_name ?? 'N/A' }}
+                                            </div>
+                                            @if($boat->captain_contact)
+                                                <div class="captain-contact">
+                                                    <i class="fas fa-phone text-success me-1"></i>
+                                                    {{ $boat->captain_contact }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="owner-cell">
                                     @if($boat->user)
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold">{{ $boat->user->first_name }} {{ $boat->user->last_name }}</span>
-                                            <small class="text-muted">{{ $boat->user->email }}</small>
+                                            <div class="owner-info">
+                                                <div class="owner-name">
+                                                    <i class="fas fa-user text-primary me-1"></i>
+                                                    {{ $boat->user->first_name }} {{ $boat->user->last_name }}
+                                                </div>
+                                                <div class="owner-email">
+                                                    <i class="fas fa-envelope text-muted me-1"></i>
+                                                    {{ $boat->user->email }}
+                                                </div>
                                         </div>
                                     @else
                                         <span class="text-muted">N/A</span>
                                     @endif
                                 </td>
-                                <td>
+                                    <td class="status-cell text-center">
                                     @php
                                         $badgeClass = '';
                                         switch ($boat->status) {
-                                            case \App\Models\Boat::STATUS_OPEN: // Add this case for 'open'
-                                                $badgeClass = 'badge-light-success';
-                                                break;
-                                            case \App\Models\Boat::STATUS_CLOSED: // Add this case for 'closed'
-                                                $badgeClass = 'badge-light-danger';
-                                                break;
+                                                case \App\Models\Boat::STATUS_OPEN:
                                             case \App\Models\Boat::STATUS_APPROVED:
-                                                $badgeClass = 'badge-light-success';
+                                                    $badgeClass = 'badge-success';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_CLOSED:
+                                                    $badgeClass = 'badge-dark';
                                                 break;
                                             case \App\Models\Boat::STATUS_REJECTED:
-                                                $badgeClass = 'badge-light-danger';
+                                                    $badgeClass = 'badge-danger';
                                                 break;
                                             case \App\Models\Boat::STATUS_REHAB:
-                                                $badgeClass = 'badge-light-warning'; // Using warning for rehab as per resort info
+                                                    $badgeClass = 'badge-warning';
                                                 break;
                                             case \App\Models\Boat::STATUS_PENDING:
-                                                $badgeClass = 'badge-light-info'; // Using info for pending as per resort info
+                                                    $badgeClass = 'badge-info';
                                                 break;
                                             default:
-                                                $badgeClass = 'badge-light-secondary'; // Default for other/unknown statuses
+                                                    $badgeClass = 'badge-secondary';
                                                 break;
                                         }
                                     @endphp
-                                    <span class="badge {{ $badgeClass }} rounded-pill">
+                                        <span class="badge {{ $badgeClass }} status-badge">
                                         {{ ucfirst($boat->status) }}
                                     </span>
                                     @if ($boat->status === \App\Models\Boat::STATUS_REJECTED && $boat->rejection_reason)
-                                        <br><small class="text-danger">(Reason: {{ $boat->rejection_reason }})</small>
+                                            <div class="rejection-reason-small">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    {{ Str::limit($boat->rejection_reason, 30) }}
+                                                </small>
+                                            </div>
                                     @elseif ($boat->status === \App\Models\Boat::STATUS_REHAB && $boat->rejection_reason)
-                                        <br><small class="text-muted">(Rehab Reason: {{ $boat->rejection_reason }})</small>
+                                            <div class="rejection-reason-small">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-tools me-1"></i>
+                                                    {{ Str::limit($boat->rejection_reason, 30) }}
+                                                </small>
+                                            </div>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="d-flex flex-column gap-2">
-                                        {{-- Approve Button (visible if pending or rejected) --}}
+                                    <td class="actions-cell text-center">
+                                        <div class="action-buttons">
                                         @if ($boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_REJECTED)
-                                            <form action="{{ route('admin.boat.approve', $boat->id) }}" method="POST">
+                                                <form action="{{ route('admin.boat.approve', $boat->id) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-check me-1"></i>
+                                                        Approve
+                                                    </button>
                                             </form>
                                         @endif
 
-                                        {{-- Reject Button (visible if pending or approved, allowing admin to revert approval) --}}
                                         @if ($boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_APPROVED)
-                                            <button type="button" class="btn btn-danger btn-sm "
+                                                <button type="button" class="btn btn-sm btn-danger"
                                                      data-bs-toggle="modal"
                                                      data-bs-target="#rejectBoatModal"
                                                      data-boat-id="{{ $boat->id }}"
                                                      data-boat-name="{{ $boat->boat_name }}">
+                                                    <i class="fas fa-times me-1"></i>
                                                 Reject
                                             </button>
                                         @endif
@@ -243,11 +362,18 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">No boats found in the system for administration.</td>
+                                    <td colspan="9" class="text-center empty-state-cell">
+                                        <div class="empty-state">
+                                            <i class="fas fa-ship empty-icon"></i>
+                                            <h5 class="empty-title">No Boats Found</h5>
+                                            <p class="empty-description">There are no boats registered in the system yet.</p>
+                                        </div>
+                                    </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -279,52 +405,1140 @@
         </div>
     </div>
 
-    {{-- Custom CSS for sidebar nav-link hover and focus and custom badges --}}
     <style>
-        /* Custom CSS for sidebar nav-link hover and focus */
-        .nav-link.text-white:hover,
-        .nav-link.text-white:focus,
-        .nav-link.text-white.active {
-            background-color: rgb(6, 58, 170) !important; /* Specific blue for active/hover */
-        }
-        .collapse-icon { transition: transform 0.3s ease; }
-        .collapse-icon.rotated { transform: rotate(180deg); }
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-        /* Custom Light Background Badges */
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .collapse-icon { 
+            transition: transform 0.3s ease; 
+        }
+        .collapse-icon.rotated { 
+            transform: rotate(180deg); 
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85vw !important;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
+            min-height: 100vh;
+        }
+
+        /* Page Header Styles */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-title i {
+            color: #007bff;
+            font-size: 1.8rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0.5rem 0 0 0;
+            font-weight: 400;
+        }
+
+        .page-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Modern Alert Styles */
+        .modern-alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-alert.alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left: 4px solid #28a745;
+        }
+
+        .modern-alert.alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 1rem;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        /* Modern Table */
+        .modern-table {
+            margin: 0;
+            border: none;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table-header th {
+            border: none;
+            padding: 1.5rem 1rem;
+            font-weight: 700;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+
+        .table-row {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .table-row:hover {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            transform: scale(1.01);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row td {
+            border: none;
+            padding: 1.5rem 1rem;
+            vertical-align: middle;
+        }
+
+        /* Image Cell */
+        .image-cell {
+            width: 8%;
+        }
+
+        .boat-image-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin: 0 auto;
+        }
+
+        .boat-image-wrapper:hover {
+            transform: scale(1.1);
+        }
+
+        .boat-table-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Boat Name Cell */
+        .boat-name-cell {
+            width: 14%;
+        }
+
+        .boat-name {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .boat-name:hover {
+            transform: scale(1.05);
+            color: #007bff;
+            font-size: 0.95rem;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            position: relative;
+            z-index: 10;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Boat Number Cell */
+        .boat-number-cell {
+            width: 8%;
+        }
+
+        .boat-number {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .boat-number:hover {
+            transform: scale(1.05);
+            color: #007bff;
+            font-size: 0.85rem;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            position: relative;
+            z-index: 10;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Price Cell */
+        .price-cell {
+            width: 10%;
+        }
+
+        .price-info {
+            display: flex;
+            align-items: center;
+            color: #28a745;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .price-info:hover {
+            transform: scale(1.05);
+            color: #20c997;
+            font-size: 0.85rem;
+        }
+
+        /* Capacity Cell */
+        .capacity-cell {
+            width: 6%;
+        }
+
+        .capacity-info {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .capacity-info:hover {
+            transform: scale(1.05);
+            color: #007bff;
+            font-size: 0.85rem;
+        }
+
+        /* Captain Cell */
+        .captain-cell {
+            width: 20%;
+        }
+
+        .captain-info {
+            font-size: 0.8rem;
+        }
+
+        .captain-name {
+            display: flex;
+            align-items: center;
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .captain-name:hover {
+            transform: scale(1.05);
+            color: #007bff;
+            font-size: 0.85rem;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            position: relative;
+            z-index: 10;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .captain-contact {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .captain-contact:hover {
+            transform: scale(1.05);
+            color: #28a745;
+            font-size: 0.75rem;
+        }
+
+        /* Owner Cell */
+        .owner-cell {
+            width: 20%;
+        }
+
+        .owner-info {
+            font-size: 0.8rem;
+        }
+
+        .owner-name {
+            display: flex;
+            align-items: center;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .owner-name:hover {
+            transform: scale(1.05);
+            color: #007bff;
+            font-size: 0.85rem;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            position: relative;
+            z-index: 10;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .owner-email {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .owner-email:hover {
+            transform: scale(1.05);
+            color: #28a745;
+            font-size: 0.75rem;
+        }
+
+        /* Status Cell */
+        .status-cell {
+            width: 10%;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .status-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .rejection-reason-small {
+            margin-top: 0.5rem;
+        }
+
+        /* Actions Cell */
+        .actions-cell {
+            width: 14%;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-buttons .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .action-buttons .btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Empty State */
+        .empty-state-cell {
+            padding: 4rem 2rem !important;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            color: #adb5bd;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .table-container {
+                margin: 1rem 0;
+                overflow-x: auto;
+            }
+            
+            .table-header th,
+            .table-row td {
+                padding: 1rem 0.5rem;
+            }
+            
+            .boat-name-cell {
+                width: 16%;
+            }
+            
+            .captain-cell {
+                width: 20%;
+            }
+            
+            .owner-cell {
+                width: 20%;
+            }
+            
+            .status-cell {
+                width: 12%;
+            }
+            
+            .actions-cell {
+                width: 16%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .stat-card {
+                min-width: 100px;
+                padding: 1rem;
+            }
+            
+            .table-container {
+                margin: 1rem 0;
+                border-radius: 12px;
+                overflow-x: auto;
+            }
+            
+            .modern-table {
+                min-width: 800px;
+            }
+            
+            .table-header th,
+            .table-row td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .boat-image-wrapper {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .boat-name {
+                font-size: 0.85rem;
+            }
+            
+            .captain-info,
+            .owner-info {
+                font-size: 0.75rem;
+            }
+            
+            .captain-name,
+            .owner-name {
+                font-size: 0.8rem;
+            }
+            
+            .captain-contact,
+            .owner-email {
+                font-size: 0.7rem;
+            }
+            
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.65rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .action-buttons .btn {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.3rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .stat-card {
+                padding: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .table-container {
+                margin: 0.75rem 0;
+                border-radius: 8px;
+                overflow-x: auto;
+            }
+            
+            .modern-table {
+                min-width: 700px;
+            }
+            
+            .table-header th {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.7rem;
+            }
+            
+            .table-row td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.75rem;
+            }
+            
+            .boat-image-wrapper {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .boat-name {
+                font-size: 0.75rem;
+            }
+            
+            .captain-info,
+            .owner-info {
+                font-size: 0.7rem;
+            }
+            
+            .captain-name,
+            .owner-name {
+                font-size: 0.75rem;
+            }
+            
+            .captain-contact,
+            .owner-email {
+                font-size: 0.65rem;
+            }
+            
+            .status-badge {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.6rem;
+            }
+            
+            .action-buttons .btn {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.4rem;
+            }
+            
+            .empty-state {
+                padding: 1.5rem 1rem;
+            }
+            
+            .empty-icon {
+                font-size: 2.5rem;
+            }
+            
+            .empty-title {
+                font-size: 1rem;
+            }
+            
+            .empty-description {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .table-container {
+                margin: 0.5rem 0;
+                overflow-x: auto;
+            }
+            
+            .modern-table {
+                min-width: 600px;
+            }
+            
+            .table-header th,
+            .table-row td {
+                padding: 0.4rem 0.2rem;
+                font-size: 0.65rem;
+            }
+            
+            .boat-image-wrapper {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .boat-name {
+                font-size: 0.7rem;
+            }
+            
+            .captain-info,
+            .owner-info {
+                font-size: 0.65rem;
+            }
+            
+            .captain-name,
+            .owner-name {
+                font-size: 0.7rem;
+            }
+            
+            .captain-contact,
+            .owner-email {
+                font-size: 0.6rem;
+            }
+            
+            .status-badge {
+                padding: 0.15rem 0.3rem;
+                font-size: 0.55rem;
+            }
+            
+            .action-buttons .btn {
+                font-size: 0.6rem;
+                padding: 0.15rem 0.3rem;
+            }
+        }
+
+        /* Enhanced Status Badge Colors for Better Visibility */
+        .badge-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            color: white !important;
+            border: 2px solid #1e7e34 !important;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+            color: #212529 !important;
+            border: 2px solid #e0a800 !important;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3) !important;
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+            color: white !important;
+            border: 2px solid #bd2130 !important;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+            color: white !important;
+            border: 2px solid #117a8b !important;
+            box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3) !important;
+        }
+
+        .badge-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+            color: white !important;
+            border: 2px solid #545b62 !important;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3) !important;
+        }
+
+        .badge-dark {
+            background: linear-gradient(135deg, #343a40 0%, #212529 100%) !important;
+            color: white !important;
+            border: 2px solid #1d2124 !important;
+            box-shadow: 0 2px 8px rgba(52, 58, 64, 0.3) !important;
+        }
+
+        /* Legacy badge styles for compatibility */
         .badge-light-success {
-            background-color: #d4edda !important;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
             color: #155724 !important;
-            border: 1px solid #c3e6cb !important;
+            border: 2px solid #b8dacc !important;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2) !important;
         }
 
         .badge-light-warning {
-            background-color: #fff3cd !important;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
             color: #85640a !important;
-            border: 1px solid #ffeeba !important;
+            border: 2px solid #ffd43b !important;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2) !important;
         }
 
         .badge-light-danger {
-            background-color: #f8d7da !important;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
             color: #721c24 !important;
-            border: 1px solid #f5c6cb !important;
+            border: 2px solid #f1b0b7 !important;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2) !important;
         }
 
         .badge-light-info {
-            background-color: #e0f7fa !important;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b8daff 100%) !important;
             color: #0c5460 !important;
-            border: 1px solid #b8daff !important; /* Changed this border color to match info more closely */
+            border: 2px solid #9fcdff !important;
+            box-shadow: 0 2px 8px rgba(23, 162, 184, 0.2) !important;
         }
 
         .badge-light-secondary {
-            background-color: #e2e3e5 !important;
+            background: linear-gradient(135deg, #e2e3e5 0%, #d3d6da 100%) !important;
             color: #383d41 !important;
-            border: 1px solid #d3d6da !important;
+            border: 2px solid #c6c8ca !important;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2) !important;
         }
 
-        .badge-light-black { /* For 'Closed' status if applicable, or general dark status */
-            background-color: #f8f9fa !important; /* Very light gray, almost white */
-            color: #212529 !important; /* Dark text for contrast */
-            border: 1px solid #dee2e6 !important;
+        .badge-light-black {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+            color: #212529 !important;
+            border: 2px solid #dee2e6 !important;
+            box-shadow: 0 2px 8px rgba(52, 58, 64, 0.2) !important;
         }
 
         /* Modal Footer Buttons */

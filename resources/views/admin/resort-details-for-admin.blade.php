@@ -3,131 +3,187 @@
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
-        <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-            <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                Admin Menu
-            </h4>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Dashboard
+        <div class="modern-sidebar d-none d-md-block">
+            {{-- Sidebar Header --}}
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" class="brand-icon-img">
+                    </div>
+                    <div class="brand-text">
+                        <h4 class="brand-title">Admin Menu</h4>
+                        <p class="brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
+            </div>
+            
+            {{-- Sidebar Navigation --}}
+            <div class="sidebar-nav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    {{-- Active link for Resort Information --}}
-                    <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Resort Management
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.resort') }}" class="nav-link {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Resort Management</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Boat Management
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.boat') }}" class="nav-link {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Boat Management</span>
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    <button class="nav-link text-white rounded p-2 d-flex align-items-center w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapse" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapse">
-                        <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Users
+                    
+                    <li class="nav-item">
+                        <button class="nav-link w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapse" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapse">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Users</span>
                         <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
                     </button>
                     <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapse">
                         <ul class="nav flex-column ms-3 mt-1">
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.resorts') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                                    <a href="{{ route('admin.users.resorts') }}" class="nav-link {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.boats') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                                    <a href="{{ route('admin.users.boats') }}" class="nav-link {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.tourists') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                                    <a href="{{ route('admin.users.tourists') }}" class="nav-link {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
                             </li>
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item mt-2">
-                    <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
-                        <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                        Documentation
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.documentation') }}" class="nav-link {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Documentation</span>
                     </a>
                 </li>
             </ul>
+            </div>
         </div>
 
         {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Admin Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/admin.png') }}" alt="Admin Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Admin Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
                 <ul class="nav flex-column">
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
+                        <li class="nav-item">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.resort') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Resort Management
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.resort') }}" class="nav-link {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Resort Management</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.boat') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                            <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Boat Management
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.boat') }}" class="nav-link {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <button class="nav-link text-white rounded p-2 d-flex align-items-center w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapseMobile" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapseMobile">
-                            <img src="{{ asset('images/users.png') }}" alt="Users Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Users
+                        
+                        <li class="nav-item">
+                            <button class="nav-link w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapseMobile" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapseMobile">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Users</span>
                             <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
                         </button>
                         <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapseMobile">
                             <ul class="nav flex-column ms-3 mt-1">
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.users.resorts') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                                        <a href="{{ route('admin.users.resorts') }}" class="nav-link {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.users.boats') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                                        <a href="{{ route('admin.users.boats') }}" class="nav-link {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.users.tourists') }}" class="nav-link text-white rounded p-2 {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                                        <a href="{{ route('admin.users.tourists') }}" class="nav-link {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('admin.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
-                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Documentation
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.documentation') }}" class="nav-link {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
                         </a>
                     </li>
                 </ul>
+                </div>
             </div>
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                {{-- Changed the heading to reflect it's a detail page --}}
-                <h2 class="mb-0">Resort Details</h2>
+        <div class="main-content flex-grow-1">
+            {{-- Page Header --}}
+            <div class="page-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="page-title mb-1">Resort Details</h1>
+                        <p class="page-subtitle mb-0">View and manage resort information</p>
+                    </div>
+                    <div class="page-actions">
+                        <a href="{{ route('admin.resort') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Resorts
+                        </a>
+                    </div>
+                </div>
             </div>
 
             @if (session('success'))
@@ -144,190 +200,329 @@
                 </div>
             @endif
 
-            {{-- Start of Resort Information Section --}}
-            <div class="card p-4 shadow-sm mb-4">
-                <h4 class="mb-3">Resort Information: {{ $resort->resort_name }}</h4>
+            {{-- Resort Information Section --}}
+            <div class="resort-info-card mb-4">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="header-icon me-3">
+                            <i class="fas fa-hotel"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">Resort Information</h4>
+                            <p class="text-muted mb-0">{{ $resort->resort_name }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 text-center">
+                        {{-- Resort Image --}}
+                        <div class="col-lg-4 mb-4">
+                            <div class="resort-image-container">
                         @if ($resort->image_path)
                             <img src="{{ asset($resort->image_path) }}"
                                 alt="{{ $resort->resort_name }}"
-                                class="img-fluid rounded shadow-sm"
-                                style="max-height: 250px; object-fit: cover;">
+                                        class="resort-image">
                         @else
                             <img src="{{ asset('images/default_resort.png') }}"
                                 alt="Default Resort Image"
-                                class="img-fluid rounded shadow-sm"
-                                style="max-height: 250px; object-fit: cover;">
+                                        class="resort-image">
                         @endif
+                                <div class="image-overlay">
+                                    <i class="fas fa-camera"></i>
                     </div>
-                    <div class="col-md-8">
-                        <p><strong>Name:</strong> {{ $resort->resort_name }}</p>
-                        <p><strong>Location:</strong> {{ $resort->location }}</p>
-                        <p><strong>Contact:</strong> {{ $resort->contact_number }}</p>
-                        <p><strong>Owner Status:</strong>
+                            </div>
+                        </div>
+                        
+                        {{-- Resort Details --}}
+                        <div class="col-lg-8">
+                            <div class="resort-details">
+                                {{-- Basic Information --}}
+                                <div class="info-section mb-4">
+                                    <h5 class="section-title">Basic Information</h5>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="info-item">
+                                                <div class="info-label">
+                                                    <i class="fas fa-building me-2"></i>Resort Name
+                                                </div>
+                                                <div class="info-value">{{ $resort->resort_name }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="info-item">
+                                                <div class="info-label">
+                                                    <i class="fas fa-map-marker-alt me-2"></i>Location
+                                                </div>
+                                                <div class="info-value">{{ $resort->location }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="info-item">
+                                                <div class="info-label">
+                                                    <i class="fas fa-phone me-2"></i>Contact Number
+                                                </div>
+                                                <div class="info-value">{{ $resort->contact_number }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Status Information --}}
+                                <div class="info-section mb-4">
+                                    <h5 class="section-title">Status Information</h5>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="status-item">
+                                                <div class="status-label">Owner Status</div>
                             @php
                                 $ownerStatusClass = '';
                                 switch ($resort->status) {
-                                    case 'open': $ownerStatusClass = 'badge-light-success'; break;
-                                    case 'closed': $ownerStatusClass = 'badge-light-black'; break;
-                                    case 'rehab': $ownerStatusClass = 'badge-light-warning'; break;
-                                    default: $ownerStatusClass = 'badge-light-secondary'; break;
+                                                        case 'open': $ownerStatusClass = 'status-success'; break;
+                                                        case 'closed': $ownerStatusClass = 'status-danger'; break;
+                                                        case 'rehab': $ownerStatusClass = 'status-warning'; break;
+                                                        default: $ownerStatusClass = 'status-secondary'; break;
                                 }
                             @endphp
-                            <span class="badge {{ $ownerStatusClass }} rounded-pill">{{ ucfirst($resort->status ?? 'N/A') }}</span>
+                                                <div class="status-badge {{ $ownerStatusClass }}">
+                                                    <i class="fas fa-circle me-1"></i>{{ ucfirst($resort->status ?? 'N/A') }}
+                                                </div>
                             @if ($resort->status === 'rehab' && $resort->rehab_reason)
-                                <small class="d-block text-muted">Reason: {{ $resort->rehab_reason }}</small>
+                                                    <div class="status-note">{{ $resort->rehab_reason }}</div>
                             @endif
-                        </p>
-                        <p><strong>Admin Status:</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="status-item">
+                                                <div class="status-label">Admin Status</div>
                             @php
                                 $adminStatusClass = '';
                                 switch ($resort->admin_status) {
-                                    case 'pending': $adminStatusClass = 'badge-light-info'; break;
-                                    case 'approved': $adminStatusClass = 'badge-light-success'; break;
-                                    case 'rejected': $adminStatusClass = 'badge-light-danger'; break;
-                                    default: $adminStatusClass = 'badge-light-secondary'; break;
+                                                        case 'pending': $adminStatusClass = 'status-info'; break;
+                                                        case 'approved': $adminStatusClass = 'status-success'; break;
+                                                        case 'rejected': $adminStatusClass = 'status-danger'; break;
+                                                        default: $adminStatusClass = 'status-secondary'; break;
                                 }
                             @endphp
-                            <span class="badge {{ $adminStatusClass }} rounded-pill">{{ ucfirst($resort->admin_status ?? 'N/A') }}</span>
+                                                <div class="status-badge {{ $adminStatusClass }}">
+                                                    <i class="fas fa-circle me-1"></i>{{ ucfirst($resort->admin_status ?? 'N/A') }}
+                                                </div>
                             @if (($resort->admin_status ?? '') === 'rejected' && $resort->rejection_reason)
-                                <small class="d-block text-danger">Rejection Reason: {{ $resort->rejection_reason }}</small>
+                                                    <div class="status-note text-danger">{{ $resort->rejection_reason }}</div>
                             @endif
-                        </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                {{-- Action Buttons --}}
                         @if (($resort->admin_status ?? '') === 'pending')
-                            <div class="d-flex gap-2 mt-3">
-                                {{-- Approve Button - Triggers unified modal for Resort --}}
-                                <button type="button" class="btn btn-success rounded-pill"
+                                    <div class="action-section">
+                                        <h5 class="section-title">Admin Actions</h5>
+                                        <div class="action-buttons">
+                                            <button type="button" class="btn btn-success btn-action"
                                         data-bs-toggle="modal" data-bs-target="#adminActionModal"
                                         data-item-id="{{ $resort->id }}"
                                         data-item-name="{{ $resort->resort_name }}"
                                         data-action-type="approve"
                                         data-target-type="resort">
-                                    Approve Resort
+                                                <i class="fas fa-check me-2"></i>Approve Resort
                                 </button>
-
-                                {{-- Reject Button - Triggers unified modal for Resort --}}
-                                <button type="button" class="btn btn-danger rounded-pill"
+                                            <button type="button" class="btn btn-danger btn-action"
                                         data-bs-toggle="modal" data-bs-target="#adminActionModal"
                                         data-item-id="{{ $resort->id }}"
                                         data-item-name="{{ $resort->resort_name }}"
                                         data-action-type="reject"
                                         data-target-type="resort">
-                                    Reject Resort
+                                                <i class="fas fa-times me-2"></i>Reject Resort
                                 </button>
+                                        </div>
                             </div>
                         @else
-                            <p class="mt-3">This resort is currently <strong>{{ ucfirst($resort->admin_status) }}</strong>.</p>
+                                    <div class="status-message">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            This resort is currently <strong>{{ ucfirst($resort->admin_status) }}</strong>.
+                                        </div>
+                                    </div>
                         @endif
                     </div>
                 </div>
             </div>
-            {{-- End of Resort Information Section --}}
+                </div>
+            </div>
 
             {{-- Rooms Section --}}
-            <h3 class="mb-3">Rooms for {{ $resort->resort_name }}</h3>
+            <div class="rooms-section">
+                <div class="section-header mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="section-icon me-3">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            <div>
+                                <h3 class="section-title mb-0">Rooms & Accommodations</h3>
+                                <p class="section-subtitle mb-0">Manage room availability and status</p>
+                            </div>
+                        </div>
+                        <div class="room-count-badge">
+                            <span class="badge bg-primary fs-6">{{ $resort->rooms->count() }} rooms</span>
+                        </div>
+                    </div>
+                </div>
+
             @forelse ($resort->rooms as $room)
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body row align-items-center">
-                        <div class="col-md-3 text-center">
+                    <div class="room-card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    {{-- Room Image --}}
+                                    <div class="col-lg-3 mb-3">
+                                        <div class="room-image-container">
                             @if ($room->image_path)
                                 <img src="{{ asset($room->image_path) }}"
                                     alt="{{ $room->room_name }}"
-                                    class="img-fluid rounded"
-                                    style="max-height: 120px; object-fit: cover;">
+                                                    class="room-image">
                             @else
                                 <img src="{{ asset('images/default_room.png') }}"
                                     alt="Default Room Image"
-                                    class="img-fluid rounded"
-                                    style="max-height: 120px; object-fit: cover;">
+                                                    class="room-image">
                             @endif
+                                            <div class="room-image-overlay">
+                                                <i class="fas fa-eye"></i>
                         </div>
-                        <div class="col-md-6">
-                            <h5>{{ $room->room_name }}</h5>
-                            <p class="mb-1">{{ $room->description }}</p>
-                            <p class="mb-1"><strong>Price:</strong> ₱{{ number_format($room->price_per_night, 2) }} per night</p>
-                            <p class="mb-1"><strong>Max Guests:</strong> {{ $room->max_guests }}</p>
-                            {{-- Display Availability --}}
-                            <p class="mb-1">
-                                <strong>Availability:</strong>
-                                <span class="badge {{ $room->is_available ? 'badge-light-success' : 'badge-light-danger' }} rounded-pill">
+                                        </div>
+                                    </div>
+                                    
+                                    {{-- Room Details --}}
+                                    <div class="col-lg-6">
+                                        <div class="room-details">
+                                            <h5 class="room-name">{{ $room->room_name }}</h5>
+                                            <p class="room-description">{{ $room->description }}</p>
+                                            
+                                            <div class="room-info-grid">
+                                                <div class="info-item">
+                                                    <div class="info-label">
+                                                        <i class="fas fa-dollar-sign me-2"></i>Price per Night
+                                                    </div>
+                                                    <div class="info-value">₱{{ number_format($room->price_per_night, 2) }}</div>
+                                                </div>
+                                                
+                                                <div class="info-item">
+                                                    <div class="info-label">
+                                                        <i class="fas fa-users me-2"></i>Max Guests
+                                                    </div>
+                                                    <div class="info-value">{{ $room->max_guests }} guests</div>
+                                                </div>
+                                                
+                                                <div class="info-item">
+                                                    <div class="info-label">
+                                                        <i class="fas fa-calendar-check me-2"></i>Availability
+                                                    </div>
+                                                    <div class="availability-badge {{ $room->is_available ? 'available' : 'unavailable' }}">
+                                                        <i class="fas fa-circle me-1"></i>
                                     {{ $room->is_available ? 'Available' : 'Unavailable' }}
-                                </span>
-                            </p>
-                            {{-- Display Room Status --}}
-                            <p class="mb-1">
-                                <strong>Owner Status:</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Status Information --}}
+                                            <div class="room-status-section mt-3">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="status-item">
+                                                            <div class="status-label">Owner Status</div>
                                 @php
                                     $roomOwnerStatusClass = '';
                                     switch ($room->status) {
-                                        case 'open':
-                                            $roomOwnerStatusClass = 'badge-light-success';
-                                            break;
-                                        case 'closed':
-                                            $roomOwnerStatusClass = 'badge-light-black';
-                                            break;
-                                        case 'rehab':
-                                            $roomOwnerStatusClass = 'badge-light-warning';
-                                            break;
-                                        default:
-                                            $roomOwnerStatusClass = 'badge-light-secondary';
-                                            break;
+                                                                    case 'open': $roomOwnerStatusClass = 'status-success'; break;
+                                                                    case 'closed': $roomOwnerStatusClass = 'status-danger'; break;
+                                                                    case 'rehab': $roomOwnerStatusClass = 'status-warning'; break;
+                                                                    default: $roomOwnerStatusClass = 'status-secondary'; break;
                                     }
                                 @endphp
-                                <span class="badge {{ $roomOwnerStatusClass }} rounded-pill">{{ ucfirst($room->status ?? 'N/A') }}</span>
+                                                            <div class="status-badge {{ $roomOwnerStatusClass }}">
+                                                                <i class="fas fa-circle me-1"></i>{{ ucfirst($room->status ?? 'N/A') }}
+                                                            </div>
                                 @if (($room->status ?? '') === 'rehab' && $room->rehab_reason)
-                                    <small class="d-block text-muted">Reason: {{ Str::limit($room->rehab_reason, 50) }}</small>
+                                                                <div class="status-note">{{ Str::limit($room->rehab_reason, 50) }}</div>
                                 @endif
-                            </p>
-                            <p><strong>Admin Status:</strong>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="status-item">
+                                                            <div class="status-label">Admin Status</div>
                                 @php
                                     $roomAdminStatusClass = '';
                                     switch ($room->admin_status) {
-                                        case 'pending': $roomAdminStatusClass = 'badge-light-info'; break;
-                                        case 'approved': $roomAdminStatusClass = 'badge-light-success'; break;
-                                        case 'rejected': $roomAdminStatusClass = 'badge-light-danger'; break;
-                                        default: $roomAdminStatusClass = 'badge-light-secondary'; break;
+                                                                    case 'pending': $roomAdminStatusClass = 'status-info'; break;
+                                                                    case 'approved': $roomAdminStatusClass = 'status-success'; break;
+                                                                    case 'rejected': $roomAdminStatusClass = 'status-danger'; break;
+                                                                    default: $roomAdminStatusClass = 'status-secondary'; break;
                                     }
                                 @endphp
-                                <span class="badge {{ $roomAdminStatusClass }} rounded-pill">{{ ucfirst($room->admin_status ?? 'N/A') }}</span>
+                                                            <div class="status-badge {{ $roomAdminStatusClass }}">
+                                                                <i class="fas fa-circle me-1"></i>{{ ucfirst($room->admin_status ?? 'N/A') }}
+                                                            </div>
                                 @if (($room->admin_status ?? '') === 'rejected' && $room->rejection_reason)
-                                    <small class="d-block text-danger">Rejection Reason: {{ $room->rejection_reason }}</small>
+                                                                <div class="status-note text-danger">{{ $room->rejection_reason }}</div>
                                 @endif
-                            </p>
                         </div>
-                        <div class="col-md-3 d-flex align-items-center justify-content-end">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {{-- Action Buttons --}}
+                                    <div class="col-lg-3">
+                                        <div class="room-actions">
                             @if (($room->admin_status ?? '') === 'pending')
-                                <div class="d-flex flex-column gap-2">
-                                    {{-- Approve Button - Triggers unified modal for Room --}}
-                                    <button type="button" class="btn btn-primary btn-sm"
+                                                <div class="action-buttons">
+                                                    <button type="button" class="btn btn-success btn-sm btn-action"
                                             data-bs-toggle="modal" data-bs-target="#adminActionModal"
                                             data-item-id="{{ $room->id }}"
                                             data-item-name="{{ $room->room_name }}"
                                             data-action-type="approve"
                                             data-target-type="room">
-                                        Approve
+                                                        <i class="fas fa-check me-1"></i>Approve
                                     </button>
-                                    {{-- Reject Button - Triggers unified modal for Room --}}
-                                    <button type="button" class="btn btn-danger btn-sm "
+                                                    <button type="button" class="btn btn-danger btn-sm btn-action"
                                             data-bs-toggle="modal" data-bs-target="#adminActionModal"
                                             data-item-id="{{ $room->id }}"
                                             data-item-name="{{ $room->room_name }}"
                                             data-action-type="reject"
                                             data-target-type="room">
-                                        Reject
+                                                        <i class="fas fa-times me-1"></i>Reject
                                     </button>
                                 </div>
                             @else
-                                <span class="text-muted">{{ ucfirst($room->admin_status ?? 'N/A') }}</span>
+                                                <div class="status-display">
+                                                    <div class="status-message">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        {{ ucfirst($room->admin_status ?? 'N/A') }}
+                                                    </div>
+                                                </div>
                             @endif
+                                        </div>
+                                    </div>
+                                </div>
                         </div>
                     </div>
                 </div>
             @empty
-                <p class="text-center text-muted">No rooms found for this resort.</p>
+                    <div class="empty-state">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <div class="empty-icon mb-3">
+                                    <i class="fas fa-bed"></i>
+                                </div>
+                                <h5 class="empty-title">No Rooms Available</h5>
+                                <p class="empty-description">This resort doesn't have any rooms registered yet.</p>
+                            </div>
+                        </div>
+                    </div>
             @endforelse
+            </div>
         </div>
     </div>
 
@@ -350,27 +545,1415 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="confirmActionButton" class="btn rounded-pill">Confirm</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="confirmActionButton" class="btn">Confirm</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    {{-- Custom CSS for sidebar nav-link hover and focus and custom badges --}}
     <style>
-        /* Custom CSS for sidebar nav-link hover and focus */
-        .nav-link.text-white:hover,
-        .nav-link.text-white:focus,
-        .nav-link.text-white.active {
-            background-color: rgb(6, 58, 170) !important; /* This is the specific blue from your provided images */
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
-        .collapse-icon { transition: transform 0.3s ease; }
-        .collapse-icon.rotated { transform: rotate(180deg); }
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
 
-        /* Custom Light Background Badges */
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .collapse-icon { 
+            transition: transform 0.3s ease; 
+        }
+        .collapse-icon.rotated { 
+            transform: rotate(180deg); 
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85vw !important;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-text {
+            flex: 1;
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(2px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-icon-img {
+            width: 18px;
+            height: 18px;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-sidebar-nav .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .mobile-sidebar-nav .nav-text {
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        /* Responsive Design for All Screen Sizes */
+        
+        /* Extra Large Screens (1200px and up) */
+        @media (min-width: 1200px) {
+            .main-content {
+                padding: 2.5rem;
+            }
+            
+            .page-header {
+                padding: 2rem;
+            }
+            
+            .resort-info-card .card-body {
+                padding: 2rem;
+            }
+            
+            .room-card .card-body {
+                padding: 2rem;
+            }
+        }
+        
+        /* Large Screens (992px to 1199px) */
+        @media (min-width: 992px) and (max-width: 1199px) {
+            .main-content {
+                padding: 2rem;
+            }
+            
+            .resort-image {
+                height: 220px;
+            }
+            
+            .room-image-container {
+                height: 140px;
+            }
+        }
+        
+        /* Medium Screens (768px to 991px) */
+        @media (min-width: 768px) and (max-width: 991px) {
+            .main-content {
+                padding: 1.5rem;
+            }
+            
+            .page-header {
+                padding: 1.25rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .resort-image {
+                height: 200px;
+            }
+            
+            .room-image-container {
+                height: 130px;
+            }
+            
+            .room-info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        /* Small Screens (576px to 767px) */
+        @media (min-width: 576px) and (max-width: 767px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 4rem;
+            }
+            
+            .page-header {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.4rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .page-actions .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .resort-info-card .card-header {
+                padding: 1rem;
+            }
+            
+            .resort-info-card .card-body {
+                padding: 1rem;
+            }
+            
+            .resort-image {
+                height: 180px;
+            }
+            
+            .info-section {
+                padding: 1rem;
+            }
+            
+            .action-section {
+                padding: 1rem;
+            }
+            
+            .section-header {
+                padding: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .room-card .card-body {
+                padding: 1rem;
+            }
+            
+            .room-image-container {
+                height: 120px;
+                margin-bottom: 1rem;
+            }
+            
+            .room-name {
+                font-size: 1.1rem;
+            }
+            
+            .room-description {
+                font-size: 0.9rem;
+            }
+            
+            .room-info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .room-status-section {
+                padding: 0.75rem;
+            }
+            
+            .status-item {
+                padding: 0.75rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn-action {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Extra Small Screens (up to 575px) */
+        @media (max-width: 575px) {
+            .main-content {
+                padding: 0.75rem;
+                padding-top: 4rem;
+                padding-right: 0.5rem; /* Add right padding to prevent scrollbar overlap */
+            }
+            
+            .page-header {
+                padding: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .page-header .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.25rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.85rem;
+            }
+            
+            .page-actions {
+                width: 100%;
+            }
+            
+            .page-actions .btn {
+                width: 100%;
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            .resort-info-card .card-header {
+                padding: 0.75rem;
+            }
+            
+            .resort-info-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .header-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .resort-image {
+                height: 160px;
+            }
+            
+            .info-section {
+                padding: 0.75rem;
+            }
+            
+            .section-title {
+                font-size: 1rem;
+            }
+            
+            .info-item {
+                margin-bottom: 0.75rem;
+            }
+            
+            .info-label {
+                font-size: 0.8rem;
+            }
+            
+            .info-value {
+                font-size: 0.9rem;
+            }
+            
+            .status-item {
+                padding: 0.5rem;
+            }
+            
+            .status-label {
+                font-size: 0.8rem;
+            }
+            
+            .status-badge {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .action-section {
+                padding: 0.75rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn-action {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            
+            .section-header {
+                padding: 0.75rem;
+            }
+            
+            .section-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.2rem;
+            }
+            
+            .section-subtitle {
+                font-size: 0.85rem;
+            }
+            
+            .room-count-badge .badge {
+                font-size: 0.9rem;
+                padding: 0.4rem 0.8rem;
+                margin-right: 0.5rem; /* Add margin to prevent scrollbar overlap */
+            }
+            
+            .section-header {
+                padding-right: 1rem; /* Add right padding to prevent overlap */
+            }
+            
+            .room-count-badge {
+                margin-right: 0.5rem; /* Ensure badge doesn't touch scrollbar */
+            }
+            
+            .room-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .room-image-container {
+                height: 100px;
+                margin-bottom: 0.75rem;
+            }
+            
+            .room-name {
+                font-size: 1rem;
+            }
+            
+            .room-description {
+                font-size: 0.85rem;
+            }
+            
+            .room-info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .room-status-section {
+                padding: 0.5rem;
+            }
+            
+            .room-status-section .row {
+                margin: 0;
+            }
+            
+            .room-status-section .col-md-6 {
+                padding: 0.25rem;
+            }
+            
+            .status-item {
+                padding: 0.5rem;
+            }
+            
+            .room-actions {
+                margin-top: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn-action {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .status-message {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+            
+            .empty-state .card-body {
+                padding: 2rem 1rem;
+            }
+            
+            .empty-icon {
+                font-size: 3rem;
+            }
+            
+            .empty-title {
+                font-size: 1rem;
+            }
+            
+            .empty-description {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Landscape Mobile Orientation */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .main-content {
+                padding-top: 3rem;
+            }
+            
+            .resort-image {
+                height: 140px;
+            }
+            
+            .room-image-container {
+                height: 80px;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .main-content {
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            .page-actions,
+            .action-buttons,
+            .btn-action {
+                display: none !important;
+            }
+            
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+            
+            .resort-image,
+            .room-image {
+                max-height: 200px !important;
+            }
+        }
+
+        /* Page Header Styles */
+        .page-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #007bff;
+        }
+
+        .page-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.75rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .page-actions .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+
+        /* Resort Info Card Styles */
+        .resort-info-card .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .resort-info-card .card-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .resort-image-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .resort-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .resort-image-container:hover .resort-image {
+            transform: scale(1.05);
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .resort-image-container:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .resort-details {
+            padding: 1rem 0;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .info-item {
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .status-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .status-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-secondary {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d3d6da;
+        }
+
+        .status-note {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            color: #6c757d;
+        }
+
+        .action-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-message .alert {
+            border-radius: 8px;
+            border: none;
+            margin: 0;
+        }
+
+        /* Rooms Section Styles */
+        .rooms-section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #28a745;
+        }
+        
+        .section-header .d-flex {
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 0.5rem; /* Add padding to prevent scrollbar overlap */
+        }
+        
+        /* Ensure room count badge has proper spacing */
+        .room-count-badge {
+            margin-left: auto;
+            margin-right: 0.5rem; /* Add margin to prevent scrollbar overlap */
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .section-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .room-count-badge .badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .room-card .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .room-card .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .room-image-container {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 150px;
+        }
+
+        .room-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .room-image-container:hover .room-image {
+            transform: scale(1.05);
+        }
+
+        .room-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .room-image-container:hover .room-image-overlay {
+            opacity: 1;
+        }
+
+        .room-name {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .room-description {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .room-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .availability-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .availability-badge.available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .availability-badge.unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .room-status-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .room-actions {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .status-display {
+            text-align: center;
+        }
+
+        .status-message {
+            background: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* Empty State Styles */
+        .empty-state .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #dee2e6;
+        }
+
+        .empty-title {
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            color: #adb5bd;
+            font-size: 0.95rem;
+        }
+
+        /* Additional Mobile Optimizations */
+        
+        /* Touch-friendly elements for mobile */
+        @media (max-width: 767px) {
+            .btn-action {
+                min-height: 44px; /* Apple's recommended touch target size */
+                min-width: 44px;
+            }
+            
+            .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .status-badge {
+                min-height: 32px;
+                display: inline-flex;
+                align-items: center;
+            }
+            
+            .availability-badge {
+                min-height: 28px;
+                display: inline-flex;
+                align-items: center;
+            }
+            
+            /* Prevent overlapping with scrollbar */
+            .main-content {
+                padding-right: 0.75rem;
+            }
+            
+            .card {
+                margin-right: 0.25rem; /* Add small margin to prevent scrollbar overlap */
+            }
+            
+            .section-header .d-flex {
+                padding-right: 0.5rem;
+            }
+        }
+        
+        /* Improved spacing for mobile */
+        @media (max-width: 575px) {
+            .resort-details .row > div {
+                margin-bottom: 1rem;
+            }
+            
+            .room-details .row > div {
+                margin-bottom: 0.75rem;
+            }
+            
+            .info-section,
+            .action-section,
+            .room-status-section {
+                margin-bottom: 1rem;
+            }
+            
+            .room-card {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        /* Better text wrapping for long content */
+        .room-description,
+        .status-note,
+        .info-value {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        
+        /* Improved grid responsiveness */
+        .room-info-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        @media (min-width: 576px) {
+            .room-info-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .room-info-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+        
+        /* Better image responsiveness */
+        .resort-image,
+        .room-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        /* Improved card responsiveness */
+        .card {
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 575px) {
+            .card {
+                margin-bottom: 0.75rem;
+            }
+        }
+        
+        /* Better button responsiveness */
+        .btn-action {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        @media (max-width: 575px) {
+            .btn-action {
+                white-space: normal;
+                text-align: center;
+            }
+        }
+        
+        /* Improved modal responsiveness */
+        @media (max-width: 575px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .modal-content {
+                border-radius: 8px;
+            }
+        }
+        
+        /* Better table responsiveness for future use */
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        /* Improved focus states for accessibility */
+        .btn-action:focus,
+        .nav-link:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+        }
+        
+        /* Better loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        /* Improved error states */
+        .error-state {
+            border-left: 4px solid #dc3545;
+            background: #f8d7da;
+        }
+        
+        /* Better success states */
+        .success-state {
+            border-left: 4px solid #28a745;
+            background: #d4edda;
+        }
+        
+        /* Ultra-small screens (320px and below) - prevent all overlapping */
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+                padding-top: 4rem;
+                padding-right: 0.25rem; /* Minimal right padding for scrollbar */
+            }
+            
+            .page-header {
+                padding: 0.5rem;
+            }
+            
+            .section-header {
+                padding: 0.5rem;
+                padding-right: 0.75rem; /* Extra right padding for scrollbar */
+            }
+            
+            .room-count-badge {
+                margin-right: 0.75rem; /* More margin for very small screens */
+            }
+            
+            .room-count-badge .badge {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.6rem;
+                margin-right: 0.75rem;
+            }
+            
+            .card {
+                margin-right: 0.5rem; /* More margin for cards */
+            }
+            
+            .btn-action {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+            
+            .page-title {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Simple Badge Styles */
         .badge-light-success {
             background-color: #d4edda !important;
             color: #155724 !important;
@@ -390,9 +1973,9 @@
         }
 
         .badge-light-info {
-            background-color: #e0f7fa !important;
+            background-color: #d1ecf1 !important;
             color: #0c5460 !important;
-            border: 1px solid #b8daff !important;
+            border: 1px solid #bee5eb !important;
         }
 
         .badge-light-secondary {
@@ -401,45 +1984,76 @@
             border: 1px solid #d3d6da !important;
         }
 
-        .badge-light-black { /* For 'Closed' status */
-            background-color: #f8f9fa !important; /* Very light gray, almost white */
-            color: #212529 !important; /* Dark text for contrast */
+        .badge-light-black {
+            background-color: #f8f9fa !important;
+            color: #212529 !important;
             border: 1px solid #dee2e6 !important;
         }
 
-        /* Modal Footer Buttons */
-        #adminActionModal .modal-footer .btn-secondary {
-            border-radius: 25px !important; /* Apply rounded pill to Cancel button */
-            padding: 8px 20px;
+        /* Simple Card Styles */
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
         }
 
-        #adminActionModal #confirmActionButton {
-            border-radius: 25px !important; /* Apply rounded pill to Confirm button */
-            padding: 8px 20px;
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
         }
 
-        /* Ensure confirm button gets its specific color from BS classes if not overridden */
-        #adminActionModal #confirmActionButton.btn-success {
-             background-color: #198754 !important; /* Bootstrap success green */
-             border-color: #198754 !important;
+        /* Simple Button Styles */
+        .btn {
+            border-radius: 6px;
         }
 
-        #adminActionModal #confirmActionButton.btn-danger {
-             background-color: #dc3545 !important; /* Bootstrap danger red */
-             border-color: #dc3545 !important;
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
         }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            ['usersCollapse','usersCollapseMobile'].forEach(function(id){
-                var container = document.getElementById(id);
-                if(!container) return;
-                var triggerBtn = document.querySelector('[data-bs-target="#'+id+'"]');
-                var arrow = triggerBtn ? triggerBtn.querySelector('.collapse-icon') : null;
-                if(!arrow) return;
-                container.addEventListener('show.bs.collapse', function(){ arrow.classList.add('rotated'); });
-                container.addEventListener('hide.bs.collapse', function(){ arrow.classList.remove('rotated'); });
+            // Collapse functionality for both desktop and mobile
+            var collapseToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+            collapseToggles.forEach(function(toggle) {
+                var targetId = toggle.getAttribute('data-bs-target');
+                var target = document.querySelector(targetId);
+                var icon = toggle.querySelector('.collapse-icon');
+                
+                if (target && icon) {
+                    target.addEventListener('show.bs.collapse', function() {
+                        icon.classList.add('rotated');
+                    });
+                    target.addEventListener('hide.bs.collapse', function() {
+                        icon.classList.remove('rotated');
+                    });
+                }
             });
+
+            // Mobile sidebar offcanvas functionality
+            var mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                var offcanvas = new bootstrap.Offcanvas(mobileSidebar);
+                
+                function hideOffcanvasOnDesktop() {
+                    if (window.innerWidth >= 768) {
+                        offcanvas.hide();
+                    }
+                }
+                
+                hideOffcanvasOnDesktop();
+                window.addEventListener('resize', hideOffcanvasOnDesktop);
+            }
         });
     </script>
 

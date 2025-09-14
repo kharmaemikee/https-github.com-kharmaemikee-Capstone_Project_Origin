@@ -1,125 +1,430 @@
 <x-app-layout>
     <head>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+        {{-- Font Awesome CDN for Icons --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
         @include('tourist.partials.sidebar')
 
         {{-- Main Content Area for Fill-up Form --}}
-        <main class="py-4 px-3 flex-grow-1">
-            <div class="container">
-                <h2 class="mb-4">Booking Details for Room ID: {{ $roomId ?? 'N/A' }}</h2>
+        <main class="main-content">
+            <div class="container-fluid">
+                {{-- Modern Header Section --}}
+                <div class="booking-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="page-title">Complete Your Booking</h1>
+                            <p class="page-subtitle">Fill in your details to secure your reservation</p>
+                        </div>
+                    </div>
+                    <div class="header-decoration">
+                        <div class="decoration-circle"></div>
+                        <div class="decoration-circle"></div>
+                        <div class="decoration-circle"></div>
+                    </div>
+                </div>
 
                 @isset($room)
-                    <div class="card shadow-sm mb-4 " style="max-width: 600px;">
-                        <div class="card-body">
-                            <div class="row g-3"> {{-- Use row and g-3 for gutter --}}
-                                @if ($room->image_path)
-                                    <div class="col-12 col-md-4"> {{-- Image takes full width on small, 1/3 on medium+ --}}
-                                        <img src="{{ asset($room->image_path) }}" class="img-fluid rounded" alt="Room Image" style="max-height: 150px; object-fit: cover; width: 100%;">
+                    <div class="booking-container">
+                    <div class="row g-4">
+                            {{-- Room Information Card - Enhanced Design --}}
+                        <div class="col-12 col-lg-6 order-1 order-lg-2">
+                                <div class="room-info-card">
+                                    <div class="room-image-container">
+                                    @if ($room->image_path)
+                                            <img src="{{ asset($room->image_path) }}" class="room-image" alt="Room Image">
+                                            <div class="room-overlay">
+                                                <div class="overlay-content">
+                                                    <i class="fas fa-bed overlay-icon"></i>
+                                                    <span class="overlay-text">Room Preview</span>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="room-placeholder">
+                                                <i class="fas fa-bed"></i>
+                                                <span>Room Image</span>
+                                            </div>
+                                        @endif
                                     </div>
-                                @endif
-                                <div class="col-12 @if ($room->image_path) col-md-8 @endif"> {{-- Text takes full width on small, 2/3 on medium+ if image exists --}}
-                                    <h5 class="card-title">{{ $room->room_name }}</h5>
-                                    <p class="card-text text-muted mb-1">Max Guests: {{ $room->max_guests }}</p>
-                                    <p class="card-text text-muted mb-1">Price per Stay: ₱{{ number_format($room->price_per_night, 2) }}</p>
-                                    {{-- Displaying description with bullets, ensuring each bullet is on a new line --}}
-                                    @if ($room->description)
-                                        @php
-                                            // Split the description by the bullet point character "•"
-                                            // This assumes each amenity starts with a bullet point in the database.
-                                            $amenities = explode('•', $room->description);
-                                        @endphp
-                                        @foreach ($amenities as $amenity)
-                                            @php
-                                                $amenity = trim($amenity);
+                                    
+                                    <div class="room-content">
+                                        <div class="room-header">
+                                            <h3 class="room-title">{{ $room->room_name }}</h3>
+                                            <div class="room-price">
+                                                <span class="price-amount">₱{{ number_format($room->price_per_night, 2) }}</span>
+                                                <span class="price-period">per night</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="room-details">
+                                            <div class="detail-item">
+                                                <i class="fas fa-users"></i>
+                                                <span>Max {{ $room->max_guests }} guests</span>
+                                            </div>
+                                        </div>
+                                        
+                                        @if ($room->description)
+                                            <div class="amenities-section">
+                                                <h6 class="amenities-title">
+                                                    <i class="fas fa-star"></i>
+                                                    Amenities
+                                                </h6>
+                                                <div class="amenities-list">
+                                                    @php
+                                                $amenities = explode('•', $room->description);
                                             @endphp
-                                            @if (!empty($amenity)) {{-- Only display if the amenity string is not empty --}}
-                                                <p class="card-text mb-0">&bull; {{ $amenity }}</p>
-                                            @endif
-                                        @endforeach
-                                    @endif
+                                            @foreach ($amenities as $amenity)
+                                                @php
+                                                    $amenity = trim($amenity);
+                                                @endphp
+                                                        @if (!empty($amenity))
+                                                            <div class="amenity-item">
+                                                                <i class="fas fa-check"></i>
+                                                                <span>{{ $amenity }}</span>
+                                                            </div>
+                                                @endif
+                                            @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                </div>
+                            </div>
+                        </div>
+
+                            {{-- Booking Form - Enhanced Design --}}
+                        <div class="col-12 col-lg-6 order-2 order-lg-1">
+                                <div class="booking-form-card">
+                                    <div class="form-header">
+                                        <h3 class="form-title">
+                                            <i class="fas fa-edit"></i>
+                                            Booking Details
+                                        </h3>
+                                        <p class="form-subtitle">Please provide your information to proceed</p>
+                                    </div>
+                            {{-- Step 1 (Schedule & Contact). Personal info moved to Step 2. --}}
+                            <form id="fillupForm" action="{{ route('tourist.fillup2') }}" method="GET">
+                                {{-- @csrf is not needed for GET forms --}}
+                                <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
+
+                                {{-- Personal information fields moved to the next step (fillup2). --}}
+                                        <div class="form-fields">
+                                    {{-- Row 1: Nationality and Contact Number --}}
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label for="nationality" class="form-label">
+                                                        <i class="fas fa-flag"></i>
+                                                        Nationality
+                                                    </label>
+                                                    <select class="form-control @error('nationality') is-invalid @enderror" id="nationality" name="nationality" required>
+                                                <option value="">Select Nationality</option>
+                                                {{-- Options will be populated by JavaScript --}}
+                                            </select>
+                                            @error('nationality')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                                <div class="form-group">
+                                                    <label for="contactNumber" class="form-label">
+                                                        <i class="fas fa-phone"></i>
+                                                        Contact Number
+                                                    </label>
+                                            <input type="text" 
+                                                   class="form-control @error('contact_number') is-invalid @enderror" 
+                                                   id="contactNumber" 
+                                                   name="contact_number" 
+                                                   placeholder="e.g., 09123456789" 
+                                                   value="{{ Auth::user()->phone ?? old('contact_number') }}" 
+                                                   pattern="[0-9]{11}" 
+                                                   maxlength="11" 
+                                                   minlength="11"
+                                                   title="Please enter exactly 11 digits for the contact number." 
+                                                   inputmode="numeric" 
+                                                   oninput="validateContactNumber(this)"
+                                                   required>
+                                                    <div id="contact_number_error" class="error-message" style="display: none;">
+                                                The number is not enough. Please enter exactly 11 digits.
+                                            </div>
+                                            @error('contact_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    
+                                    {{-- Row 2: Reservation Date and Number of Nights --}}
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label for="reservationDate" class="form-label">
+                                                        <i class="fas fa-calendar"></i>
+                                                        Date of Reservation
+                                                    </label>
+                                            <input type="date" class="form-control @error('reservation_date') is-invalid @enderror" id="reservationDate" name="reservation_date" value="{{ old('reservation_date') }}" required>
+                                            @error('reservation_date')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                                <div class="form-group">
+                                                    <label for="numNights" class="form-label">
+                                                        <i class="fas fa-moon"></i>
+                                                        Number of Nights
+                                                    </label>
+                                            <input type="number" class="form-control @error('num_nights') is-invalid @enderror" id="numNights" name="num_nights" min="1" value="{{ old('num_nights', 1) }}" required>
+                                            @error('num_nights')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    
+                                            {{-- Row 3: Number of Guests --}}
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label for="numGuests" class="form-label">
+                                                        <i class="fas fa-users"></i>
+                                                        Number of Guests
+                                                    </label>
+                                            <input type="number" class="form-control @error('num_guests') is-invalid @enderror" id="numGuests" name="num_guests" min="1" value="{{ old('num_guests', 1) }}" required>
+                                            @error('num_guests')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-arrow-right"></i>
+                                                Continue to Details
+                                </button>
+                                            <a href="{{ url()->previous() }}" class="btn btn-secondary">
+                                                <i class="fas fa-arrow-left"></i>
+                                                Back
+                                            </a>
+                                        </div>
+                            </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @else
-                    <div class="alert alert-warning" role="alert">
-                        Room details could not be loaded. Please go back and try again.
+                    <div class="error-state">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="error-title">Room Not Found</h3>
+                        <p class="error-description">Room details could not be loaded. Please go back and try again.</p>
+                        <a href="{{ url()->previous() }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i>
+                            Go Back
+                        </a>
                     </div>
                 @endisset
-
-                <h3 class="mb-3">Fill in Your Booking Details</h3>
-                {{-- Step 1 (Schedule & Contact). Personal info moved to Step 2. --}}
-                <form id="fillupForm" action="{{ route('tourist.fillup2') }}" method="GET">
-                    {{-- @csrf is not needed for GET forms --}}
-                    <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
-
-                    {{-- Personal information fields moved to the next step (fillup2). --}}
-                    <div class="mb-3">
-                        <label for="nationality" class="form-label">Nationality</label>
-                        <select class="form-select @error('nationality') is-invalid @enderror" id="nationality" name="nationality" required>
-                            <option value="">Select Nationality</option>
-                            {{-- Options will be populated by JavaScript --}}
-                        </select>
-                        @error('nationality')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="contactNumber" class="form-label">Contact Number</label>
-                        <input type="text" 
-                               class="form-control @error('contact_number') is-invalid @enderror" 
-                               id="contactNumber" 
-                               name="contact_number" 
-                               placeholder="e.g., 09123456789" 
-                               value="{{ Auth::user()->phone ?? old('contact_number') }}" 
-                               pattern="[0-9]{11}" 
-                               maxlength="11" 
-                               minlength="11"
-                               title="Please enter exactly 11 digits for the contact number." 
-                               inputmode="numeric" 
-                               oninput="validateContactNumber(this)"
-                               required>
-                        <div id="contact_number_error" class="text-danger mt-1" style="display: none;">
-                            The number is not enough. Please enter exactly 11 digits.
-                        </div>
-                        @error('contact_number')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="reservationDate" class="form-label">Date of Reservation</label>
-                        <input type="date" class="form-control @error('reservation_date') is-invalid @enderror" id="reservationDate" name="reservation_date" value="{{ old('reservation_date') }}" required>
-                        @error('reservation_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="numNights" class="form-label">Number of Nights</label>
-                        <input type="number" class="form-control @error('num_nights') is-invalid @enderror" id="numNights" name="num_nights" min="1" value="{{ old('num_nights', 1) }}" required>
-                        @error('num_nights')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="numGuests" class="form-label">Number of Guests</label>
-                        <input type="number" class="form-control @error('num_guests') is-invalid @enderror" id="numGuests" name="num_guests" min="1" value="{{ old('num_guests', 1) }}" required>
-                        @error('num_guests')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <button type="submit" class="btn btn-book-now">
-                        Next <i class="bi bi-arrow-right"></i>
-                    </button>
-                    <a href="{{ url()->previous() }}" class="btn btn-secondary ms-2">Back</a>
-                </form>
             </div>
         </main>
     </div>
 
     <style>
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .notification-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         /* Custom CSS for sidebar nav-link hover and focus */
         .nav-link.text-white:hover,
         .nav-link.text-white:focus,
@@ -127,20 +432,566 @@
             background-color: rgb(6, 58, 170) !important; /* Maroon Red */
         }
 
-        /* Custom "BOOK NOW" BUTTON STYLE (reused for next) */
-        .btn-book-now {
-            background-color: rgb(9, 135, 219); /* Blue color from your explore page's "View Rooms" button */
-            border-color: rgb(9, 135, 219);
-            color: #fff;
-            border-radius: 6px; /* Added border-radius for rounded shape */
-            padding: 7px 10px;   /* Adjusted padding for smaller button */
-            font-weight: bold;
-            transition: background-color 0.2s, border-color 0.2s;
+        /* Main Content Area */
+        .main-content {
+            padding: 2rem;
+            background: transparent;
+            min-height: 100vh;
+            overflow-y: auto;
         }
 
-        .btn-book-now:hover {
-            background-color: rgb(5, 95, 155) !important;
-            border-color: rgb(5, 95, 155) !important;
+        @media (max-width: 767.98px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        /* Modern Booking Page Styling */
+        .booking-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .header-decoration {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            opacity: 0.1;
+        }
+
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+
+        .decoration-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20px;
+            right: 20px;
+        }
+
+        .decoration-circle:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60px;
+            right: 60px;
+        }
+
+        .decoration-circle:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            top: 100px;
+            right: 100px;
+        }
+
+        /* Booking Container */
+        .booking-container {
+            margin-bottom: 2rem;
+        }
+
+        /* Room Info Card */
+        .room-info-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+
+        .room-info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .room-image-container {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .room-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.4s ease;
+        }
+
+        .room-info-card:hover .room-image {
+            transform: scale(1.05);
+        }
+
+        .room-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .room-info-card:hover .room-overlay {
+            opacity: 1;
+        }
+
+        .overlay-content {
+            text-align: center;
+            color: white;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .room-info-card:hover .overlay-content {
+            transform: translateY(0);
+        }
+
+        .overlay-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .overlay-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .room-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+
+        .room-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .room-content {
+            padding: 2rem;
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .room-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            flex: 1;
+        }
+
+        .room-price {
+            text-align: right;
+        }
+
+        .price-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #007bff;
+            display: block;
+        }
+
+        .price-period {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .room-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        .detail-item i {
+            color: #007bff;
+            width: 20px;
+        }
+
+        .amenities-section {
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 1.5rem;
+        }
+
+        .amenities-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .amenities-title i {
+            color: #ffc107;
+        }
+
+        .amenities-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: #495057;
+        }
+
+        .amenity-item i {
+            color: #28a745;
+            width: 16px;
+        }
+
+        /* Booking Form Card */
+        .booking-form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .form-header {
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-title i {
+            color: #007bff;
+        }
+
+        .form-subtitle {
+            font-size: 1rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .form-fields {
+            padding: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            }
+            
+            .form-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: #007bff;
+            width: 16px;
+        }
+
+        .form-control {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            background: white;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            font-size: 0.875rem;
+            color: #dc3545;
+            margin-top: 0.5rem;
+        }
+
+        .error-message {
+            font-size: 0.875rem;
+            color: #dc3545;
+            margin-top: 0.5rem;
+        }
+
+        .form-actions {
+            padding: 0 2rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+            color: white;
+            text-decoration: none;
+            }
+            
+            .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Error State */
+        .error-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #ffc107;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 1rem 0;
+        }
+
+        .error-description {
+            font-size: 1rem;
+            color: #6c757d;
+            margin: 0 0 2rem 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .booking-header {
+                padding: 2rem 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .room-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .room-price {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .booking-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .form-fields {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                padding: 0 1.5rem 1.5rem 1.5rem;
+            }
+
+            .room-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Animation for cards */
+        .room-info-card,
+        .booking-form-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered animation */
+        .booking-form-card {
+            animation-delay: 0.2s;
         }
     </style>
 
