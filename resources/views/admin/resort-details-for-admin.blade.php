@@ -178,11 +178,11 @@
                         <h1 class="page-title mb-1">Resort Details</h1>
                         <p class="page-subtitle mb-0">View and manage resort information</p>
                     </div>
-                    <div class="page-actions">
+                    <!-- <div class="page-actions">
                         <a href="{{ route('admin.resort') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to Resorts
                         </a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -388,7 +388,9 @@
                                                     class="room-image">
                             @endif
                                             <div class="room-image-overlay">
-                                                <i class="fas fa-eye"></i>
+                                                <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#roomImagesModal" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
                         </div>
                                         </div>
                                     </div>
@@ -425,6 +427,16 @@
                                                 </div>
                                             </div>
 
+                                            {{-- Inline thumbnails of uploaded images --}}
+                                            @php $images = $room->images ?? collect(); @endphp
+                                            @if($images->count())
+                                                <div class="mt-2 d-flex flex-wrap gap-2">
+                                                    @foreach($images as $img)
+                                                        <img src="{{ asset($img->image_path) }}" alt="{{ $room->room_name }} image" style="width:72px; height:72px; object-fit:cover; border-radius:6px; border:1px solid #e9ecef;" />
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
                                             {{-- Status Information --}}
                                             <div class="room-status-section mt-3">
                                                 <div class="row">
@@ -448,26 +460,7 @@
                                 @endif
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 mb-2">
-                                                        <div class="status-item">
-                                                            <div class="status-label">Admin Status</div>
-                                @php
-                                    $roomAdminStatusClass = '';
-                                    switch ($room->admin_status) {
-                                                                    case 'pending': $roomAdminStatusClass = 'status-info'; break;
-                                                                    case 'approved': $roomAdminStatusClass = 'status-success'; break;
-                                                                    case 'rejected': $roomAdminStatusClass = 'status-danger'; break;
-                                                                    default: $roomAdminStatusClass = 'status-secondary'; break;
-                                    }
-                                @endphp
-                                                            <div class="status-badge {{ $roomAdminStatusClass }}">
-                                                                <i class="fas fa-circle me-1"></i>{{ ucfirst($room->admin_status ?? 'N/A') }}
-                                                            </div>
-                                @if (($room->admin_status ?? '') === 'rejected' && $room->rejection_reason)
-                                                                <div class="status-note text-danger">{{ $room->rejection_reason }}</div>
-                                @endif
-                        </div>
-                                                    </div>
+                                                    {{-- Admin Status removed: Rooms are auto-approved upon creation --}}
                                                 </div>
                                             </div>
                                         </div>
@@ -476,34 +469,8 @@
                                     {{-- Action Buttons --}}
                                     <div class="col-lg-3">
                                         <div class="room-actions">
-                            @if (($room->admin_status ?? '') === 'pending')
-                                                <div class="action-buttons">
-                                                    <button type="button" class="btn btn-success btn-sm btn-action"
-                                            data-bs-toggle="modal" data-bs-target="#adminActionModal"
-                                            data-item-id="{{ $room->id }}"
-                                            data-item-name="{{ $room->room_name }}"
-                                            data-action-type="approve"
-                                            data-target-type="room">
-                                                        <i class="fas fa-check me-1"></i>Approve
-                                    </button>
-                                                    <button type="button" class="btn btn-danger btn-sm btn-action"
-                                            data-bs-toggle="modal" data-bs-target="#adminActionModal"
-                                            data-item-id="{{ $room->id }}"
-                                            data-item-name="{{ $room->room_name }}"
-                                            data-action-type="reject"
-                                            data-target-type="room">
-                                                        <i class="fas fa-times me-1"></i>Reject
-                                    </button>
+                            {{-- Room approval actions removed --}}
                                 </div>
-                            @else
-                                                <div class="status-display">
-                                                    <div class="status-message">
-                                                        <i class="fas fa-info-circle me-2"></i>
-                                                        {{ ucfirst($room->admin_status ?? 'N/A') }}
-                                                    </div>
-                                                </div>
-                            @endif
-                                        </div>
                                     </div>
                                 </div>
                         </div>
@@ -552,6 +519,54 @@
             </div>
         </div>
     </div>
+
+    {{-- Room Images Modal --}}
+    <div class="modal fade" id="roomImagesModal" tabindex="-1" aria-labelledby="roomImagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roomImagesModalLabel">Room Images</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="roomImagesEmpty" class="text-muted" style="display:none;">No additional images uploaded for this room.</div>
+                    <div id="roomImagesCarousel" class="carousel slide" data-bs-ride="false" style="display:none;">
+                        <div class="carousel-inner" id="roomImagesCarouselInner"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Carousel image sizing inside modal */
+        #roomImagesCarousel .carousel-item img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+
+    {{-- Dataset for room images (JSON) --}}
+    <script id="roomImagesData" type="application/json">{!! $resort->rooms->mapWithKeys(function($r){
+        return [
+            $r->id => $r->images->map(function($img){ return asset($img->image_path); })->values()
+        ];
+    })->toJson() !!}</script>
 
     <style>
         /* Font Awesome CDN for icons */
@@ -2135,6 +2150,50 @@
                 window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
             // --- End JavaScript ---
+
+            // Populate room images modal
+            const roomImagesModal = document.getElementById('roomImagesModal');
+            if (roomImagesModal) {
+                roomImagesModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const roomId = button.getAttribute('data-room-id');
+                    const roomName = button.getAttribute('data-room-name') || 'Room Images';
+                    const title = roomImagesModal.querySelector('#roomImagesModalLabel');
+                    const carousel = document.getElementById('roomImagesCarousel');
+                    const inner = document.getElementById('roomImagesCarouselInner');
+                    const empty = document.getElementById('roomImagesEmpty');
+                    if (title) title.textContent = roomName + ' - Images';
+                    if (inner && carousel && empty) {
+                        inner.innerHTML = '';
+                        try {
+                            const dataEl = document.getElementById('roomImagesData');
+                            const dataset = dataEl ? JSON.parse(dataEl.textContent || '{}') : {};
+                            const paths = dataset[String(roomId)] || [];
+                            if (!paths.length) {
+                                empty.style.display = 'block';
+                                carousel.style.display = 'none';
+                            } else {
+                                empty.style.display = 'none';
+                                carousel.style.display = 'block';
+                                paths.forEach(function(p, idx){
+                                    const item = document.createElement('div');
+                                    item.className = 'carousel-item' + (idx === 0 ? ' active' : '');
+                                    const img = document.createElement('img');
+                                    img.src = String(p);
+                                    img.alt = roomName + ' image ' + (idx + 1);
+                                    img.onerror = function(){ this.src="{{ asset('images/default_room.png') }}"; };
+                                    item.appendChild(img);
+                                    inner.appendChild(item);
+                                });
+                            }
+                        } catch (e) {
+                            empty.textContent = 'Failed to load images.';
+                            empty.style.display = 'block';
+                            carousel.style.display = 'none';
+                        }
+                    }
+                });
+            }
         });
     </script>
 </x-app-layout>

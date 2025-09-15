@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Boat;
 use App\Models\Booking;
+use App\Models\TouristNotification;
+use App\Models\BoatOwnerNotification;
+use App\Models\ResortOwnerNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -44,21 +47,10 @@ class AssignBoatsOnPickup extends Command
             $shouldAssign = false;
             $pickupTime = null;
             
-            if ($booking->tour_type === 'day_tour') {
-                // For day tours, check if pickup time has arrived
-                if ($booking->day_tour_time_of_pickup) {
-                    try {
-                        $pickupTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $booking->day_tour_time_of_pickup);
-                    } catch (\Exception $e) {
-                        continue; // Skip this booking if time parsing fails
-                    }
-                    $shouldAssign = $now->gte($pickupTime);
-                }
-            } else {
-                // For overnight tours, check if check-in date has arrived
-                $shouldAssign = $now->gte($booking->check_in_date->startOfDay());
-                $pickupTime = $booking->check_in_date->startOfDay();
-            }
+            // New rule: Assign when the calendar date of the reservation arrives (start of check-in day)
+            $reservationStart = Carbon::parse($booking->check_in_date)->startOfDay();
+            $pickupTime = $reservationStart; // for logging
+            $shouldAssign = $now->gte($reservationStart);
             
             if ($shouldAssign && $booking->assignedBoat && $booking->assignedBoat->status === 'open') {
                 // Mark the boat as assigned
@@ -68,7 +60,38 @@ class AssignBoatsOnPickup extends Command
                 $this->info("  - Boat {$booking->assignedBoat->boat_name} marked as assigned for booking {$booking->id} (Pickup: {$pickupTime})");
                 
                 // Log the status change
-                Log::info("Boat {$booking->assignedBoat->boat_name} (ID: {$booking->assignedBoat->id}) status changed from 'open' to 'assigned' for booking {$booking->id} - pickup time arrived");
+                Log::info("Boat {$booking->assignedBoat->boat_name} (ID: {$booking->assignedBoat->id}) status changed from 'open' to 'assigned' for booking {$booking->id} - assignment window reached");
+
+                // Notify Tourist, Boat Owner, and Resort Owner that boat is now assigned (at T-30 mins)
+                try {
+                    TouristNotification::create([
+                        'user_id' => $booking->user_id,
+                        'booking_id' => $booking->id,
+                        'message' => 'Today is your reservation date. Your boat ' . ($booking->assignedBoat->boat_name ?? 'N/A') . ' has been assigned. Have a great trip!',
+                        'type' => 'boat_now_assigned',
+                        'is_read' => false,
+                    ]);
+                } catch (\Exception $e) { /* swallow notify errors */ }
+
+                try {
+                    BoatOwnerNotification::create([
+                        'user_id' => $booking->assignedBoat->user_id,
+                        'booking_id' => $booking->id,
+                        'message' => 'Your boat ' . ($booking->assignedBoat->boat_name ?? 'N/A') . ' has been assigned to ' . ($booking->user->name ?? 'Guest') . ' for today\'s reservation.',
+                        'type' => 'prepare_pickup',
+                        'is_read' => false,
+                    ]);
+                } catch (\Exception $e) { /* swallow notify errors */ }
+
+                try {
+                    ResortOwnerNotification::create([
+                        'user_id' => $booking->resort_owner_id,
+                        'booking_id' => $booking->id,
+                        'message' => 'Today is the guest\'s reservation date. Boat ' . ($booking->assignedBoat->boat_name ?? 'N/A') . ' has been assigned.',
+                        'type' => 'boat_now_assigned',
+                        'is_read' => false,
+                    ]);
+                } catch (\Exception $e) { /* swallow notify errors */ }
             }
         }
         

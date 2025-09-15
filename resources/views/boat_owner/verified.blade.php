@@ -316,7 +316,7 @@
                                             @csrf
                                             
                                             <div class="mb-3">
-                                                <label for="bir_permit" class="form-label">BIR Permit <span class="text-danger">*</span></label>
+                                                <label for="bir_permit" class="form-label">BIR Permit <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('bir_permit') is-invalid @enderror" 
                                                        id="bir_permit" name="bir_permit" accept=".pdf" 
                                                        {{ auth()->user()->bir_approved ? 'disabled' : '' }}>
@@ -327,7 +327,7 @@
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="dti_permit" class="form-label">DTI Permit <span class="text-danger">*</span></label>
+                                                <label for="dti_permit" class="form-label">DTI Permit <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('dti_permit') is-invalid @enderror" 
                                                        id="dti_permit" name="dti_permit" accept=".pdf"
                                                        {{ auth()->user()->dti_approved ? 'disabled' : '' }}>
@@ -338,7 +338,7 @@
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="business_permit" class="form-label">Business Permit <span class="text-danger">*</span></label>
+                                                <label for="business_permit" class="form-label">Business Permit <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('business_permit') is-invalid @enderror" 
                                                        id="business_permit" name="business_permit" accept=".pdf"
                                                        {{ auth()->user()->business_permit_approved ? 'disabled' : '' }}>
@@ -350,7 +350,7 @@
 
 
                                             <div class="mb-3">
-                                                <label for="lgu_resolution" class="form-label">LGU Resolution <span class="text-danger">*</span></label>
+                                                <label for="lgu_resolution" class="form-label">LGU Resolution <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('lgu_resolution') is-invalid @enderror" 
                                                        id="lgu_resolution" name="lgu_resolution" accept=".pdf"
                                                        {{ auth()->user()->lgu_resolution_approved ? 'disabled' : '' }}>
@@ -361,7 +361,7 @@
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="marina_cpc" class="form-label">Marina CPC <span class="text-danger">*</span></label>
+                                                <label for="marina_cpc" class="form-label">Marina CPC <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('marina_cpc') is-invalid @enderror" 
                                                        id="marina_cpc" name="marina_cpc" accept=".pdf"
                                                        {{ auth()->user()->marina_cpc_approved ? 'disabled' : '' }}>
@@ -372,7 +372,7 @@
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="boat_association" class="form-label">Boat/Owners Association Membership <span class="text-danger">*</span></label>
+                                                <label for="boat_association" class="form-label">Boat/Owners Association Membership <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('boat_association') is-invalid @enderror" 
                                                        id="boat_association" name="boat_association" accept=".pdf"
                                                        {{ auth()->user()->boat_association_approved ? 'disabled' : '' }}>

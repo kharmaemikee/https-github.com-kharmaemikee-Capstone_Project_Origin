@@ -198,7 +198,7 @@
                     <div class="col-lg-3 col-md-6 mb-3">
                         <div class="stats-card">
                             <div class="stats-icon bg-primary">
-                                <i class="fas fa-bookings"></i>
+                            <i class="fas fa-hotel"></i>
                                     </div>
                             <div class="stats-content">
                                 <h3 class="stats-number">{{ $totalBookings ?? 0 }}</h3>
@@ -231,13 +231,200 @@
                     <div class="col-lg-3 col-md-6 mb-3">
                         <div class="stats-card">
                             <div class="stats-icon bg-warning">
-                                <i class="fas fa-dollar-sign"></i>
+                                <i class="fas fa-peso-sign"></i>
                             </div>
                             <div class="stats-content">
-                                <h3 class="stats-number">₱{{ number_format($totalRevenue ?? 0) }}</h3>
-                                <p class="stats-label">Total Revenue</p>
+                                <h3 class="stats-number mb-1">₱{{ number_format($totalRevenue ?? 0) }}</h3>
+                                <button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#revenueBreakdownModal">
+                                    <span class="stats-label">Total Revenue {{ $revenueFilterLabel ? '(' . $revenueFilterLabel . ')' : '' }}</span>
+                                </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+                {{-- Revenue Breakdown Modal --}}
+                <div class="modal fade" id="revenueBreakdownModal" tabindex="-1" aria-labelledby="revenueBreakdownLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="revenueBreakdownLabel">Revenue Breakdown by Room {{ $revenueFilterLabel ? '(' . $revenueFilterLabel . ')' : '' }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                {{-- Modal Filters --}}
+                                <form method="GET" action="{{ route('resort.owner.dashboard') }}" class="row g-3 align-items-end mb-3">
+                                    <input type="hidden" name="open" value="breakdown" />
+                                    <div class="col-12 col-md-3">
+                                        <label for="filter_type_modal" class="form-label">Filter Type</label>
+                                        <select id="filter_type_modal" name="filter_type" class="form-select" onchange="toggleRevenueInputsModal()">
+                                            <option value="" {{ request('filter_type')==='' ? 'selected' : '' }}>All Time</option>
+                                            <option value="day" {{ request('filter_type')==='day' ? 'selected' : '' }}>By Day</option>
+                                            <option value="month" {{ request('filter_type')==='month' ? 'selected' : '' }}>By Month</option>
+                                            <option value="date_range" {{ request('filter_type')==='date_range' ? 'selected' : '' }}>By Date Range</option>
+                                            <option value="month_range" {{ request('filter_type')==='month_range' ? 'selected' : '' }}>By Month Range</option>
+                                            <option value="year" {{ request('filter_type')==='year' ? 'selected' : '' }}>By Year</option>
+                                            <option value="year_range" {{ request('filter_type')==='year_range' ? 'selected' : '' }}>By Year Range</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-3" id="dayInput_modal" style="display:none;">
+                                        <label for="date_modal" class="form-label">Select Date</label>
+                                        <input type="date" id="date_modal" name="date" value="{{ request('date') }}" class="form-control" />
+                                    </div>
+                                    <div class="col-12 col-md-3" id="monthInput_modal" style="display:none;">
+                                        <label for="month_modal" class="form-label">Select Month</label>
+                                        <input type="month" id="month_modal" name="month" value="{{ request('month') }}" class="form-control" />
+                                    </div>
+                                    <div class="col-12 col-md-6" id="dateRangeInput_modal" style="display:none;">
+                                        <label class="form-label">Select Date Range</label>
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-6">
+                                                <input type="date" name="date_start" value="{{ request('date_start') }}" class="form-control" />
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <input type="date" name="date_end" value="{{ request('date_end') }}" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6" id="monthRangeInput_modal" style="display:none;">
+                                        <label class="form-label">Select Month Range</label>
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-6">
+                                                <input type="month" name="month_start" value="{{ request('month_start') }}" class="form-control" />
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <input type="month" name="month_end" value="{{ request('month_end') }}" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3" id="yearInput_modal" style="display:none;">
+                                        <label for="year_modal" class="form-label">Select Year</label>
+                                        <input type="number" min="1900" max="2100" step="1" id="year_modal" name="year" value="{{ request('year') }}" class="form-control" />
+                                    </div>
+                                    <div class="col-12 col-md-6" id="yearRangeInput_modal" style="display:none;">
+                                        <label class="form-label">Select Year Range</label>
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-6">
+                                                <input type="number" min="1900" max="2100" step="1" name="year_start" value="{{ request('year_start') }}" class="form-control" />
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <input type="number" min="1900" max="2100" step="1" name="year_end" value="{{ request('year_end') }}" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-auto d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary flex-shrink-0">Apply</button>
+                                        <a href="{{ route('resort.owner.dashboard', ['open' => 'breakdown']) }}" class="btn btn-secondary flex-shrink-0">Reset</a>
+                                    </div>
+                                </form>
+                                @if(isset($revenueBreakdown) && count($revenueBreakdown) > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-striped align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Room/Cottage</th>
+                                                    <th class="text-center">Bookings</th>
+                                                    <th class="text-end">Revenue (₱)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($revenueBreakdown as $row)
+                                                    <tr>
+                                                        <td>{{ $row['room_name'] }}</td>
+                                                        <td class="text-center">{{ $row['bookings_count'] }}</td>
+                                                        <td class="text-end">{{ number_format($row['revenue']) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Total</th>
+                                                    <th class="text-center">{{ $revenueBreakdown->sum('bookings_count') }}</th>
+                                                    <th class="text-end">{{ number_format($revenueBreakdown->sum('revenue')) }}</th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="empty-state">
+                                        <i class="fas fa-file-invoice-dollar empty-icon"></i>
+                                        <h6>No Revenue</h6>
+                                        <p>No approved bookings found for the selected period.</p>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Revenue Filter --}}
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <form method="GET" action="{{ route('resort.owner.dashboard') }}" class="row g-3 align-items-end">
+                            <div class="col-12 col-md-3">
+                                <label for="filter_type" class="form-label">Filter Type</label>
+                                <select id="filter_type" name="filter_type" class="form-select" onchange="toggleRevenueInputs()">
+                                    <option value="" {{ request('filter_type')==='' ? 'selected' : '' }}>All Time</option>
+                                    <option value="day" {{ request('filter_type')==='day' ? 'selected' : '' }}>By Day</option>
+                                    <option value="month" {{ request('filter_type')==='month' ? 'selected' : '' }}>By Month</option>
+                                    <option value="date_range" {{ request('filter_type')==='date_range' ? 'selected' : '' }}>By Date Range</option>
+                                    <option value="month_range" {{ request('filter_type')==='month_range' ? 'selected' : '' }}>By Month Range</option>
+                                    <option value="year" {{ request('filter_type')==='year' ? 'selected' : '' }}>By Year</option>
+                                    <option value="year_range" {{ request('filter_type')==='year_range' ? 'selected' : '' }}>By Year Range</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3" id="dayInput" style="display:none;">
+                                <label for="date" class="form-label">Select Date</label>
+                                <input type="date" id="date" name="date" value="{{ request('date') }}" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-3" id="monthInput" style="display:none;">
+                                <label for="month" class="form-label">Select Month</label>
+                                <input type="month" id="month" name="month" value="{{ request('month') }}" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-6" id="monthRangeInput" style="display:none;">
+                                <label class="form-label">Select Month Range</label>
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-6">
+                                        <input type="month" name="month_start" value="{{ request('month_start') }}" class="form-control" />
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <input type="month" name="month_end" value="{{ request('month_end') }}" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6" id="dateRangeInput" style="display:none;">
+                                <label class="form-label">Select Date Range</label>
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-6">
+                                        <input type="date" name="date_start" value="{{ request('date_start') }}" class="form-control" />
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <input type="date" name="date_end" value="{{ request('date_end') }}" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3" id="yearInput" style="display:none;">
+                                <label for="year" class="form-label">Select Year</label>
+                                <input type="number" min="1900" max="2100" step="1" id="year" name="year" value="{{ request('year') }}" class="form-control" />
+                            </div>
+                            <div class="col-12 col-md-6" id="yearRangeInput" style="display:none;">
+                                <label class="form-label">Select Year Range</label>
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-6">
+                                        <input type="number" min="1900" max="2100" step="1" name="year_start" value="{{ request('year_start') }}" class="form-control" />
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <input type="number" min="1900" max="2100" step="1" name="year_end" value="{{ request('year_end') }}" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-auto d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-shrink-0">Apply</button>
+                                <a href="{{ route('resort.owner.dashboard') }}" class="btn btn-secondary flex-shrink-0">Reset</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -906,6 +1093,110 @@
                 hideOffcanvasOnDesktop();
                 window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
+
+            // Revenue filter input toggling
+            function toggleRevenueInputs() {
+                var typeSelect = document.getElementById('filter_type');
+                var dayInput = document.getElementById('dayInput');
+                var monthInput = document.getElementById('monthInput');
+                var monthRangeInput = document.getElementById('monthRangeInput');
+                var yearInput = document.getElementById('yearInput');
+                var yearRangeInput = document.getElementById('yearRangeInput');
+                var dateRangeInput = document.getElementById('dateRangeInput');
+                if (!typeSelect || !dayInput || !monthInput) { return; }
+                var val = typeSelect.value;
+                if (val === 'day') {
+                    dayInput.style.display = '';
+                    monthInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                } else if (val === 'month') {
+                    dayInput.style.display = 'none';
+                    monthInput.style.display = '';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                } else if (val === 'month_range') {
+                    dayInput.style.display = 'none';
+                    monthInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = '';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                } else if (val === 'date_range') {
+                    dayInput.style.display = 'none';
+                    monthInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = '';
+                } else if (val === 'year') {
+                    dayInput.style.display = 'none';
+                    monthInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = '';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                } else if (val === 'year_range') {
+                    dayInput.style.display = 'none';
+                    monthInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = '';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                } else {
+                    dayInput.style.display = 'none';
+                    monthInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                }
+            }
+            toggleRevenueInputs();
+            window.toggleRevenueInputs = toggleRevenueInputs;
+
+            // Modal filter toggling
+            function toggleRevenueInputsModal() {
+                var typeSelect = document.getElementById('filter_type_modal');
+                var dayInput = document.getElementById('dayInput_modal');
+                var monthInput = document.getElementById('monthInput_modal');
+                var dateRangeInput = document.getElementById('dateRangeInput_modal');
+                var monthRangeInput = document.getElementById('monthRangeInput_modal');
+                var yearInput = document.getElementById('yearInput_modal');
+                var yearRangeInput = document.getElementById('yearRangeInput_modal');
+                if (!typeSelect) { return; }
+                var val = typeSelect.value;
+                function hideAll() {
+                    if (dayInput) dayInput.style.display = 'none';
+                    if (monthInput) monthInput.style.display = 'none';
+                    if (dateRangeInput) dateRangeInput.style.display = 'none';
+                    if (monthRangeInput) monthRangeInput.style.display = 'none';
+                    if (yearInput) yearInput.style.display = 'none';
+                    if (yearRangeInput) yearRangeInput.style.display = 'none';
+                }
+                hideAll();
+                if (val === 'day' && dayInput) dayInput.style.display = '';
+                else if (val === 'month' && monthInput) monthInput.style.display = '';
+                else if (val === 'date_range' && dateRangeInput) dateRangeInput.style.display = '';
+                else if (val === 'month_range' && monthRangeInput) monthRangeInput.style.display = '';
+                else if (val === 'year' && yearInput) yearInput.style.display = '';
+                else if (val === 'year_range' && yearRangeInput) yearRangeInput.style.display = '';
+            }
+            toggleRevenueInputsModal();
+            window.toggleRevenueInputsModal = toggleRevenueInputsModal;
+
+            // Auto-open modal if coming from filter submit
+            @if(request('open') === 'breakdown')
+                var modalEl = document.getElementById('revenueBreakdownModal');
+                if (modalEl) {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            @endif
         });
     </script>
 </x-app-layout>

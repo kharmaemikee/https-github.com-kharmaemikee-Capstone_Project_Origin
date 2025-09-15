@@ -14,8 +14,6 @@
             background-size: cover;
             color: white;
             min-height: 100vh;
-            padding-top: 80px;
-            padding-bottom: 100px;
             position: relative;
             overflow-y: auto;
             display: flex;
@@ -24,21 +22,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .header {
-            background: url("{{ asset('images/subiclogo1.png') }}") no-repeat center center/cover;
-            height: 80px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-        }
 
         .overlay {
             position: absolute;
@@ -234,15 +217,7 @@
         /* Mobile First Responsive Design */
         @media (max-width: 480px) {
             /* Extra small devices (phones, 480px and down) */
-            body {
-                padding-top: 60px;
-                padding-bottom: 80px;
-            }
 
-            .header {
-                height: 60px;
-                padding: 0 15px;
-            }
 
             .container {
                 width: 95%;
@@ -283,10 +258,6 @@
                 font-size: 1rem;
             }
 
-            .footer {
-                height: 60px;
-                font-size: 0.9rem;
-            }
 
             .form-row {
                 flex-direction: column;
@@ -383,18 +354,7 @@
 
         /* Landscape orientation adjustments */
         @media (max-height: 600px) and (orientation: landscape) {
-            body {
-                padding-top: 60px;
-                padding-bottom: 80px;
-            }
 
-            .header {
-                height: 60px;
-            }
-
-            .footer {
-                height: 60px;
-            }
 
             .welcome-text {
                 font-size: 2rem;
@@ -414,23 +374,6 @@
             }
         }
 
-        .footer {
-            background: url("{{ asset('images/subiclogo2.png') }}") no-repeat center center/cover;
-            height: 80px;
-            width: 100%;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
 
         /* Modern Link Styling */
         .login-link {
@@ -569,7 +512,6 @@
     </style>
 </head>
 <body>
-    <div class="header"></div>
     <div class="overlay"></div>
     <div class="container">
         <div class="welcome-section">
@@ -867,7 +809,6 @@
             <p class="mt-3 text-white" style="position: relative; z-index: 1;">Already have an account? <a href="{{ route('login') }}" class="login-link">Login</a></p>
         </div>
     </div>
-    <div class="footer">&copy; 2025 Matnog Tourism</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

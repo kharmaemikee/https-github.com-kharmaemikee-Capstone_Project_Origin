@@ -322,6 +322,42 @@
                                 {{ $bookings->links() }}
                             </div>
                         @endif
+
+                        {{-- Signature section for resorts (prints at bottom) --}}
+                        @php
+                            $items = ($bookings instanceof \Illuminate\Pagination\AbstractPaginator)
+                                ? $bookings->items()
+                                : (is_iterable($bookings) ? $bookings : []);
+                            $resortNames = collect($items)
+                                ->map(function($b){
+                                    if (!is_object($b)) { return null; }
+                                    $resortName = null;
+                                    try {
+                                        $resortName = optional(optional($b->room)->resort)->resort_name;
+                                    } catch (\Throwable $e) {
+                                        // ignore and fallback
+                                    }
+                                    if (!$resortName && property_exists($b, 'name_of_resort')) {
+                                        $resortName = $b->name_of_resort;
+                                    }
+                                    return $resortName ?: null;
+                                })
+                                ->filter()
+                                ->unique()
+                                ->values();
+                        @endphp
+                        <!-- @if($resortNames->isNotEmpty())
+                            <div class="mt-5">
+                                <div class="row g-4">
+                                    @foreach($resortNames as $resortName)
+                                        <div class="col-12 col-md-4 d-flex flex-column align-items-center">
+                                            <div style="width: 100%; max-width: 320px; margin-top: 40px; border-top: 2px solid #000; height: 1px;"></div>
+                                            <div class="text-center fw-bold mt-1" style="max-width: 320px;">{{ $resortName }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif -->
                     </div>
                 </div>
             </div>

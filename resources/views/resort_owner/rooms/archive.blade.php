@@ -1,18 +1,140 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Archived Rooms') }}
-        </h2>
-    </x-slot>
+    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        {{-- Desktop Sidebar (same style as resort-information) --}}
+        <div class="modern-sidebar d-none d-md-block">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" class="brand-icon-img">
+                    </div>
+                    <div class="brand-text">
+                        <h4 class="brand-title">Resorts Menu</h4>
+                        <p class="brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-nav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.dashboard') }}" class="nav-link {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.information') }}" class="nav-link {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Resort Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.verified') }}" class="nav-link {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Account Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.notification') }}" class="nav-link {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Documentation</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {{-- Mobile Offcanvas Toggle Button --}}
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        {{-- Mobile Offcanvas Sidebar --}}
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+            <div class="offcanvas-header">
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Resorts Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.dashboard') }}" class="nav-link {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.information') }}" class="nav-link {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Resort Management</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.verified') }}" class="nav-link {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Account Management</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.notification') }}" class="nav-link {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Notifications</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content flex-grow-1">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="px-4 py-3">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h3 class="h4 mb-0">Archived Rooms for {{ $resort->resort_name }}</h3>
-                        </div>
+                <div class="p-4 text-gray-900">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="h4 mb-0">Archived Rooms for {{ $resort->resort_name }}</h3>
+                    </div>
 
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -114,6 +236,185 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-icon-img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-nav .nav-icon-img {
+            width: 22px;
+            height: 22px;
+            filter: brightness(0) invert(1);
+        }
+
+        .sidebar-nav .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
+            min-height: 100vh;
+        }
+
         /* Custom CSS for icon buttons */
         .btn-icon {
             width: 32px;
@@ -195,6 +496,219 @@
             .swal2-cancel-responsive {
                 font-size: 12px !important;
                 padding: 6px 12px !important;
+            }
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85vw !important;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .mobile-sidebar-nav .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-sidebar-nav .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mobile-sidebar-nav .nav-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.75rem;
+            }
+            
+            .mobile-toggle-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-title {
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-subtitle {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -399,6 +913,26 @@
                     trigger: 'hover'
                 });
             });
+        });
+
+        // Offcanvas behavior for mobile sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            var mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                var offcanvas = new bootstrap.Offcanvas(mobileSidebar);
+
+                function hideOffcanvasOnDesktop() {
+                    if (window.innerWidth >= 768) { // Bootstrap's 'md' breakpoint is 768px
+                        offcanvas.hide();
+                    }
+                }
+
+                // Hide offcanvas immediately if screen is already desktop size on load
+                hideOffcanvasOnDesktop();
+
+                // Add event listener for window resize
+                window.addEventListener('resize', hideOffcanvasOnDesktop);
+            }
         });
     </script>
 </x-app-layout>

@@ -232,6 +232,8 @@ class BookingController extends Controller
             'special_requests' => 'nullable|string|max:1000',
             'guest_names' => 'array',
             'guest_names.*' => 'string|max:255',
+            'guest_ages' => 'array',
+            'guest_ages.*' => 'integer|min:7',
         ], [
             'contact_number.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
@@ -293,11 +295,20 @@ class BookingController extends Controller
                 $allGuestNames[] = $primaryName;
             }
             $additionalGuests = $validatedData['guest_names'] ?? [];
-            foreach ($additionalGuests as $g) {
+            $additionalAges = $validatedData['guest_ages'] ?? [];
+            foreach ($additionalGuests as $idx => $g) {
                 $g = trim($g);
                 if ($g !== '') {
-                    $allGuestNames[] = $g;
+                    $ageSuffix = '';
+                    if (isset($additionalAges[$idx]) && (int)$additionalAges[$idx] > 0) {
+                        $ageSuffix = ' (' . (int)$additionalAges[$idx] . ')';
+                    }
+                    $allGuestNames[] = $g . $ageSuffix;
                 }
+            }
+            // Append age to primary guest in display
+            if (!empty($allGuestNames)) {
+                $allGuestNames[0] = $allGuestNames[0] . ' (' . (int)$validatedData['age'] . ')';
             }
             $guestNamesConcat = implode('; ', $allGuestNames);
 
@@ -599,26 +610,45 @@ class BookingController extends Controller
                                     ->whereIn('type', ['new_booking', 'booking_updated']) // Mark both new booking and updated booking notifications as read
                                     ->update(['is_read' => true]);
 
-            // Create a notification for the Tourist
+            // Notify Tourist: booking approved, boat will be activated 30 mins before departure
             TouristNotification::create([
                 'user_id' => $booking->user_id,
                 'booking_id' => $booking->id,
-                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . $booking->name_of_resort . ' has been APPROVED! Assigned Boat: ' . $booking->assigned_boat . '.',
-                'type' => 'booking_approved',
+                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . $booking->name_of_resort . ' has been APPROVED. A boat will be assigned 30 minutes before departure.',
+                'type' => 'booking_approved_pending_assignment',
                 'is_read' => false,
             ]);
 
-            // Create notification for Boat Owner when boat is assigned
+            // Inform each party that assignment will happen on the reservation date
+            ResortOwnerNotification::create([
+                'user_id' => $booking->resort_owner_id,
+                'booking_id' => $booking->id,
+                'message' => 'Booking approved. Boat will be assigned automatically on the reservation date.',
+                'type' => 'boat_assignment_pending',
+                'is_read' => false,
+            ]);
+
+            TouristNotification::create([
+                'user_id' => $booking->user_id,
+                'booking_id' => $booking->id,
+                'message' => 'Booking approved. Please wait — your boat will be assigned on your reservation date.',
+                'type' => 'boat_assignment_pending',
+                'is_read' => false,
+            ]);
+
+            // Boat owner heads-up without revealing guest details earlier than necessary
+            if ($foundBoat && $foundBoat->user_id) {
             BoatOwnerNotification::create([
                 'user_id' => $foundBoat->user_id,
                 'booking_id' => $booking->id,
-                'message' => 'Your boat "' . $foundBoat->boat_name . ' (#' . $foundBoat->boat_number . ')" has been assigned to a booking by ' . $booking->guest_name . ' for ' . $booking->number_of_guests . ' guests on ' . $booking->check_in_date->format('F d, Y') . '. The boat will be marked as "assigned" on the pickup day/time.',
-                'type' => 'boat_assigned',
+                    'message' => 'A booking using your boat is approved. Assignment will occur on the guest\'s reservation date.',
+                    'type' => 'boat_assignment_pending',
                 'is_read' => false,
             ]);
+            }
 
             DB::commit();
-            return back()->with('success', 'Booking confirmed and boat ' . $foundBoat->boat_name . ' assigned successfully!');
+            return back()->with('success', 'Booking approved. Your reserved boat ('. $foundBoat->boat_name .') will be activated 30 minutes before departure.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Failed to confirm booking: " . $e->getMessage(), ['booking_id' => $booking->id, 'user_id' => Auth::id(), 'exception' => $e]);
@@ -670,7 +700,7 @@ class BookingController extends Controller
                     BoatOwnerNotification::create([
                         'user_id' => $boat->user_id,
                         'booking_id' => $booking->id,
-                        'message' => 'The booking for ' . $booking->guest_name . ' on your boat "' . $boat->boat_name . ' (#' . $boat->boat_number . ')" has been REJECTED by the resort owner. Your boat is now available for this slot.',
+                        'message' => 'Booking for ' . $booking->guest_name . ' on ' . $boat->boat_name . ' has been rejected. Your boat is now available.',
                         'type' => 'boat_unassigned',
                         'is_read' => false,
                     ]);
@@ -819,7 +849,7 @@ class BookingController extends Controller
                     BoatOwnerNotification::create([
                         'user_id' => $boat->user_id,
                         'booking_id' => $booking->id,
-                        'message' => 'Your boat "' . $boat->boat_name . ' (#' . $boat->boat_number . ')" is now available again as the booking for ' . $booking->guest_name . ' was cancelled.',
+                        'message' => $boat->boat_name . ' is now available as the booking for ' . $booking->guest_name . ' was cancelled.',
                         'type' => 'boat_available',
                         'is_read' => false,
                     ]);
@@ -893,7 +923,7 @@ class BookingController extends Controller
                 BoatOwnerNotification::create([
                     'user_id' => $booking->assignedBoat->user_id,
                     'booking_id' => $booking->id,
-                    'message' => 'The booking for ' . $booking->guest_name . ' on your boat "' . $booking->assignedBoat->boat_name . ' (#' . $booking->assignedBoat->boat_number . ')" has been marked as COMPLETED.',
+                    'message' => 'Booking for ' . $booking->guest_name . ' on ' . $booking->assignedBoat->boat_name . ' has been completed.',
                     'type' => 'booking_completed',
                     'is_read' => false,
                 ]);
@@ -1134,7 +1164,7 @@ class BookingController extends Controller
                     BoatOwnerNotification::create([
                         'user_id' => $boat->user_id,
                         'booking_id' => $booking->id,
-                        'message' => 'The booking for ' . $booking->guest_name . ' on your boat "' . $boat->boat_name . ' (#' . $boat->boat_number . ')" has been UPDATED by the tourist. The resort owner needs to re-confirm. Your boat may be unassigned or reassigned.',
+                        'message' => 'Booking for ' . $booking->guest_name . ' on ' . $boat->boat_name . ' has been updated. Resort owner needs to re-confirm. Your boat may be reassigned.',
                         'type' => 'booking_details_updated',
                         'is_read' => false,
                     ]);
@@ -1180,7 +1210,7 @@ class BookingController extends Controller
                 BoatOwnerNotification::create([
                     'user_id' => $booking->assignedBoat->user_id,
                     'booking_id' => $booking->id,
-                    'message' => 'The previously assigned booking for ' . $booking->guest_name . ' on your boat "' . $booking->assignedBoat->boat_name . ' (#' . $booking->assignedBoat->boat_number . ')" has been PERMANENTLY DELETED by the tourist. Your boat is now completely free for that slot.',
+                    'message' => 'Booking for ' . $booking->guest_name . ' on ' . $booking->assignedBoat->boat_name . ' has been cancelled. Your boat is now available.',
                     'type' => 'booking_deleted',
                     'is_read' => false,
                 ]);

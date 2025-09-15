@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule; // Import for Rule::in
+use App\Models\RoomImage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RoomController extends Controller
 {
@@ -68,6 +71,8 @@ class RoomController extends Controller
             'price_per_night' => 'required|numeric|min:0',
             'max_guests' => 'required|integer|min:1',
             'room_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB Max
+            'images' => 'nullable|array|max:4',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_available' => 'boolean', // Checkbox value is 1 if checked, absent if not
             'status' => ['required', Rule::in(['open', 'closed', 'maintenance'])], // New: Validate status
         ];
@@ -94,7 +99,7 @@ class RoomController extends Controller
         }
 
         // Create the room associated with this specific resort
-        $resort->rooms()->create([
+        $room = $resort->rooms()->create([
             'accommodation_type' => $validatedData['accommodation_type'],
             'room_name' => $validatedData['room_name'],
             'description' => $validatedData['description'],
@@ -104,11 +109,57 @@ class RoomController extends Controller
             'is_available' => $request->has('is_available'), // Based on the old checkbox
             'status' => $validatedData['status'], // NEW: Save the status
             'rehab_reason' => ($validatedData['status'] === 'maintenance') ? ($validatedData['rehab_reason'] ?? null) : null, // NEW: Save rehab_reason conditionally
-            'admin_status' => 'pending', // Default for new rooms, awaiting admin approval
+            'admin_status' => 'approved', // Auto-approve rooms on creation
         ]);
 
-        return redirect()->route('resort.owner.rooms.index', $resort->id)
+        // Save up to 4 additional images
+        if ($request->hasFile('images')) {
+            // Skip gracefully if table isn't ready yet
+            if (!Schema::hasTable('room_images')) {
+                Log::warning('room_images table missing; skipping gallery save for room ID: ' . $room->id);
+            } else {
+                foreach ($request->file('images') as $imgFile) {
+                    if (!$imgFile->isValid()) {
+                        continue;
+                    }
+                    $filename = time() . '_' . uniqid('', true) . '.' . $imgFile->getClientOriginalExtension();
+                    $destination = public_path('image');
+                    if (!is_dir($destination)) {
+                        @mkdir($destination, 0775, true);
+                    }
+                    $imgFile->move($destination, $filename);
+                    RoomImage::create([
+                        'room_id' => $room->id,
+                        'image_path' => 'image/' . $filename,
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('resort.owner.information')
                          ->with('success', 'Room added successfully to ' . $resort->resort_name . '!');
+    }
+
+    /**
+     * Return paginated images for a room as an HTML fragment.
+     */
+    public function images(Room $room)
+    {
+        if (Auth::user()->role !== 'resort_owner') {
+            abort(403, 'Unauthorized');
+        }
+        if (Auth::id() !== $room->resort->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Gracefully handle case where migration hasn't been run yet
+        if (!Schema::hasTable('room_images')) {
+            $images = collect([]);
+            return view('resort_owner.rooms.partials.images', compact('room', 'images'));
+        }
+
+        $images = $room->images()->orderByDesc('created_at')->get();
+        return view('resort_owner.rooms.partials.images', compact('room', 'images'));
     }
 
     /**
@@ -202,7 +253,7 @@ class RoomController extends Controller
             'rehab_reason' => ($validatedData['status'] === 'maintenance') ? ($validatedData['rehab_reason'] ?? null) : null, // NEW: Update rehab_reason conditionally
         ]);
 
-        return redirect()->route('resort.owner.rooms.index', $room->resort->id)
+        return redirect()->route('resort.owner.information')
                          ->with('success', 'Room updated successfully!');
     }
 
@@ -229,7 +280,7 @@ class RoomController extends Controller
 
         $room->delete();
 
-        return redirect()->route('resort.owner.rooms.index', $resortId)
+        return redirect()->route('resort.owner.information')
                          ->with('success', 'Room deleted successfully!');
     }
 

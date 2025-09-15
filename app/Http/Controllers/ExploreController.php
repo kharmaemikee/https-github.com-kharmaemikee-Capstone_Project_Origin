@@ -16,12 +16,10 @@ class ExploreController extends Controller
     public function index(Request $request)
     {
         $resorts = Resort::where('admin_status', 'approved')
-                             ->whereIn('status', ['open', 'closed', 'maintenance']) // Fetch all relevant statuses for display
+                             ->whereIn('status', ['open', 'closed', 'maintenance'])
                              ->with(['rooms' => function ($query) {
-                                 // Eager load all rooms so we can check their individual status in the view
-                                 // Only load rooms approved by admin and not archived
-                                 $query->where('admin_status', 'approved')
-                                       ->where('archived', false);
+                                 // Load rooms that are not archived; admin approval no longer required
+                                 $query->where('archived', false);
                              }])
                              ->orderBy('resort_name')
                              ->get();
@@ -53,10 +51,8 @@ class ExploreController extends Controller
         // Eager load ALL rooms for the specific resort, so their individual statuses can be shown.
         // We still filter by admin_status to ensure only admin-approved rooms are considered.
         $resort->load(['rooms' => function ($query) {
-            $query->where('admin_status', 'approved')
-                  ->where('archived', false); // Explicitly exclude archived rooms
-            // We DO NOT filter by status here, as we want to show all approved rooms
-            // and then display their individual 'open', 'closed', 'maintenance' status in the view.
+            // Show all non-archived rooms; admin approval not required anymore
+            $query->where('archived', false);
         }]);
 
         // If the user is authenticated and is a 'tourist', render the tourist-specific view.

@@ -21,7 +21,7 @@
         <div class="bg-gradient-3"></div>
     </div>
     
-    <div class="admin-container">
+    <div class="d-flex flex-column flex-md-row min-vh-100">
 
     {{-- Modern Desktop Sidebar --}}
         <div class="modern-sidebar d-none d-md-block">
@@ -102,13 +102,6 @@
                 </ul>
             </div>
         </div>
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
@@ -126,70 +119,78 @@
             <div class="offcanvas-body">
                 <div class="mobile-sidebar-nav">
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Dashboard</span>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('admin.resort') }}" class="nav-link {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Resort Management</span>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.resort') }}" class="nav-link {{ request()->routeIs('admin.resort') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Resort Management</span>
                         </a>
                     </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('admin.boat') }}" class="nav-link {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Boat Management</span>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.boat') }}" class="nav-link {{ request()->routeIs('admin.boat') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
                         </a>
                     </li>
-                    
-                    <li class="nav-item">
-                        <button class="nav-link w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapseMobile" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapseMobile">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Users</span>
+                        
+                        <li class="nav-item">
+                            <button class="nav-link w-100 border-0 bg-transparent" data-bs-toggle="collapse" data-bs-target="#usersCollapseMobile" aria-expanded="{{ request()->routeIs('admin.users*') ? 'true' : 'false' }}" aria-controls="usersCollapseMobile">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Users</span>
                             <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
                         </button>
                         <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapseMobile">
                             <ul class="nav flex-column ms-3 mt-1">
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.users.resorts') }}" class="nav-link {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
+                                        <a href="{{ route('admin.users.resorts') }}" class="nav-link {{ request()->routeIs('admin.users.resorts') ? 'active' : '' }}">Resort Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.users.boats') }}" class="nav-link {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
+                                        <a href="{{ route('admin.users.boats') }}" class="nav-link {{ request()->routeIs('admin.users.boats') ? 'active' : '' }}">Boat Users</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.users.tourists') }}" class="nav-link {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
+                                        <a href="{{ route('admin.users.tourists') }}" class="nav-link {{ request()->routeIs('admin.users.tourists') ? 'active' : '' }}">Tourist Users</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('admin.documentation') }}" class="nav-link {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Documentation</span>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('admin.documentation') }}" class="nav-link {{ request()->routeIs('admin.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
                         </a>
                     </li>
                 </ul>
                 </div>
             </div>
         </div>
+
+        {{-- Mobile Offcanvas Toggle Button --}}
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         {{-- Main Content Area --}}
-        <div class="main-content">
+        <div class="main-content flex-grow-1">
             {{-- Page Header --}}
             <div class="page-header">
                 <div class="page-title-section">
@@ -288,7 +289,13 @@
                                         @endif
                                     </div>
                                     <div class="user-details">
-                                        <h6 class="user-name">{{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }}</h6>
+                                        <h6 class="user-name">
+                                            @if(($userType ?? 'All Users') === 'Tourist Users')
+                                                {{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }}
+                                            @else
+                                                {{ $user->username }}
+                                            @endif
+                                        </h6>
                                     </div>
                                 </td>
                                 
@@ -571,6 +578,7 @@
                                             data-first-name="{{ $user->first_name }}"
                                             data-middle-name="{{ $user->middle_name }}"
                                             data-last-name="{{ $user->last_name }}"
+                                            data-username="{{ $user->username }}"
                                             data-owner-image="{{ $user->owner_image_path ? asset($user->owner_image_path) : '' }}"
                                             title="View details" aria-label="View details">
                                             <i class="fas fa-eye"></i>
@@ -629,11 +637,30 @@
                             
                             <div class="info-item">
                                 <div class="info-icon">
+                                    <i class="fas fa-at"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label class="info-label">Username</label>
+                                    <span class="info-value" id="detailUsername">N/A</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
                                     <i class="fas fa-birthday-cake"></i>
                                 </div>
                                 <div class="info-content">
                                     <label class="info-label">Birthday</label>
                                     <span class="info-value" id="detailBirthday">N/A</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label class="info-label">Age</label>
+                                    <span class="info-value" id="detailAge">N/A</span>
                                 </div>
                             </div>
                             
@@ -1364,6 +1391,7 @@
                     const firstName = this.getAttribute('data-first-name') || '';
                     const middleName = this.getAttribute('data-middle-name') || '';
                     const lastName = this.getAttribute('data-last-name') || '';
+                    const username = this.getAttribute('data-username') || '';
 
                     const b = document.getElementById('detailBirthday');
                     const g = document.getElementById('detailGender');
@@ -1376,10 +1404,25 @@
                     if (a) a.textContent = address;
                     if (p) p.textContent = phone;
                     if (n) n.textContent = nationality;
+                    
+                    // Get the user type from the current page context
+                    const userType = '{{ $userType ?? "All Users" }}';
+                    
                     const nameSpan = document.getElementById('detailFullName');
-                    if (nameSpan) {
-                        const parts = [firstName, middleName, lastName].filter(Boolean);
-                        nameSpan.textContent = parts.join(' ');
+                    const usernameSpan = document.getElementById('detailUsername');
+                    
+                    if (nameSpan && usernameSpan) {
+                        if (userType === 'Tourist Users') {
+                            // For tourist users: show username in modal, full name in table
+                            const parts = [firstName, middleName, lastName].filter(Boolean);
+                            nameSpan.textContent = parts.join(' ');
+                            usernameSpan.textContent = username;
+                        } else {
+                            // For resort/boat users: show full name in modal, username in table
+                            const parts = [firstName, middleName, lastName].filter(Boolean);
+                            nameSpan.textContent = parts.join(' ');
+                            usernameSpan.textContent = username;
+                        }
                     }
                     if (img) {
                         const placeholder = document.getElementById('avatarPlaceholder');
@@ -1701,8 +1744,6 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             padding: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            top: 1rem;
-            left: 1rem;
         }
 
         .mobile-toggle-btn {
@@ -1723,7 +1764,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* Mobile Sidebar */
+        /* Mobile Sidebar - aligned with admin dashboard */
         .modern-mobile-sidebar {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             backdrop-filter: blur(20px);
@@ -1791,10 +1832,10 @@
         .mobile-sidebar-nav .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
+            padding: 0.875rem 1rem;
             color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 12px;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -1818,8 +1859,8 @@
 
         .mobile-sidebar-nav .nav-link:hover {
             color: white;
-            transform: translateX(2px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-sidebar-nav .nav-link.active {
@@ -3578,6 +3619,50 @@
 
             .info-value {
                 font-size: 0.9rem;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.75rem;
+            }
+            
+            .mobile-toggle-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-title {
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-subtitle {
+                font-size: 0.75rem;
             }
         }
     </style>

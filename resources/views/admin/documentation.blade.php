@@ -1,8 +1,5 @@
 <x-app-layout>
-    <!-- Fixed background layer -->
-    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100vw 100vh; background-position: 0 0; z-index: -1; margin: 0; padding: 0;"></div>
-    
-    <div class="d-flex flex-column flex-md-row" style="min-height: 100vh; width: 100%; position: relative; z-index: 1; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
         <div class="modern-sidebar d-none d-md-block">
@@ -173,7 +170,6 @@
 
         {{-- Main Content Area: Tourist Bookings with search, filters, and export --}}
         <div class="main-content flex-grow-1">
-            <div class="container py-4">
                 {{-- Enhanced Header Section --}}
                 <div class="page-header mb-4">
                     <div class="d-flex align-items-center mb-3">
@@ -486,11 +482,11 @@
                                             </td>
                                             <td class="table-cell text-center">
                                                 <div class="action-buttons">
-                                                    <button type="button" class="btn btn-action btn-view" 
+                                                    <button type="button" class="btn btn-action btn-view viewDocBtn" 
                                                         title="View details" aria-label="View details"
                                                         data-bs-toggle="modal" data-bs-target="#docViewModal"
                                                         data-guest-name="{{ $booking->guest_name ?? '' }}"
-                                                        data-guest-age="{{ $booking->guest_age ?? '' }}"
+                                                        data-guest-age="{{ $booking->guest_age ?? (optional($booking->user)->birthday ? \Carbon\Carbon::parse(optional($booking->user)->birthday)->age : '') }}"
                                                         data-guest-gender="{{ $booking->guest_gender ?? '' }}"
                                                         data-guest-address="{{ $booking->guest_address ?? '' }}"
                                                         data-guest-nationality="{{ $booking->guest_nationality ?? '' }}"
@@ -581,6 +577,42 @@
                                 @endif
                             </div>
                         @endif
+
+                        {{-- Signature section for resorts (prints at bottom) --}}
+                        @php
+                            $items = ($bookings instanceof \Illuminate\Pagination\AbstractPaginator)
+                                ? $bookings->items()
+                                : (is_iterable($bookings) ? $bookings : []);
+                            $resortNames = collect($items)
+                                ->map(function($b){
+                                    if (!is_object($b)) { return null; }
+                                    $resortName = null;
+                                    try {
+                                        $resortName = optional(optional($b->room)->resort)->resort_name;
+                                    } catch (\Throwable $e) {
+                                        // ignore and fallback
+                                    }
+                                    if (!$resortName && property_exists($b, 'name_of_resort')) {
+                                        $resortName = $b->name_of_resort;
+                                    }
+                                    return $resortName ?: null;
+                                })
+                                ->filter()
+                                ->unique()
+                                ->values();
+                        @endphp
+                        <!-- @if($resortNames->isNotEmpty())
+                            <div class="mt-5">
+                                <div class="row g-4">
+                                    @foreach($resortNames as $resortName)
+                                        <div class="col-12 col-md-4 d-flex flex-column align-items-center">
+                                            <div style="width: 100%; max-width: 320px; margin-top: 40px; border-top: 2px solid #000; height: 1px;"></div>
+                                            <div class="text-center fw-bold mt-1" style="max-width: 320px;">{{ $resortName }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif -->
                     </div>
                 </div>
             </div>
@@ -1778,6 +1810,127 @@
             
             .modern-table-container {
                 font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.75rem;
+            }
+            
+            .mobile-toggle-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-title {
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-subtitle {
+                font-size: 0.75rem;
+            }
+            
+            .page-title {
+                font-size: 1.1rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.75rem;
+            }
+            
+            .stat-card {
+                padding: 0.75rem;
+            }
+            
+            .stat-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .stat-icon-img {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .stat-number {
+                font-size: 1.25rem;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+            }
+            
+            .table {
+                font-size: 0.7rem;
+            }
+            
+            .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.65rem;
+            }
+            
+            .btn i {
+                font-size: 0.6rem;
+            }
+            
+            .modal-dialog {
+                margin: 0.25rem;
+            }
+            
+            .modal-header {
+                padding: 0.5rem;
+            }
+            
+            .modal-body {
+                padding: 0.5rem;
+            }
+            
+            .modal-footer {
+                padding: 0.5rem;
+            }
+            
+            .form-control {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.5rem;
+            }
+            
+            .form-label {
+                font-size: 0.7rem;
+            }
+            
+            .btn-close {
+                width: 1rem;
+                height: 1rem;
+            }
+            
+            .btn-close::before {
+                font-size: 0.65rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.4rem;
+            }
+            
+            .info-item {
+                padding: 0.4rem;
+            }
+            
+            .info-label {
+                font-size: 0.65rem;
+            }
+            
+            .info-value {
+                font-size: 0.7rem;
             }
         }
 

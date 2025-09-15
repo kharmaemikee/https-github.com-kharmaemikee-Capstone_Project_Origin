@@ -108,7 +108,8 @@ Route::get('/resort_owner/resorts/{resort}/rooms', function (Resort $resort) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
-    return (new RoomController())->index($resort);
+    // Redirect legacy rooms index to consolidated resort information page
+    return redirect()->route('resort.owner.information');
 })->middleware(['auth'])->name('resort.owner.rooms.index');
 
 Route::get('/resort_owner/resorts/{resort}/rooms/create', function (Resort $resort) {
@@ -194,12 +195,17 @@ Route::get('/resort_owner/rooms/{resort}/archive', function (App\Models\Resort $
     return (new RoomController())->archiveIndex($resort);
 })->middleware(['auth'])->name('resort.owner.rooms.archive.index');
 
+// Paginated room images fragment
+Route::get('/resort_owner/rooms/{room}/images', function (App\Models\Room $room) {
+    return (new RoomController())->images($room);
+})->middleware(['auth'])->name('resort.owner.rooms.images');
+
 
 // END NEW ROOM MANAGEMENT ROUTES
 
 
 // Other Resort Owner specific pages
-Route::get('/resort_owner/dashboard', function () {
+Route::get('/resort_owner/dashboard', function (Request $request) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
@@ -269,29 +275,114 @@ Route::get('/resort_owner/dashboard', function () {
     $activeBookings = 0;
     $totalGuests = 0;
     $totalRevenue = 0;
+    $revenueFilterLabel = null;
+    $revenueBreakdown = collect();
     
     if (!$resortIds->isEmpty()) {
         $roomIds = Room::whereIn('resort_id', $resortIds)->pluck('id');
         if (!$roomIds->isEmpty()) {
-            $allBookings = Booking::whereIn('room_id', $roomIds)->with('assignedBoat')->get();
+            $allBookingsQuery = Booking::whereIn('room_id', $roomIds)->with(['assignedBoat','room']);
+
+            // Clone query for stats without filters
+            $allBookings = (clone $allBookingsQuery)->get();
             
             $totalBookings = $allBookings->count();
             $activeBookings = $allBookings->whereIn('status', ['approved', 'pending'])->count();
             $totalGuests = $allBookings->sum('number_of_guests');
             
-            // Calculate total revenue from room bookings only (not boat services)
-            $approvedBookings = $allBookings->where('status', 'approved');
-            foreach ($approvedBookings as $booking) {
+            // Calculate total revenue from room bookings only (not boat services) with optional filters
+            $filterType = $request->input('filter_type'); // 'day' | 'month'
+            if ($filterType === 'day' && $request->filled('date')) {
+                $date = Carbon::parse($request->input('date'))->toDateString();
+                $revenueFilterLabel = 'for ' . Carbon::parse($date)->format('F d, Y');
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->whereDate('check_in_date', $date)
+                    ->where('status', 'approved')
+                    ->get();
+            } elseif ($filterType === 'date_range' && $request->filled('date_start') && $request->filled('date_end')) {
+                $start = Carbon::parse($request->input('date_start'))->startOfDay();
+                $end = Carbon::parse($request->input('date_end'))->endOfDay();
+                if ($end->lessThan($start)) { [$start, $end] = [$end, $start]; }
+                $revenueFilterLabel = 'from ' . $start->format('F d, Y') . ' to ' . $end->format('F d, Y');
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->whereBetween('check_in_date', [$start, $end])
+                    ->where('status', 'approved')
+                    ->get();
+            } elseif ($filterType === 'month' && $request->filled('month')) {
+                $monthInput = $request->input('month'); // YYYY-MM
+                $monthCarbon = Carbon::createFromFormat('Y-m', $monthInput)->startOfMonth();
+                $revenueFilterLabel = 'for ' . $monthCarbon->format('F Y');
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->whereYear('check_in_date', $monthCarbon->year)
+                    ->whereMonth('check_in_date', $monthCarbon->month)
+                    ->where('status', 'approved')
+                    ->get();
+            } elseif ($filterType === 'month_range' && $request->filled('month_start') && $request->filled('month_end')) {
+                $start = Carbon::createFromFormat('Y-m', $request->input('month_start'))->startOfMonth();
+                $end = Carbon::createFromFormat('Y-m', $request->input('month_end'))->endOfMonth();
+                if ($end->lessThan($start)) { [$start, $end] = [$end, $start]; }
+                $revenueFilterLabel = 'from ' . $start->format('F Y') . ' to ' . $end->format('F Y');
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->whereBetween('check_in_date', [$start, $end])
+                    ->where('status', 'approved')
+                    ->get();
+            } elseif ($filterType === 'year' && $request->filled('year')) {
+                $year = (int) $request->input('year');
+                $revenueFilterLabel = 'for ' . $year;
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->whereYear('check_in_date', $year)
+                    ->where('status', 'approved')
+                    ->get();
+            } elseif ($filterType === 'year_range' && $request->filled('year_start') && $request->filled('year_end')) {
+                $startYear = (int) $request->input('year_start');
+                $endYear = (int) $request->input('year_end');
+                if ($endYear < $startYear) { [$startYear, $endYear] = [$endYear, $startYear]; }
+                $start = Carbon::create($startYear, 1, 1)->startOfYear();
+                $end = Carbon::create($endYear, 12, 31)->endOfYear();
+                $revenueFilterLabel = 'from ' . $startYear . ' to ' . $endYear;
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->whereBetween('check_in_date', [$start, $end])
+                    ->where('status', 'approved')
+                    ->get();
+            } else {
+                $revenueBookings = (clone $allBookingsQuery)
+                    ->where('status', 'approved')
+                    ->get();
+            }
+
+            foreach ($revenueBookings as $booking) {
                 $roomPrice = $booking->room ? $booking->room->price_per_night : 0;
                 $totalRevenue += $roomPrice;
             }
+
+            // Build per-room revenue breakdown using the same filtered set
+            $revenueBreakdown = $revenueBookings
+                ->groupBy('room_id')
+                ->map(function ($bookings, $roomId) {
+                    $room = optional($bookings->first())->room;
+                    $roomName = $room ? ($room->room_name ?? ('Room #' . $roomId)) : ('Room #' . $roomId);
+                    $bookingsCount = $bookings->count();
+                    $revenue = $bookings->reduce(function ($carry, $b) {
+                        $price = $b->room ? ($b->room->price_per_night ?? 0) : 0;
+                        return $carry + $price;
+                    }, 0);
+                    return [
+                        'room_id' => $roomId,
+                        'room_name' => $roomName,
+                        'bookings_count' => $bookingsCount,
+                        'revenue' => $revenue,
+                    ];
+                })
+                ->values()
+                ->sortByDesc('revenue')
+                ->values();
         }
     }
     
     $unreadCount = ResortOwnerNotification::where('user_id', Auth::id())
                                                         ->where('is_read', false)
                                                         ->count();
-    return view('resort_owner.dashboard', compact('labels', 'data', 'totalBookings', 'activeBookings', 'totalGuests', 'totalRevenue', 'unreadCount'));
+    return view('resort_owner.dashboard', compact('labels', 'data', 'totalBookings', 'activeBookings', 'totalGuests', 'totalRevenue', 'unreadCount', 'revenueFilterLabel', 'revenueBreakdown'));
 })->middleware(['auth'])->name('resort.owner.dashboard');
 
 Route::get('/resort_owner/verified', function () {
@@ -459,7 +550,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/boats/{boat}/status', [BoatController::class, 'updateStatus'])->name('boat.owner.update_status');
 
     // Boat Owner Dashboard
-    Route::get('/boat_owner/dashboard', function () {
+    Route::get('/boat_owner/dashboard', function (Request $request) {
         // Ensure the logged-in user is a boat_owner
         if (Auth::user()->role !== 'boat_owner') {
             abort(403, 'Unauthorized');
@@ -482,10 +573,62 @@ Route::middleware(['auth'])->group(function () {
         $activeBookings = $allBookings->whereIn('status', ['approved', 'pending'])->count();
         $totalGuests = $allBookings->sum('number_of_guests');
         
-        // Calculate total revenue from boat services only (not room bookings)
+        // Calculate total revenue from boat services only (not room bookings) with optional filters
         $totalRevenue = 0;
-        $approvedBookings = $allBookings->where('status', 'approved');
-        foreach ($approvedBookings as $booking) {
+        $revenueFilterLabel = null;
+        $filterType = $request->input('filter_type'); // 'day' | 'month' | 'month_range' | 'date_range' | 'year' | 'year_range'
+        if ($filterType === 'day' && $request->filled('date')) {
+            $date = Carbon::parse($request->input('date'))->toDateString();
+            $revenueFilterLabel = 'for ' . Carbon::parse($date)->format('F d, Y');
+            $revenueBookings = $allBookings->where('status', 'approved')->filter(function ($b) use ($date) {
+                return Carbon::parse($b->check_in_date)->toDateString() === $date;
+            });
+        } elseif ($filterType === 'date_range' && $request->filled('date_start') && $request->filled('date_end')) {
+            $start = Carbon::parse($request->input('date_start'))->startOfDay();
+            $end = Carbon::parse($request->input('date_end'))->endOfDay();
+            if ($end->lessThan($start)) { [$start, $end] = [$end, $start]; }
+            $revenueFilterLabel = 'from ' . $start->format('F d, Y') . ' to ' . $end->format('F d, Y');
+            $revenueBookings = $allBookings->where('status', 'approved')->filter(function ($b) use ($start, $end) {
+                $d = Carbon::parse($b->check_in_date);
+                return $d->betweenIncluded($start, $end);
+            });
+        } elseif ($filterType === 'month' && $request->filled('month')) {
+            $monthInput = $request->input('month'); // YYYY-MM
+            $monthCarbon = Carbon::createFromFormat('Y-m', $monthInput)->startOfMonth();
+            $revenueFilterLabel = 'for ' . $monthCarbon->format('F Y');
+            $revenueBookings = $allBookings->where('status', 'approved')->filter(function ($b) use ($monthCarbon) {
+                $d = Carbon::parse($b->check_in_date);
+                return $d->year === $monthCarbon->year && $d->month === $monthCarbon->month;
+            });
+        } elseif ($filterType === 'month_range' && $request->filled('month_start') && $request->filled('month_end')) {
+            $start = Carbon::createFromFormat('Y-m', $request->input('month_start'))->startOfMonth();
+            $end = Carbon::createFromFormat('Y-m', $request->input('month_end'))->endOfMonth();
+            if ($end->lessThan($start)) { [$start, $end] = [$end, $start]; }
+            $revenueFilterLabel = 'from ' . $start->format('F Y') . ' to ' . $end->format('F Y');
+            $revenueBookings = $allBookings->where('status', 'approved')->filter(function ($b) use ($start, $end) {
+                $d = Carbon::parse($b->check_in_date);
+                return $d->betweenIncluded($start, $end);
+            });
+        } elseif ($filterType === 'year' && $request->filled('year')) {
+            $year = (int) $request->input('year');
+            $revenueFilterLabel = 'for ' . $year;
+            $revenueBookings = $allBookings->where('status', 'approved')->filter(function ($b) use ($year) {
+                return Carbon::parse($b->check_in_date)->year === $year;
+            });
+        } elseif ($filterType === 'year_range' && $request->filled('year_start') && $request->filled('year_end')) {
+            $startYear = (int) $request->input('year_start');
+            $endYear = (int) $request->input('year_end');
+            if ($endYear < $startYear) { [$startYear, $endYear] = [$endYear, $startYear]; }
+            $revenueFilterLabel = 'from ' . $startYear . ' to ' . $endYear;
+            $revenueBookings = $allBookings->where('status', 'approved')->filter(function ($b) use ($startYear, $endYear) {
+                $y = Carbon::parse($b->check_in_date)->year;
+                return $y >= $startYear && $y <= $endYear;
+            });
+        } else {
+            $revenueBookings = $allBookings->where('status', 'approved');
+        }
+
+        foreach ($revenueBookings as $booking) {
             $boatPrice = 0;
             
             if ($booking->assignedBoat) {
@@ -525,6 +668,33 @@ Route::middleware(['auth'])->group(function () {
             $boatRevenueData[] = $boatRevenue;
         }
 
+        // Build per-room revenue breakdown like resort_owner
+        $revenueBreakdown = $revenueBookings
+            ->groupBy('room_id')
+            ->map(function ($bookings, $roomId) {
+                $room = optional($bookings->first())->room;
+                $roomName = $room ? ($room->room_name ?? ('Room #' . $roomId)) : ('Room #' . $roomId);
+                $bookingsCount = $bookings->count();
+                $revenue = $bookings->reduce(function ($carry, $b) {
+                    $boatPrice = 0;
+                    if ($b->assignedBoat) {
+                        $boatPrice = $b->assignedBoat->boat_prices ?? 0;
+                    } elseif ($b->boat_price) {
+                        $boatPrice = $b->boat_price;
+                    }
+                    return $carry + $boatPrice;
+                }, 0);
+                return [
+                    'room_id' => $roomId,
+                    'room_name' => $roomName,
+                    'bookings_count' => $bookingsCount,
+                    'revenue' => $revenue,
+                ];
+            })
+            ->values()
+            ->sortByDesc('revenue')
+            ->values();
+
         // Get unread notifications count
         $unreadCount = \App\Models\BoatOwnerNotification::where('user_id', $userId)
             ->where('is_read', false)
@@ -538,7 +708,9 @@ Route::middleware(['auth'])->group(function () {
             'boatLabels', 
             'boatUsageData', 
             'boatRevenueData', 
-            'unreadCount'
+            'unreadCount',
+            'revenueFilterLabel',
+            'revenueBreakdown'
         ));
     })->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('boat.owner.dashboard');
 

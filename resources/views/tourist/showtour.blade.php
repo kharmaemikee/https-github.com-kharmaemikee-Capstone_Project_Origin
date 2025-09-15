@@ -125,8 +125,7 @@
                                     <div class="accommodation-image-container">
                                         <img src="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
                                              class="accommodation-image"
-                                             alt="{{ $room->room_name }}"
-                                             onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                             alt="{{ $room->room_name }}" />
                                         
                                         <div class="accommodation-overlay">
                                             <div class="overlay-content">
@@ -206,17 +205,13 @@
                                         @endif
 
                                         <div class="accommodation-actions">
-                                            @if ($room->status === 'open' && $room->admin_status === 'approved' && ($resort->status === 'open' || $resort->status === 'rehab'))
+                                            @if ($room->status === 'open' && ($resort->status === 'open' || $resort->status === 'rehab'))
                                                 <a href="#" class="btn btn-primary accommodation-btn"
                                                    data-bs-toggle="modal" data-bs-target="#termsAndConditionsModal"
                                                    data-room-id="{{ $room->id }}"
                                                    data-room-name="{{ $room->room_name }}">
                                                     <i class="fas fa-calendar-plus me-2"></i>Book Now
                                                 </a>
-                                            @elseif ($room->admin_status !== 'approved')
-                                                <button class="btn btn-secondary accommodation-btn" disabled>
-                                                    <i class="fas fa-clock me-2"></i>Awaiting Approval
-                                                </button>
                                             @elseif ($room->status === 'closed')
                                                 <button class="btn btn-secondary accommodation-btn" disabled>
                                                     <i class="fas fa-times-circle me-2"></i>Closed
@@ -871,6 +866,217 @@
             .accommodation-tab {
                 padding: 0.6rem 1.25rem;
                 font-size: 0.9rem;
+            }
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85vw !important;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .mobile-sidebar-nav .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-sidebar-nav .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .mobile-sidebar-nav .nav-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.75rem;
+            }
+            
+            .mobile-toggle-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-title {
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-subtitle {
+                font-size: 0.75rem;
             }
         }
     </style>

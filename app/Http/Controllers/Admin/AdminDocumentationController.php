@@ -65,12 +65,17 @@ class AdminDocumentationController extends Controller
         }
 
         // Apply date filters
-        if (!empty($filters['start_date'])) {
-            $query->where('check_in_date', '>=', $filters['start_date']);
-        }
-        
-        if (!empty($filters['end_date'])) {
-            $query->where('check_in_date', '<=', $filters['end_date']);
+        if (!empty($filters['start_date']) || !empty($filters['end_date'])) {
+            $start = !empty($filters['start_date']) ? $filters['start_date'] : null;
+            $end = !empty($filters['end_date']) ? $filters['end_date'] : null;
+
+            if ($start && !$end) {
+                $query->whereDate('check_in_date', '=', $start);
+            } elseif ($end && !$start) {
+                $query->whereDate('check_in_date', '=', $end);
+            } else {
+                $query->whereBetween('check_in_date', [$start, $end]);
+            }
         }
 
         // Get bookings based on showAll parameter
@@ -130,12 +135,17 @@ class AdminDocumentationController extends Controller
             });
         }
 
-        if (!empty($filters['start_date'])) {
-            $query->where('check_in_date', '>=', $filters['start_date']);
-        }
-        
-        if (!empty($filters['end_date'])) {
-            $query->where('check_in_date', '<=', $filters['end_date']);
+        if (!empty($filters['start_date']) || !empty($filters['end_date'])) {
+            $start = !empty($filters['start_date']) ? $filters['start_date'] : null;
+            $end = !empty($filters['end_date']) ? $filters['end_date'] : null;
+
+            if ($start && !$end) {
+                $query->whereDate('check_in_date', '=', $start);
+            } elseif ($end && !$start) {
+                $query->whereDate('check_in_date', '=', $end);
+            } else {
+                $query->whereBetween('check_in_date', [$start, $end]);
+            }
         }
 
         $bookings = $query->get();
@@ -282,11 +292,17 @@ class AdminDocumentationController extends Controller
             });
         }
 
-        if (!empty($filters['start_date'])) {
-            $query->where('check_in_date', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $query->where('check_in_date', '<=', $filters['end_date']);
+        if (!empty($filters['start_date']) || !empty($filters['end_date'])) {
+            $start = !empty($filters['start_date']) ? $filters['start_date'] : null;
+            $end = !empty($filters['end_date']) ? $filters['end_date'] : null;
+
+            if ($start && !$end) {
+                $query->whereDate('check_in_date', '=', $start);
+            } elseif ($end && !$start) {
+                $query->whereDate('check_in_date', '=', $end);
+            } else {
+                $query->whereBetween('check_in_date', [$start, $end]);
+            }
         }
 
         $bookings = $query->get();

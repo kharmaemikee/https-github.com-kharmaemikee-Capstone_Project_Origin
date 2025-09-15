@@ -60,8 +60,8 @@
                             @endphp</p>
                         </div>
                         <div class="error-actions">
-                            <a href="{{ route('explore.exploring') }}" class="btn btn-primary">
-                                <i class="fas fa-home"></i> Go Back to Home
+                            <a href="{{ route('tourist.list') }}" class="btn btn-primary">
+                                <i class="fas fa-home"></i> Go Back to Rooms.
                             </a>
                             <a href="{{ route('tourist.list') }}" class="btn btn-secondary">
                                 <i class="fas fa-search"></i> Find Available Rooms
@@ -200,6 +200,7 @@
                                     Additional Guest Names
                                 </h4>
                                 <div id="guestInputs" class="guest-inputs-container"></div>
+                                <small class="help-text">Minimum age for guests is 7 years old.</small>
                                 <small class="help-text">Enter the names of all additional guests (excluding primary guest), one per input.</small>
                             </div>
 
@@ -1058,6 +1059,217 @@
                 transform: translateX(0);
             }
         }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85vw !important;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .mobile-sidebar-nav .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-sidebar-nav .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .mobile-sidebar-nav .nav-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.75rem;
+            }
+            
+            .mobile-toggle-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-title {
+                font-size: 1rem;
+            }
+            
+            .mobile-brand-subtitle {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 
     <script>
@@ -1077,14 +1289,22 @@
                     const span = document.createElement('span');
                     span.className = 'input-group-text';
                     span.textContent = `Guest ${i + 1}`; // guest numbering starts at 2
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.name = `guest_names[]`;
-                    input.required = additional > 0; // require if there should be any
-                    input.className = 'form-control';
-                    input.placeholder = `Enter guest ${i + 1} full name`;
+                    const nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.name = `guest_names[]`;
+                    nameInput.required = additional > 0; // require if there should be any
+                    nameInput.className = 'form-control';
+                    nameInput.placeholder = `Enter guest ${i + 1} full name`;
+                    const ageInput = document.createElement('input');
+                    ageInput.type = 'number';
+                    ageInput.name = `guest_ages[]`;
+                    ageInput.min = '7';
+                    ageInput.placeholder = 'Age (7+)';
+                    ageInput.className = 'form-control';
+                    ageInput.style.maxWidth = '120px';
                     wrap.appendChild(span);
-                    wrap.appendChild(input);
+                    wrap.appendChild(nameInput);
+                    wrap.appendChild(ageInput);
                     guestInputs.appendChild(wrap);
                 }
             }
@@ -1092,18 +1312,20 @@
             function syncGuestInputs() {
                 const v = parseInt(numGuestsInput.value || '1', 10);
                 if (v > 1) {
-                    guestContainer.style.display = '';
+                    guestContainer.style.display = 'block';
                     renderGuestInputs(v);
-                    // Show tour type fields when guests are shown
-                    toggleFormFields();
                 } else {
                     guestContainer.style.display = 'none';
                     guestInputs.innerHTML = '';
                 }
+                // Always re-evaluate tour type specific fields after changing guest count
+                toggleFormFields();
             }
 
             if (numGuestsInput) {
                 numGuestsInput.addEventListener('input', syncGuestInputs);
+                numGuestsInput.addEventListener('change', syncGuestInputs);
+                // Initial render based on current value
                 syncGuestInputs();
             }
             const tourTypeSelect = document.getElementById('tour_type');
@@ -1121,48 +1343,46 @@
             }
 
             function toggleFormFields() {
-                const selectedTourType = tourTypeSelect.value;
+                var tSel = document.getElementById('tour_type');
+                var dayEl = document.getElementById('dayTourSpecificFields');
+                var overEl = document.getElementById('overnightSpecificFields');
+                if (!tSel || !dayEl || !overEl) { return; }
 
-                // Hide all specific fields initially
-                dayTourSpecificFields.style.display = 'none';
-                overnightSpecificFields.style.display = 'none';
+                var selectedTourType = tSel.value;
 
-                // Reset all specific fields to clear previous values
-                // Only reset if the form is NOT being reloaded due to validation errors
-                // We check if there are old inputs for the tour type specific fields
-                const hasOldDayTourInput = document.getElementById('day_tour_departure_time').value || document.getElementById('day_tour_time_of_pickup').value;
-                const hasOldOvernightInput = document.getElementById('overnight_date_time_of_pickup').value || document.getElementById('num_senior_citizens').value || document.getElementById('num_pwds').value;
+                // Hide both sections first (force hidden)
+                dayEl.style.display = 'none';
+                overEl.style.display = 'none';
 
-                if (!hasOldDayTourInput && !hasOldOvernightInput) {
-                    resetInputs(dayTourSpecificFields);
-                    resetInputs(overnightSpecificFields);
-                }
-
-
-                // Remove 'required' from all fields first to prevent issues when switching
-                dayTourSpecificFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
-                overnightSpecificFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+                // Remove required attributes
+                dayEl.querySelectorAll('input').forEach(function(input){ input.removeAttribute('required'); });
+                overEl.querySelectorAll('input').forEach(function(input){ input.removeAttribute('required'); });
 
                 if (selectedTourType === 'day_tour') {
-                    dayTourSpecificFields.style.display = 'block';
-                    // Make fields required for day tour
-                    dayTourSpecificFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
+                    dayEl.style.display = 'block';
+                    dayEl.querySelectorAll('input').forEach(function(input){ input.setAttribute('required', 'required'); });
                 } else if (selectedTourType === 'overnight') {
-                    overnightSpecificFields.style.display = 'block';
-                    // Make fields required for overnight
-                    overnightSpecificFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
+                    overEl.style.display = 'block';
+                    overEl.querySelectorAll('input').forEach(function(input){ input.setAttribute('required', 'required'); });
                 }
             }
 
             // Set initial state on page load
-            // Use setTimeout to ensure old values are loaded before toggling
-            setTimeout(() => {
-                toggleFormFields();
-            }, 0);
+            // Use multiple small delays to ensure all old values are bound and DOM is ready
+            setTimeout(function(){ toggleFormFields(); }, 0);
+            setTimeout(function(){ toggleFormFields(); }, 200);
+            setTimeout(function(){ toggleFormFields(); }, 800);
 
 
             // Add event listener for when the tour type changes
-            tourTypeSelect.addEventListener('change', toggleFormFields);
+            if (tourTypeSelect) {
+                var reToggle = function(){
+                    toggleFormFields();
+                };
+                tourTypeSelect.addEventListener('change', reToggle);
+                tourTypeSelect.addEventListener('input', reToggle);
+                tourTypeSelect.addEventListener('blur', reToggle);
+            }
 
             // Set minimum date for datetime-local input for overnight pick-up
             const overnightDateTimeInput = document.getElementById('overnight_date_time_of_pickup');

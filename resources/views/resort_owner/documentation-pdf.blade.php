@@ -16,7 +16,6 @@
 <body>
     <h2>Resort Bookings - Documentation</h2>
     <div class="meta">
-        Owner: {{ $ownerName }}<br>
         Generated: {{ $generatedAt->format('Y-m-d H:i') }}<br>
         @if(!empty($filters['search'])) Search: "{{ $filters['search'] }}"<br>@endif
         @if(!empty($filters['start_date'])) From: {{ $filters['start_date'] }} @endif
@@ -99,10 +98,17 @@
     @empty
         <p style="text-align:center; color:#666;">No bookings found.</p>
     @endforelse
+
+    <div style="height: 40px;"></div>
+    <div class="signature-block" style="width:100%; text-align:center; margin-top: 30px;">
+        <div style="width: 60%; margin: 0 auto; border-top: 2px solid #000; height: 1px;"></div>
+        <div style="margin-top: 6px; font-weight: bold;">{{ $ownerName }}</div>
+        <div style="font-size: 10px; color: #555;">Signature over printed name</div>
+    </div>
 </body>
 </html>
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -173,7 +179,14 @@
             @endforelse
         </tbody>
     </table>
+
+    <div style="height: 40px;"></div>
+    <div class="signature-block" style="width:100%; text-align:center; margin-top: 30px;">
+        <div style="width: 60%; margin: 0 auto; border-top: 2px solid #000; height: 1px;"></div>
+        <div style="margin-top: 6px; font-weight: bold;">{{ $ownerName }}</div>
+        <div style="font-size: 10px; color: #555;">Signature over printed name</div>
+    </div>
 </body>
-</html>
+</html> -->
 
 

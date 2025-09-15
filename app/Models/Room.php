@@ -71,6 +71,14 @@ class Room extends Model
     }
 
     /**
+     * Additional images associated with the room.
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(RoomImage::class);
+    }
+
+    /**
      * Check if the room is available for a specific date.
      * Returns true if no active bookings exist for that date.
      */

@@ -249,7 +249,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('resort.owner.rooms.index', $room->resort->id) }}" class="btn btn-secondary btn-icon" title="Cancel - Return to rooms list">
+                        <a href="{{ route('resort.owner.information') }}" class="btn btn-secondary btn-icon" title="Cancel - Return to resort information">
                             <i class="fas fa-times"></i>
                         </a>
                         <button type="submit" class="btn btn-primary btn-icon" style="background-color:rgb(9, 135, 219); border-color: rgb(9, 135, 219);" title="Update Room - Save changes">

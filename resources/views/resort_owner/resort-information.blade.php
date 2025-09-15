@@ -303,8 +303,8 @@
                                                 <button type="button" class="btn btn-warning btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#archiveRoomConfirmationModal" data-room-id="{{ $room->id }}" title="Archive Room">
                                                     <i class="fas fa-archive"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#deleteRoomConfirmationModal" data-room-id="{{ $room->id }}" title="Delete Room">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="button" class="btn btn-info btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#viewImagesModal" data-room-id="{{ $room->id }}" title="View Images">
+                                                    <i class="fas fa-images"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -411,8 +411,8 @@
                                                 <button type="button" class="btn btn-warning btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#archiveRoomConfirmationModal" data-room-id="{{ $room->id }}" title="Archive Cottage">
                                                     <i class="fas fa-archive"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#deleteRoomConfirmationModal" data-room-id="{{ $room->id }}" title="Delete Cottage">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="button" class="btn btn-info btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#viewImagesModal" data-room-id="{{ $room->id }}" title="View Images">
+                                                    <i class="fas fa-images"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -505,6 +505,21 @@
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">Confirm Delete</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- View Images Modal --}}
+    <div class="modal fade" id="viewImagesModal" tabindex="-1" aria-labelledby="viewImagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewImagesModalLabel">Room Images</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="viewImagesModalBody">
+                    <div class="text-center text-muted">Loading images...</div>
                 </div>
             </div>
         </div>
@@ -673,12 +688,19 @@
             toggleRehabReason(); // Initial call
 
             // Delete room modal logic
-            var deleteRoomConfirmationModal = document.getElementById('deleteRoomConfirmationModal');
-            deleteRoomConfirmationModal.addEventListener('show.bs.modal', function (event) {
+            var viewImagesModal = document.getElementById('viewImagesModal');
+            viewImagesModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var roomId = button.getAttribute('data-room-id');
-                var deleteForm = deleteRoomConfirmationModal.querySelector('#deleteRoomForm');
-                deleteForm.action = '/resort_owner/rooms/' + roomId;
+                var body = document.getElementById('viewImagesModalBody');
+                body.innerHTML = '<div class="text-center text-muted">Loading images...</div>';
+                window.loadRoomImages = function(url) {
+                    fetch(url || ("{{ url('/resort_owner/rooms') }}/" + roomId + "/images"))
+                        .then(function(res){ return res.text(); })
+                        .then(function(html){ body.innerHTML = html; })
+                        .catch(function(){ body.innerHTML = '<div class="text-danger">Failed to load images.</div>'; });
+                };
+                window.loadRoomImages();
             });
 
             // Archive room modal logic

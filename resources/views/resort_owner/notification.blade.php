@@ -367,6 +367,21 @@
                                 {{-- Display Boat Details when booking is approved --}}
                                 @if ($notification->booking->status === 'approved')
                                     @php
+                                        $now = \Carbon\Carbon::now();
+                                        $showAssignment = false;
+                                        $windowTime = null;
+                                        if ($notification->booking->tour_type === 'day_tour' && $notification->booking->day_tour_departure_time) {
+                                            try {
+                                                $windowTime = \Carbon\Carbon::parse((string)$notification->booking->check_in_date.' '.(string)$notification->booking->day_tour_departure_time)->subMinutes(30);
+                                            } catch (\Exception $e) { $windowTime = null; }
+                                        } elseif ($notification->booking->tour_type === 'overnight' && $notification->booking->overnight_date_time_of_pickup) {
+                                            try {
+                                                $windowTime = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup)->subMinutes(30);
+                                            } catch (\Exception $e) { $windowTime = null; }
+                                        }
+                                        if ($windowTime) { $showAssignment = $now->gte($windowTime); }
+                                    @endphp
+                                    @php
                                         $assignedBoatName = $notification->booking->assigned_boat ?? ($notification->booking->assignedBoat->boat_name ?? null);
                                         $captainName = $notification->booking->boat_captain_crew
                                             ?? ($notification->booking->assignedBoat->captain_name ?? null);
@@ -383,7 +398,7 @@
                                             $boatPrice = $notification->booking->boat_price;
                                         }
                                     @endphp
-                                    @if($assignedBoatName || $captainName || $captainContact)
+                                    @if($showAssignment && ($assignedBoatName || $captainName || $captainContact))
                                         <hr class="my-2">
                                         <h6>Assigned Boat Information:</h6>
                                         @if($assignedBoatName)
@@ -396,6 +411,10 @@
                                         @if($captainContact)
                                             <p class="mb-1">Captain Contact: <strong>{{ $captainContact }}</strong></p>
                                         @endif
+                                    @else
+                                        <hr class="my-2">
+                                        <h6>Boat Assignment:</h6>
+                                        <p class="mb-1 text-muted"><em>Waiting to assign the boat on the date and time of this booking (auto-assigns 30 minutes before departure).</em></p>
                                     @endif
                                 @elseif ($notification->booking->status === 'pending' || $notification->booking->status === 'updated_pending_approval')
                                     <hr class="my-2">

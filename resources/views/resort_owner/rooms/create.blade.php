@@ -74,65 +74,81 @@
         </div>
 
         {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                {{-- Icon added here for Resort Owner in mobile sidebar using <img> --}}
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Resorts Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Resorts Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <ul class="nav flex-column">
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
+                <div class="mobile-sidebar-nav">
+                    <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.dashboard') }}" class="nav-link {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Resort Management
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.information') }}" class="nav-link {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Resort Management</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.verified') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Account Management
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.verified') }}" class="nav-link {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Account Management</span>
                         </a>
                     </li>
                     {{-- Notifications (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notifications
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.notification') }}" class="nav-link {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Notifications</span>
                             @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                <span class="nav-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
                             @endif
                         </a>
                     </li>
                     {{-- Documentation (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Documentation
+                    <li class="nav-item">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                            </div>
+                            <span class="nav-text">Documentation</span>
                         </a>
                     </li>
-                </ul>
+                    </ul>
+                </div>
             </div>
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
+        <div class="main-content flex-grow-1">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Add Room for {{ $resort->resort_name }}</h2>
             </div>
@@ -185,12 +201,24 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="room_image" class="form-label">Room Image</label>
+                        <label for="room_image" class="form-label">Cover Image</label>
                         <input type="file" class="form-control @error('room_image') is-invalid @enderror" id="room_image" name="room_image" accept="image/*">
                         @error('room_image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <div class="form-text">Max 2MB. Accepted formats: JPG, PNG, GIF.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Additional Photos (up to 4)</label>
+                        <input type="file" class="form-control @error('images') is-invalid @enderror" id="images" name="images[]" accept="image/*" multiple>
+                        @error('images')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        @error('images.*')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">You can select multiple files; max 4 photos, 2MB each.</div>
                     </div>
 
                     {{-- NEW: Room Status Field --}}
@@ -225,7 +253,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('resort.owner.rooms.index', $resort->id) }}" class="btn btn-secondary">Cancel</a>
+                        <a href="{{ route('resort.owner.information') }}" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary" style="background-color:rgb(9, 135, 219); border-color: rgb(9, 135, 219);">Add Room</button>
                     </div>
                 </form>
@@ -743,6 +771,44 @@
 
         .mobile-sidebar-nav .nav-link.active::before {
             opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .mobile-sidebar-nav .nav-icon-img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-sidebar-nav .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mobile-sidebar-nav .nav-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
         }
 
         /* Main Content */

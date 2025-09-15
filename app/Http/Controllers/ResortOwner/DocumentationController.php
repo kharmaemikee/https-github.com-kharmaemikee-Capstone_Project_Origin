@@ -50,30 +50,25 @@ class DocumentationController extends Controller
         }
 
         if ($startDate || $endDate) {
-            // Normalize dates
             $start = $startDate ? date('Y-m-d', strtotime($startDate)) : null;
             $end = $endDate ? date('Y-m-d', strtotime($endDate)) : null;
 
-            // Filter bookings that overlap the given date range
-            $query->where(function ($q) use ($start, $end) {
-                if ($start && $end) {
+            // If only a single date is provided, match exactly that date
+            if ($start && !$end) {
+                $query->whereDate('check_in_date', '=', $start);
+            } elseif ($end && !$start) {
+                $query->whereDate('check_in_date', '=', $end);
+            } else {
+                // Both dates provided: use overlap range logic
+                $query->where(function ($q) use ($start, $end) {
                     $q->where(function ($qq) use ($start, $end) {
                         $qq->where('check_in_date', '<=', $end)
                            ->where(function ($qqq) use ($start) {
                                $qqq->whereNull('check_out_date')->orWhere('check_out_date', '>=', $start);
                            });
                     });
-                } elseif ($start) {
-                    $q->where(function ($qq) use ($start) {
-                        $qq->where('check_out_date', '>=', $start)
-                           ->orWhere(function ($qqq) use ($start) {
-                               $qqq->whereNull('check_out_date')->where('check_in_date', '>=', $start);
-                           });
-                    });
-                } elseif ($end) {
-                    $q->where('check_in_date', '<=', $end);
-                }
-            });
+                });
+            }
         }
 
         $showAll = (bool) $request->boolean('all');
@@ -133,25 +128,21 @@ class DocumentationController extends Controller
         if ($startDate || $endDate) {
             $start = $startDate ? date('Y-m-d', strtotime($startDate)) : null;
             $end = $endDate ? date('Y-m-d', strtotime($endDate)) : null;
-            $query->where(function ($q) use ($start, $end) {
-                if ($start && $end) {
+
+            if ($start && !$end) {
+                $query->whereDate('check_in_date', '=', $start);
+            } elseif ($end && !$start) {
+                $query->whereDate('check_in_date', '=', $end);
+            } else {
+                $query->where(function ($q) use ($start, $end) {
                     $q->where(function ($qq) use ($start, $end) {
                         $qq->where('check_in_date', '<=', $end)
                            ->where(function ($qqq) use ($start) {
                                $qqq->whereNull('check_out_date')->orWhere('check_out_date', '>=', $start);
                            });
                     });
-                } elseif ($start) {
-                    $q->where(function ($qq) use ($start) {
-                        $qq->where('check_out_date', '>=', $start)
-                           ->orWhere(function ($qqq) use ($start) {
-                               $qqq->whereNull('check_out_date')->where('check_in_date', '>=', $start);
-                           });
-                    });
-                } elseif ($end) {
-                    $q->where('check_in_date', '<=', $end);
-                }
-            });
+                });
+            }
         }
 
         $filename = 'resort-bookings-' . now()->format('Ymd_His') . '.csv';
@@ -242,25 +233,21 @@ class DocumentationController extends Controller
         if ($startDate || $endDate) {
             $start = $startDate ? date('Y-m-d', strtotime($startDate)) : null;
             $end = $endDate ? date('Y-m-d', strtotime($endDate)) : null;
-            $query->where(function ($q) use ($start, $end) {
-                if ($start && $end) {
+
+            if ($start && !$end) {
+                $query->whereDate('check_in_date', '=', $start);
+            } elseif ($end && !$start) {
+                $query->whereDate('check_in_date', '=', $end);
+            } else {
+                $query->where(function ($q) use ($start, $end) {
                     $q->where(function ($qq) use ($start, $end) {
                         $qq->where('check_in_date', '<=', $end)
                            ->where(function ($qqq) use ($start) {
                                $qqq->whereNull('check_out_date')->orWhere('check_out_date', '>=', $start);
                            });
                     });
-                } elseif ($start) {
-                    $q->where(function ($qq) use ($start) {
-                        $qq->where('check_out_date', '>=', $start)
-                           ->orWhere(function ($qqq) use ($start) {
-                               $qqq->whereNull('check_out_date')->where('check_in_date', '>=', $start);
-                           });
-                    });
-                } elseif ($end) {
-                    $q->where('check_in_date', '<=', $end);
-                }
-            });
+                });
+            }
         }
 
         $bookings = $query->orderByDesc('check_in_date')->get();

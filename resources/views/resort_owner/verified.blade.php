@@ -285,48 +285,48 @@
                                             @csrf
                                             
                                             <div class="mb-3">
-                                                <label for="bir_permit" class="form-label">BIR Permit <span class="text-danger">*</span></label>
+                                                <label for="bir_permit" class="form-label">BIR Permit <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('bir_permit') is-invalid @enderror" 
-                                                       id="bir_permit" name="bir_permit" accept="image/*,.pdf" 
+                                                       id="bir_permit" name="bir_permit" accept=".pdf" 
                                                        {{ auth()->user()->bir_approved ? 'disabled' : '' }}>
                                                 @error('bir_permit')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">Upload BIR permit (JPG, PNG, or PDF)</small>
+                                                <small class="form-text text-muted">Upload BIR permit (PDF only)</small>
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="dti_permit" class="form-label">DTI Permit <span class="text-danger">*</span></label>
+                                                <label for="dti_permit" class="form-label">DTI Permit <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('dti_permit') is-invalid @enderror" 
-                                                       id="dti_permit" name="dti_permit" accept="image/*,.pdf"
+                                                       id="dti_permit" name="dti_permit" accept=".pdf"
                                                        {{ auth()->user()->dti_approved ? 'disabled' : '' }}>
                                                 @error('dti_permit')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">Upload DTI permit (JPG, PNG, or PDF)</small>
+                                                <small class="form-text text-muted">Upload DTI permit (PDF only)</small>
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="business_permit" class="form-label">Business Permit <span class="text-danger">*</span></label>
+                                                <label for="business_permit" class="form-label">Business Permit <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('business_permit') is-invalid @enderror" 
-                                                       id="business_permit" name="business_permit" accept="image/*,.pdf"
+                                                       id="business_permit" name="business_permit" accept=".pdf"
                                                        {{ auth()->user()->business_permit_approved ? 'disabled' : '' }}>
                                                 @error('business_permit')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">Upload business permit (JPG, PNG, or PDF)</small>
+                                                <small class="form-text text-muted">Upload business permit (PDF only)</small>
                                             </div>
 
 
                                             <div class="mb-3">
-                                                <label for="tourism_registration" class="form-label">Tourism Registration <span class="text-danger">*</span></label>
+                                                <label for="tourism_registration" class="form-label">Tourism Registration <span class="text-danger"></span></label>
                                                 <input type="file" class="form-control @error('tourism_registration') is-invalid @enderror" 
-                                                       id="tourism_registration" name="tourism_registration" accept="image/*,.pdf"
+                                                       id="tourism_registration" name="tourism_registration" accept=".pdf"
                                                        {{ auth()->user()->tourism_registration_approved ? 'disabled' : '' }}>
                                                 @error('tourism_registration')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">Upload Tourism Registration (JPG, PNG, or PDF)</small>
+                                                <small class="form-text text-muted">Upload Tourism Registration (PDF only)</small>
                                             </div>
 
                                             <button type="submit" class="btn btn-primary w-100" 

@@ -217,7 +217,6 @@
                             <th scope="col">Boat No</th>
                             <th scope="col">Price</th>
                             <th scope="col">Capacity</th>
-                                <th scope="col">Captain</th>
                             <th scope="col">Owner</th>
                                 <th scope="col" class="text-center">Status</th>
                                 <th scope="col" class="text-center">Actions</th>
@@ -231,8 +230,7 @@
                                     @if ($boat->image_path)
                                         <img src="{{ asset($boat->image_path) }}"
                                              alt="{{ $boat->boat_name }}"
-                                                    class="boat-table-image"
-                                             onerror="handleImageError(this, '{{ asset('images/default_boat.png') }}')">
+                                             class="boat-table-image">
                                     @else
                                         <img src="{{ asset('images/default_boat.png') }}"
                                              alt="Default Boat Image"
@@ -261,20 +259,7 @@
                                             {{ $boat->boat_capacities }} pax
                                         </div>
                                     </td>
-                                    <td class="captain-cell">
-                                        <div class="captain-info">
-                                            <div class="captain-name">
-                                                <i class="fas fa-user-tie text-warning me-1"></i>
-                                                {{ $boat->captain_name ?? 'N/A' }}
-                                            </div>
-                                            @if($boat->captain_contact)
-                                                <div class="captain-contact">
-                                                    <i class="fas fa-phone text-success me-1"></i>
-                                                    {{ $boat->captain_contact }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </td>
+                                    
                                     <td class="owner-cell">
                                     @if($boat->user)
                                             <div class="owner-info">
@@ -337,6 +322,17 @@
                                 </td>
                                     <td class="actions-cell text-center">
                                         <div class="action-buttons">
+                                        <button type="button" class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewBoatModal"
+                                                data-boat-name="{{ $boat->boat_name }}"
+                                                data-captain-name="{{ $boat->captain_name ?? 'N/A' }}"
+                                                data-captain-contact="{{ $boat->captain_contact ?? 'N/A' }}"
+                                                data-boat-image="{{ $boat->image_path ? asset($boat->image_path) : asset('images/default_boat.png') }}">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View
+                                        </button>
+
                                         @if ($boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_REJECTED)
                                                 <form action="{{ route('admin.boat.approve', $boat->id) }}" method="POST" class="d-inline">
                                                 @csrf
@@ -401,6 +397,44 @@
                         <button type="submit" class="btn btn-danger rounded-pill">Reject</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- View Boat Modal --}}
+    <div class="modal fade" id="viewBoatModal" tabindex="-1" aria-labelledby="viewBoatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewBoatModalLabel">Boat Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 align-items-start">
+                        <div class="col-12 col-md-6 text-center">
+                            <img id="viewBoatImage" src="" alt="Boat" style="width:100%; max-height:60vh; object-fit:contain; border-radius:10px; border:1px solid #e9ecef; box-shadow:0 6px 20px rgba(0,0,0,.1);" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="d-flex flex-column gap-3">
+                                <div>
+                                    <div class="text-muted small">Boat Name</div>
+                                    <div class="fw-bold" id="viewBoatName">N/A</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Captain</div>
+                                    <div class="fw-semibold" id="viewCaptainName">N/A</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Captain Contact</div>
+                                    <div class="fw-semibold" id="viewCaptainContact">N/A</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1563,15 +1597,6 @@
                 container.addEventListener('show.bs.collapse', function(){ arrow.classList.add('rotated'); });
                 container.addEventListener('hide.bs.collapse', function(){ arrow.classList.remove('rotated'); });
             });
-            ['usersCollapse','usersCollapseMobile'].forEach(function(id){
-                var container = document.getElementById(id);
-                if(!container) return;
-                var triggerBtn = document.querySelector('[data-bs-target="#'+id+'"]');
-                var arrow = triggerBtn ? triggerBtn.querySelector('.collapse-icon') : null;
-                if(!arrow) return;
-                container.addEventListener('show.bs.collapse', function(){ arrow.classList.add('rotated'); });
-                container.addEventListener('hide.bs.collapse', function(){ arrow.classList.remove('rotated'); });
-            });
         });
     </script>
 
@@ -1632,6 +1657,31 @@
                     rejectionReasonError.textContent = ''; // Clear error if valid
                 }
             });
+
+            // View Boat Modal population
+            const viewBoatModal = document.getElementById('viewBoatModal');
+            if (viewBoatModal) {
+                viewBoatModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    if (!button) return;
+                    const boatName = button.getAttribute('data-boat-name') || 'N/A';
+                    const captainName = button.getAttribute('data-captain-name') || 'N/A';
+                    const captainContact = button.getAttribute('data-captain-contact') || 'N/A';
+                    const boatImage = button.getAttribute('data-boat-image') || '';
+
+                    const nameEl = document.getElementById('viewBoatName');
+                    const capEl = document.getElementById('viewCaptainName');
+                    const contactEl = document.getElementById('viewCaptainContact');
+                    const imgEl = document.getElementById('viewBoatImage');
+                    if (nameEl) nameEl.textContent = boatName;
+                    if (capEl) capEl.textContent = captainName;
+                    if (contactEl) contactEl.textContent = captainContact;
+                    if (imgEl) {
+                        imgEl.src = boatImage;
+                        imgEl.onerror = function(){ this.src='{{ asset("images/default_boat.png") }}'; };
+                    }
+                });
+            }
         });
     </script>
 </x-app-layout>

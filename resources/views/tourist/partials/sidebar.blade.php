@@ -58,43 +58,53 @@
     </div>
 </div>
 
-{{-- Mobile Offcanvas Toggle Button --}}
-<div class="d-md-none bg-light border-bottom p-2">
-    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-        &#9776;
+{{-- Mobile Toggle Button --}}
+<div class="mobile-toggle d-md-none">
+    <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+        <i class="fas fa-bars"></i>
     </button>
 </div>
 
 {{-- Mobile Offcanvas Sidebar --}}
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+<div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
     <div class="offcanvas-header">
-        {{-- Icon added here for Tourist in mobile sidebar using <img> --}}
-        <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-            <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-            Tourist Menu
-        </h5>
+        <div class="mobile-sidebar-brand">
+            <div class="mobile-brand-icon">
+                <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" class="mobile-brand-icon-img">
+            </div>
+            <div class="mobile-brand-text">
+                <h5 class="mobile-brand-title" id="mobileSidebarLabel">Tourist Menu</h5>
+                <p class="mobile-brand-subtitle">Explore & Discover</p>
+            </div>
+        </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body mobile-sidebar-nav">
         <ul class="nav flex-column">
-            <li class="nav-item mt-2">
-                <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('tourist.tourist') ? 'active' : '' }}">
-                    <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    Home
+            <li class="nav-item">
+                <a href="{{ route('tourist.tourist') }}" class="nav-link {{ request()->routeIs('tourist.tourist') ? 'active' : '' }}">
+                    <div class="nav-icon">
+                        <img src="{{ asset('images/house.png') }}" alt="Home Icon" class="nav-icon-img">
+                    </div>
+                    <span class="nav-text">Home</span>
                 </a>
             </li>
-            <li class="nav-item mt-2">
-                <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('tourist.visit') ? 'active' : '' }}">
-                    <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    Your Visit
+            <li class="nav-item">
+                <a href="{{ route('tourist.visit') }}" class="nav-link {{ request()->routeIs('tourist.visit') ? 'active' : '' }}">
+                    <div class="nav-icon">
+                        <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" class="nav-icon-img">
+                    </div>
+                    <span class="nav-text">Your Visit</span>
                 </a>
             </li>
-            <li class="nav-item mt-2">
-                <a href="{{ route('tourist.notifications') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('tourist.notifications') ? 'active' : '' }}">
-                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                    Notifications
+            <li class="nav-item">
+                <a href="{{ route('tourist.notifications') }}" class="nav-link {{ request()->routeIs('tourist.notifications') ? 'active' : '' }}">
+                    <div class="nav-icon">
+                        <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                    </div>
+                    <span class="nav-text">Notifications</span>
                     @if($unreadCount > 0)
-                        <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                        <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
                     @endif
                 </a>
             </li>

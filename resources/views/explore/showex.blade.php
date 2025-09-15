@@ -112,8 +112,7 @@
                                 <div class="accommodation-image-container">
                                     <img src="{{ asset($room->image_path ? $room->image_path : 'images/default_room.png') }}"
                                          class="accommodation-image"
-                                         alt="{{ $room->room_name }}"
-                                         onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
+                                         alt="{{ $room->room_name }}" />
                                     
                                     <div class="accommodation-overlay">
                                         <div class="overlay-content">
@@ -184,7 +183,7 @@
 
                                     <div class="accommodation-actions">
                                         @php
-                                            $canBook = $room->status === 'open' && $room->admin_status === 'approved' && in_array($resort->status, ['open', 'rehab']);
+                                            $canBook = $room->status === 'open' && in_array($resort->status, ['open', 'rehab']);
                                         @endphp
                                         @if ($canBook)
                                             @auth
@@ -198,10 +197,6 @@
                                                     <i class="fas fa-calendar-plus me-2"></i>Book Now
                                                 </a>
                                             @endauth
-                                        @elseif ($room->admin_status !== 'approved')
-                                            <button class="btn btn-secondary accommodation-btn" disabled>
-                                                <i class="fas fa-clock me-2"></i>Awaiting Approval
-                                            </button>
                                         @elseif ($room->status === 'closed')
                                             <button class="btn btn-secondary accommodation-btn" disabled>
                                                 <i class="fas fa-times-circle me-2"></i>Closed
