@@ -232,7 +232,7 @@
                                 <tr>
                                     <th scope="col">Image</th>
                                     <th scope="col">Room Name</th>
-                                    <th scope="col">Price / Night</th>
+                                    <th scope="col">Room Price</th>
                                     <th scope="col">Max Guests</th>
                                     <th scope="col">Availability / Status</th>
                                     <th scope="col">Actions</th>
@@ -304,7 +304,7 @@
                                                     <i class="fas fa-archive"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-info btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#viewImagesModal" data-room-id="{{ $room->id }}" title="View Images">
-                                                    <i class="fas fa-images"></i>
+                                                    <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -412,7 +412,7 @@
                                                     <i class="fas fa-archive"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-info btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#viewImagesModal" data-room-id="{{ $room->id }}" title="View Images">
-                                                    <i class="fas fa-images"></i>
+                                                    <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </td>

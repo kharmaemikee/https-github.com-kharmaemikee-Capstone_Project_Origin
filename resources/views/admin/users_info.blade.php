@@ -1393,13 +1393,44 @@
                     const lastName = this.getAttribute('data-last-name') || '';
                     const username = this.getAttribute('data-username') || '';
 
+                    // Calculate age from birthday
+                    let age = 'N/A';
+                    let formattedBirthday = 'N/A';
+                    
+                    if (birthday && birthday !== 'N/A' && birthday !== 'null') {
+                        try {
+                            const birthDate = new Date(birthday);
+                            if (!isNaN(birthDate.getTime())) {
+                                const today = new Date();
+                                let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+                                const monthDiff = today.getMonth() - birthDate.getMonth();
+                                
+                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                    calculatedAge--;
+                                }
+                                
+                                age = calculatedAge;
+                                formattedBirthday = birthDate.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                });
+                            }
+                        } catch (e) {
+                            console.log('Error calculating age:', e);
+                        }
+                    }
+
                     const b = document.getElementById('detailBirthday');
+                    const ageElement = document.getElementById('detailAge');
                     const g = document.getElementById('detailGender');
                     const a = document.getElementById('detailAddress');
                     const p = document.getElementById('detailPhone');
                     const n = document.getElementById('detailNationality');
                     const img = document.getElementById('detailOwnerImage');
-                    if (b) b.textContent = birthday;
+                    
+                    if (b) b.textContent = formattedBirthday;
+                    if (ageElement) ageElement.textContent = age;
                     if (g) g.textContent = gender;
                     if (a) a.textContent = address;
                     if (p) p.textContent = phone;

@@ -214,20 +214,17 @@
                             </div>
                         </div>
 
-                        <div id="docCapture" class="table-responsive">
-                            <table class="table table-striped table-hover align-middle">
+                        <div id="docCapture" class="table-responsive ro-doc-table-container">
+                            <table class="table table-striped table-hover align-middle ro-doc-table">
                                 <thead>
                                     <tr>
                                         <th>Room</th>
                                         <th>Tourist</th>
                                         <th>Tour Type</th>
-                                        <th>Departure Time (Overnight)</th>
-                                        <th>Departure Time (Daytour)</th>
-                                        <th>Pick-up</th>
-                                        <th>Seniors</th>
-                                        <th>PWDs</th>
-                                        <th>Check-in Date</th>
-                                        <th>Check-out Date</th>
+                                        <th>Departure Time — Overnight</th>
+                                        <th>Departure Time — Day tour</th>
+                                        <th>Pick-up (leaving)</th>
+                                        
                                         <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -242,7 +239,7 @@
                                                 {{ $acctName !== '' ? $acctName : (optional($booking->user)->username ?? '—') }}
                                             </td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
-                                            <td>
+                                            <td data-col="overnight">
                                                 @php
                                                     $overnightDep = null;
                                                     try {
@@ -253,7 +250,7 @@
                                                     @endphp
                                                 {{ $overnightDep ?? '—' }}
                                             </td>
-                                            <td>
+                                            <td data-col="daytour">
                                                 @php
                                                     $dayDep = null;
                                                     try {
@@ -264,7 +261,7 @@
                                                     @endphp
                                                 {{ $dayDep ?? '—' }}
                                             </td>
-                                            <td>
+                                            <td data-col="pickup">
                                                 @php
                                                     $pickupText = '—';
                                                     try {
@@ -279,10 +276,7 @@
                                                     @endphp
                                                 {{ $pickupText }}
                                             </td>
-                                            <td>{{ $booking->num_senior_citizens ?? '—' }}</td>
-                                            <td>{{ $booking->num_pwds ?? '—' }}</td>
-                                            <td>{{ optional($booking->check_in_date)->format('Y-m-d') }}</td>
-                                            <td>{{ optional($booking->check_out_date)->format('Y-m-d') }}</td>
+                                            
                                             <td class="text-center">
                                                 @php
                                                     $assignedBoat = optional($booking)->assignedBoat;
@@ -303,8 +297,15 @@
                                                         data-senior-id="{{ $booking->senior_id_image_path ?? '' }}"
                                                         data-pwd-id="{{ $booking->pwd_id_image_path ?? '' }}"
                                                         data-guest-count="{{ $booking->number_of_guests ?? '' }}"
+                                                        data-overnight-departure="{{ !empty($booking->overnight_departure_time) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A'); } catch (\Exception $e) { return $booking->overnight_departure_time; } })() : '—' }}"
+                                                        data-daytour-departure="{{ !empty($booking->day_tour_departure_time) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A'); } catch (\Exception $e) { return $booking->day_tour_departure_time; } })() : '—' }}"
+                                                        data-pickup="{{ ($booking->tour_type === 'overnight') ? (!empty($booking->overnight_date_time_of_pickup) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('M d, Y h:i A'); } catch (\Exception $e) { return $booking->overnight_date_time_of_pickup; } })() : '—') : (!empty($booking->day_tour_time_of_pickup) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { return $booking->day_tour_time_of_pickup; } })() : '—') }}"
                                                         data-extended="{{ ($booking->is_extended ?? false) ? 'Yes' : 'No' }}"
                                                         data-extension="{{ ($booking->is_extended ?? false) ? ('+' . ($booking->extension_value ?? '') . ' ' . ($booking->extension_type ?? '')) : '' }}"
+                                                        data-check-in="{{ !empty($booking->check_in_date) ? (\Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d')) : '' }}"
+                                                        data-check-out="{{ !empty($booking->check_out_date) ? (\Carbon\Carbon::parse($booking->check_out_date)->format('Y-m-d')) : '' }}"
+                                                        data-seniors="{{ $booking->num_senior_citizens ?? '' }}"
+                                                        data-pwds="{{ $booking->num_pwds ?? '' }}"
                                                         data-boat-name="{{ $assignedBoat->boat_name ?? '' }}"
                                                         data-boat-number="{{ $assignedBoat->boat_number ?? '' }}">
                                                     <i class="fas fa-eye"></i>
@@ -484,9 +485,15 @@
     <div class="modal fade" id="docViewModal" tabindex="-1" aria-labelledby="docViewModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="docViewModalLabel">Booking Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header ro-doc-modal-header">
+                    <div class="d-flex flex-column">
+                        <h5 class="modal-title m-0 d-flex align-items-center gap-2" id="docViewModalLabel">
+                            <i class="fas fa-file-alt"></i>
+                            Booking Details
+                        </h5>
+                        <small class="text-white-75">Quick view of the selected record</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-2"><strong>Name of Guests:</strong> <span id="docGuestName">N/A</span></div>
@@ -497,8 +504,18 @@
                     <div class="mb-2"><strong>Address:</strong> <span id="docGuestAddress">N/A</span></div>
                     <div class="mb-2"><strong>Guests (Count):</strong> <span id="docGuestCount">N/A</span></div>
                     <hr>
+                    <div class="row g-2">
+                        <div class="col-6"><strong>Departure Time — Overnight:</strong> <span id="docOvernightDepartureRO">—</span></div>
+                        <div class="col-6"><strong>Departure Time — Day tour:</strong> <span id="docDayTourDepartureRO">—</span></div>
+                        <div class="col-6"><strong>Pick-up (leaving):</strong> <span id="docPickupRO">—</span></div>
+                        <div class="col-6"><strong>Check-in Date:</strong> <span id="docCheckIn">—</span></div>
+                        <div class="col-6"><strong>Check-out Date:</strong> <span id="docCheckOut">—</span></div>
+                        <div class="col-6"><strong>Seniors:</strong> <span id="docSeniors">—</span></div>
+                        <div class="col-6"><strong>PWDs:</strong> <span id="docPwds">—</span></div>
+                    </div>
+                    <hr>
                     <div class="mb-2"><strong>Assigned Boat:</strong> <span id="docBoatName">N/A</span></div>
-                    <div class="mb-2"><strong>Boat No:</strong> <span id="docBoatNumber">N/A</span></div>
+                    <div class="mb-2"><strong>Boat Plate Number:</strong> <span id="docBoatNumber">N/A</span></div>
                     
                     <div class="mb-2"><strong>Downpayment Receipt:</strong> <button type="button" id="btnViewDownpaymentRO" class="btn btn-sm btn-outline-primary" style="display:none;">View</button></div>
                     <div class="mb-2"><strong>Valid ID:</strong> <span id="docValidIdTypeRO">—</span> <button type="button" id="btnViewValidIdRO" class="btn btn-sm btn-outline-primary ms-2" style="display:none;">View</button></div>
@@ -508,8 +525,8 @@
                     <div class="mb-2"><strong>Extended:</strong> <span id="docExtended">No</span></div>
                     <div class="mb-2"><strong>Extension Details:</strong> <span id="docExtension">—</span></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer ro-doc-modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -529,6 +546,10 @@
                     setText('docGuestAddress', this.getAttribute('data-guest-address'));
                     setText('docGuestCount', this.getAttribute('data-guest-count'));
                     const down = this.getAttribute('data-downpayment') || '';
+                    // New timing fields
+                    setText('docOvernightDepartureRO', this.getAttribute('data-overnight-departure') || '—');
+                    setText('docDayTourDepartureRO', this.getAttribute('data-daytour-departure') || '—');
+                    setText('docPickupRO', this.getAttribute('data-pickup') || '—');
                     // Boat details
                     setText('docBoatName', this.getAttribute('data-boat-name'));
                     setText('docBoatNumber', this.getAttribute('data-boat-number'));
@@ -563,6 +584,12 @@
                     }
                     setText('docExtended', this.getAttribute('data-extended') || 'No');
                     setText('docExtension', this.getAttribute('data-extension') || '—');
+
+                    // New fields passed via data attributes
+                    setText('docCheckIn', this.getAttribute('data-check-in') || '—');
+                    setText('docCheckOut', this.getAttribute('data-check-out') || '—');
+                    setText('docSeniors', this.getAttribute('data-seniors') || '—');
+                    setText('docPwds', this.getAttribute('data-pwds') || '—');
                 });
             });
         });
@@ -810,6 +837,17 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
+        /* Compact, clean modal styles */
+        .ro-doc-modal-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            color: #fff;
+            border-bottom: none;
+        }
+        .ro-doc-modal-footer {
+            background: #f8f9fa;
+            border-top: none;
+        }
+
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -914,6 +952,29 @@
 
         .mobile-sidebar-nav .nav-link.active::before {
             opacity: 1;
+        }
+
+        /* Table polish */
+        .ro-doc-table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            border: 1px solid #e9ecef;
+        }
+        .ro-doc-table thead th {
+            background: linear-gradient(180deg, #f8f9fa, #eef1f5);
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .ro-doc-table tbody tr:hover {
+            background: #f8f9ff !important;
+        }
+        .ro-doc-table td, .ro-doc-table th {
+            vertical-align: middle;
         }
 
         /* Main Content */

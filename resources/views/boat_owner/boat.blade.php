@@ -126,10 +126,16 @@
         <div class="main-content flex-grow-1 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Manage Boat</h2>
-                <a href="{{ route('boat.owner.add') }}" class="btn btn-dark d-flex align-items-center gap-2 text-white text-decoration-none">
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('boat.owner.add') }}" class="btn btn-dark d-flex align-items-center gap-2 text-white text-decoration-none">
                     Add Boat
                     <span style="font-size: 1.2rem;">+</span>
-                </a>
+                    </a>
+                    <a href="{{ route('boat.owner.archive') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 text-decoration-none">
+                        Archive
+                        <i class="fas fa-archive"></i>
+                    </a>
+                </div>
             </div>
 
 
@@ -247,12 +253,12 @@
                                         <a href="{{ route('boat.edit', $boat->id) }}" class="btn btn-primary btn-sm action-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-danger btn-sm action-btn delete-btn"
+                                        <button type="button" class="btn btn-warning btn-sm action-btn archive-btn"
                                                 data-boat-id="{{ $boat->id }}"
                                                 data-boat-name="{{ $boat->boat_name }}"
                                                 data-bs-placement="top" 
-                                                title="Delete">
-                                            <i class="fas fa-trash"></i>
+                                                title="Archive">
+                                            <i class="fas fa-archive"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -728,20 +734,20 @@
                 imgElement.src = defaultImagePath;
             };
 
-            // Handle delete buttons with SweetAlert2
-            document.querySelectorAll('.delete-btn').forEach(btn => {
+            // Handle archive buttons with SweetAlert2
+            document.querySelectorAll('.archive-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const boatId = this.getAttribute('data-boat-id');
                     const boatName = this.getAttribute('data-boat-name');
                     
                     Swal.fire({
-                        title: "Are you sure you want to delete this boat?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
+                        title: "Archive Boat",
+                        html: `Are you sure you want to archive <strong>${boatName}</strong>? You can restore it later from the Archive page.`,
+                        icon: "question",
                         showCancelButton: true,
-                        confirmButtonColor: "#3085d6",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "Yes, delete it!",
+                        confirmButtonColor: "#f0ad4e",
+                        cancelButtonColor: "#6c757d",
+                        confirmButtonText: "Yes, archive it!",
                         cancelButtonText: "Cancel",
                         customClass: {
                             popup: 'swal2-popup-responsive',
@@ -754,8 +760,8 @@
                         if (result.isConfirmed) {
                             // Show loading state
                             Swal.fire({
-                                title: 'Deleting...',
-                                text: 'Please wait while we delete the boat.',
+                                title: 'Archiving...',
+                                text: 'Please wait while we archive the boat.',
                                 icon: 'info',
                                 allowOutsideClick: false,
                                 allowEscapeKey: false,
@@ -770,12 +776,12 @@
                                 }
                             });
                             
-                            // Create form data for delete request
+                            // Create form data for archive (DELETE route repurposed to archive)
                             const formData = new FormData();
                             formData.append('_token', '{{ csrf_token() }}');
                             formData.append('_method', 'DELETE');
                             
-                            // Send delete request
+                            // Send request
                             fetch(`/boats/${boatId}`, {
                                 method: 'POST',
                                 body: formData,
@@ -794,8 +800,8 @@
                                     
                                     // Show success message
                                     Swal.fire({
-                                        title: "Deleted!",
-                                        text: "Your file has been deleted.",
+                                        title: "Archived!",
+                                        text: "The boat has been archived.",
                                         icon: "success",
                                         customClass: {
                                             popup: 'swal2-popup-responsive',
@@ -805,14 +811,14 @@
                                         }
                                     });
                                 } else {
-                                    throw new Error('Delete failed');
+                                    throw new Error('Archive failed');
                                 }
                             })
                             .catch(error => {
-                                console.error('Error deleting boat:', error);
+                                console.error('Error archiving boat:', error);
                                 Swal.fire({
                                     title: "Error!",
-                                    text: "Failed to delete boat. Please try again.",
+                                    text: "Failed to archive boat. Please try again.",
                                     icon: "error",
                                     customClass: {
                                         popup: 'swal2-popup-responsive',

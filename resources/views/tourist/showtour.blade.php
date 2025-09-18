@@ -285,48 +285,57 @@
     <div class="modal fade" id="termsAndConditionsModal" tabindex="-1" aria-labelledby="termsAndConditionsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="termsAndConditionsModalLabel">Terms and Conditions for Booking <span id="roomNameForTerms"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header terms-modal-header">
+                    <div class="d-flex flex-column">
+                        <h5 class="modal-title m-0 d-flex align-items-center gap-2" id="termsAndConditionsModalLabel">
+                            <i class="fas fa-file-contract"></i>
+                            Terms and Conditions <small class="text-white-50 ms-1">for <span id="roomNameForTerms"></span></small>
+                        </h5>
+                        <small class="text-white-75 modal-subtitle">Please review before continuing your booking.</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Please read the following terms and conditions carefully before proceeding with your booking.</p>
-                    <div class="border p-3 mb-3" style="max-height: 300px; overflow-y: auto;">
-                        <h6>1. Booking Confirmation</h6>
-                        <p>All bookings are subject to availability and confirmation. A booking is not confirmed until you receive a confirmation email or notification from us.</p>
+                    <p class="text-muted mb-2">Please read the following terms and conditions carefully before proceeding with your booking.</p>
+                    <div class="terms-box mb-3">
+                        <h6>Terms and Conditions</h6>
 
-                        <h6>2. Payment</h6>
-                        <p>Full payment is required at the time of booking unless otherwise stated. We accept [List accepted payment methods, e.g., credit card, debit card, bank transfer].</p>
+                        <h6>Section 1. Boat Assignment</h6>
+                        <p>- All boats for transfer and island hopping shall be automatically assigned by the system based on the departure time provided by the tourist.</p>
 
-                        <h6>3. Cancellation Policy</h6>
-                        <ul>
-                            <li><strong>Free Cancellation:</strong> Cancellations made [X days/hours] before the check-in date will receive a full refund.</li>
-                            <li><strong>Late Cancellation:</strong> Cancellations made less than [X days/hours] before check-in will incur a charge equal to [e.g., one night's stay, 50% of the total booking].</li>
-                            <li><strong>No-Show:</strong> In case of a no-show, the total amount of the reservation will be charged.</li>
+                        <h6>Section 2. Check-In and Check-Out</h6>
+                        <ul class="mb-2">
+                            <li>Check-in Time: 2:00 PM</li>
+                            <li>Check-out Time: 12:00 Noon</li>
                         </ul>
 
-                        <h6>4. Check-in and Check-out Times</h6>
-                        <p>Check-in time is [e.g., 2:00 PM] on the day of arrival. Check-out time is [e.g., 12:00 PM] on the day of departure. Late check-out may be available upon request and may incur additional charges.</p>
+                        <h6>Section 3. Towels and Amenities</h6>
+                        <ul class="mb-2">
+                            <li>One (1) towel is provided for Single Rooms, two (2) towels for Quad Rooms, and six (6) towels for Family Rooms.</li>
+                            <li>Extra towels may be requested at ₱50.00 per piece.</li>
+                            <li>Guests are advised to bring extra towels for personal use.</li>
+                        </ul>
 
-                        <h6>5. Guests and Occupancy</h6>
-                        <p>The maximum number of guests for each room type is specified. Exceeding this limit is not permitted and may result in additional charges or cancellation of your booking.</p>
+                        <h6>Section 4. Cancellation, Refund, and Amendments</h6>
+                        <p>- Once confirmed, bookings are strictly non-cancellable, non-refundable, and non-amendable.</p>
 
-                        <h6>6. Damage to Property</h6>
-                        <p>Guests are responsible for any damage caused to the room or resort property during their stay. Charges for repairs or replacement will be applied to the credit card on file or collected upon check-out.</p>
+                        <h6>Section 5. No-Show Policy</h6>
+                        <p>- Guests who fail to arrive on the booking date will have their reservation automatically forfeited without refund.</p>
 
-                        <h6>7. Resort Rules</h6>
-                        <p>Guests are expected to abide by all resort rules and regulations, which will be provided upon check-in or are available upon request. This includes rules regarding noise, pool usage, and prohibited items.</p>
+                        <h6>Section 6. Rebooking</h6>
+                        <p>- Rebooking is only allowed in the event of bad weather or official travel suspension.</p>
 
-                        <h6>8. Force Majeure</h6>
-                        <p>The resort is not liable for any failure or delay in performance due to circumstances beyond its reasonable control, including but not limited to natural disasters, acts of war, terrorism, or government regulations.</p>
+                        <h6>Section 7. Changes in Booking</h6>
+                        <p>- If there are changes and/or additional person, inform us at least 1 week before dates of travel.</p>
 
-                        <h6>9. Privacy Policy</h6>
-                        <p>Your personal information collected during the booking process will be handled in accordance with our Privacy Policy. We do not share your information with third parties without your consent.</p>
+                        <h6>Section 8. Additional Guests and Extra Beds</h6>
+                        <p>- An additional charge of ₱500.00 per head applies for extra persons or extra beds.</p>
 
-                        <h6>10. Governing Law</h6>
-                        <p>These terms and conditions are governed by the laws of [Your Country/Region/State]. Any disputes arising from these terms will be subject to the exclusive jurisdiction of the courts in [Your City/Region].</p>
-
-                        <p>By proceeding with the booking, you acknowledge that you have read, understood, and agreed to these terms and conditions.</p>
+                        <h6>Section 9. Tent Accommodations</h6>
+                        <ul class="mb-0">
+                            <li>Entrance fee: ₱100.00 per head</li>
+                            <li>Tent pitching fee: ₱300.00 per tent</li>
+                        </ul>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreeTerms" required>
@@ -335,9 +344,11 @@
                         </label>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-book-now" id="proceedToBookBtn" disabled>Proceed to Book</button>
+                <div class="modal-footer terms-modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-book-now" id="proceedToBookBtn" disabled>
+                        <i class="fas fa-arrow-right me-1"></i>Proceed to Book
+                    </button>
                 </div>
             </div>
         </div>
@@ -1079,6 +1090,47 @@
                 font-size: 0.75rem;
             }
         }
+
+        /* Simple Terms Box Styling */
+        .terms-box {
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        }
+        .terms-box h6 {
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 1rem 0 .25rem 0;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .terms-box h6::before {
+            content: '\f15c'; /* fa-file-lines */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #007bff;
+            font-size: .9rem;
+        }
+        .terms-box p { margin: .25rem 0 .5rem 0; color: #445; }
+        .terms-box ul { margin: .25rem 0 .75rem 1.1rem; }
+        .terms-box li { margin: .15rem 0; color: #445; }
+
+        /* Terms Modal Styling */
+        .terms-modal-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: #fff;
+            border-bottom: none;
+        }
+        .terms-modal-footer {
+            background: #f8f9fa;
+            border-top: none;
+        }
+        .modal-subtitle { font-size: .85rem; }
     </style>
 
     {{-- Custom JavaScript for image error handling, mobile sidebar behavior, and modals --}}

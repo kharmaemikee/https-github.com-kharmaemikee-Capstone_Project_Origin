@@ -362,15 +362,7 @@
                                         <th class="table-header-cell">
                                             <i class="fas fa-map-marked-alt me-1"></i>Tour Type
                                         </th>
-                                        <th class="table-header-cell">
-                                            <i class="fas fa-clock me-1"></i>Departure Time (Overnight)
-                                        </th>
-                                        <th class="table-header-cell">
-                                            <i class="fas fa-clock me-1"></i>Departure Time (Daytour)
-                                        </th>
-                                        <th class="table-header-cell">
-                                            <i class="fas fa-truck-pickup me-1"></i>Pick-up
-                                        </th>
+                                        
                                         <th class="table-header-cell">
                                             <i class="fas fa-ship me-1"></i>Assigned Boat
                                         </th>
@@ -415,49 +407,7 @@
                                                     <span class="badge badge-tour-type">{{ ucfirst($booking->tour_type ?? '—') }}</span>
                                                 </div>
                                             </td>
-                                            <td class="table-cell">
-                                                <div class="cell-content">
-                                                        @php
-                                                        $overnightDep = null;
-                                                            try {
-                                                            if (!empty($booking->overnight_departure_time)) {
-                                                                $overnightDep = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A');
-                                                            }
-                                                        } catch(\Exception $e) { $overnightDep = $booking->overnight_departure_time ?? null; }
-                                                        @endphp
-                                                    <span class="cell-text">{{ $overnightDep ?? '—' }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="table-cell">
-                                                <div class="cell-content">
-                                                        @php
-                                                        $dayDep = null;
-                                                            try {
-                                                            if (!empty($booking->day_tour_departure_time)) {
-                                                                $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
-                                                            }
-                                                        } catch(\Exception $e) { $dayDep = $booking->day_tour_departure_time ?? null; }
-                                                        @endphp
-                                                    <span class="cell-text">{{ $dayDep ?? '—' }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="table-cell">
-                                                <div class="cell-content">
-                                                    @php
-                                                        $pickupText = '—';
-                                                        try {
-                                                            if (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
-                                                                $pickupText = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d h:i A');
-                                                            } elseif (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_time_of_pickup) {
-                                                                $pickupText = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
-                                                            }
-                                                            } catch(\Exception $e) {
-                                                            $pickupText = ($booking->tour_type === 'overnight') ? ($booking->overnight_date_time_of_pickup ?? '—') : ($booking->day_tour_time_of_pickup ?? '—');
-                                                            }
-                                                        @endphp
-                                                    <span class="cell-text">{{ $pickupText }}</span>
-                                                </div>
-                                            </td>
+                                            
                                             <td class="table-cell">
                                                 <div class="cell-content">
                                                     @php
@@ -544,7 +494,10 @@
                                                         data-valid-id-number="{{ $booking->valid_id_number ?? '' }}"
                                                         data-senior-id="{{ $booking->senior_id_image_path ?? '' }}"
                                                         data-pwd-id="{{ $booking->pwd_id_image_path ?? '' }}"
-                                                        data-guest-count="{{ $booking->number_of_guests ?? '' }}">
+                                                        data-guest-count="{{ $booking->number_of_guests ?? '' }}"
+                                                        data-overnight-departure="{{ $booking->overnight_departure_time ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A'); } catch (\Exception $e) { return $booking->overnight_departure_time; } })() : '—' }}"
+                                                        data-daytour-departure="{{ $booking->day_tour_departure_time ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A'); } catch (\Exception $e) { return $booking->day_tour_departure_time; } })() : '—' }}"
+                                                        data-pickup="{{ ($booking->tour_type === 'overnight') ? ($booking->overnight_date_time_of_pickup ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('M d, Y h:i A'); } catch (\Exception $e) { return $booking->overnight_date_time_of_pickup; } })() : '—') : ($booking->day_tour_time_of_pickup ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { return $booking->day_tour_time_of_pickup; } })() : '—') }}">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -685,16 +638,23 @@
                 </div>
                 <div class="modal-body modern-modal-body">
                     <div class="row g-3">
+                        <!-- Guest Name full-width for cleaner look -->
+                        <div class="col-12">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-id-card me-2"></i>Guest Name
+                                </h6>
+                                <div class="info-item">
+                                    <span class="info-value" id="docGuestName">N/A</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="info-card">
                                 <h6 class="info-card-title">
                                     <i class="fas fa-user me-2"></i>Guest Information
                                 </h6>
                                 <div class="info-grid">
-                                    <div class="info-item">
-                                        <span class="info-label">Name:</span>
-                                        <span class="info-value" id="docGuestName">N/A</span>
-                                    </div>
                                     <div class="info-item">
                                         <span class="info-label">Age:</span>
                                         <span class="info-value" id="docGuestAge">N/A</span>
@@ -720,6 +680,18 @@
                                     <i class="fas fa-calendar-alt me-2"></i>Booking Information
                                 </h6>
                                 <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Departure Time — Overnight:</span>
+                                        <span class="info-value" id="docOvernightDeparture">—</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Departure Time — Day tour:</span>
+                                        <span class="info-value" id="docDayTourDeparture">—</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Pick-up (leaving):</span>
+                                        <span class="info-value" id="docPickup">—</span>
+                                    </div>
                                     <div class="info-item">
                                         <span class="info-label">Check-in:</span>
                                         <span class="info-value" id="docCheckin">N/A</span>
@@ -2228,6 +2200,9 @@
                     const guestCount = this.getAttribute('data-guest-count') || 'N/A';
                     const checkin = this.getAttribute('data-checkin') || 'N/A';
                     const checkout = this.getAttribute('data-checkout') || 'N/A';
+                    const overnightDeparture = this.getAttribute('data-overnight-departure') || '—';
+                    const dayTourDeparture = this.getAttribute('data-daytour-departure') || '—';
+                    const pickup = this.getAttribute('data-pickup') || '—';
                     const downpayment = this.getAttribute('data-downpayment') || '';
                     const validIdType = this.getAttribute('data-valid-id-type') || '';
                     const validIdPath = this.getAttribute('data-valid-id') || '';
@@ -2242,6 +2217,9 @@
                     setText('docGuestAddress', guestAddress);
                     setText('docGuestNationality', guestNationality);
                     setText('docPhone', phone);
+                    setText('docOvernightDeparture', overnightDeparture);
+                    setText('docDayTourDeparture', dayTourDeparture);
+                    setText('docPickup', pickup);
                     setText('docCheckin', checkin);
                     setText('docCheckout', checkout);
                     setText('docGuestCount', guestCount);

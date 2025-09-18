@@ -548,8 +548,14 @@ Route::middleware(['auth'])->group(function () {
     // Update existing boat
     Route::put('/boats/{boat}', [BoatController::class, 'update'])->name('boat.update');
 
-    // Delete boat
+    // Archive boat (repurposed delete)
     Route::delete('/boats/{boat}', [BoatController::class, 'destroy'])->name('boat.destroy');
+    // Archived boats list
+    Route::get('/boat_owner/archive', [BoatController::class, 'archiveIndex'])->name('boat.owner.archive');
+    // Restore archived boat
+    Route::put('/boat_owner/archive/{boat}/restore', [BoatController::class, 'restore'])->name('boat.owner.archive.restore');
+    // Permanently delete archived boat
+    Route::delete('/boat_owner/archive/{boat}/force', [BoatController::class, 'forceDelete'])->name('boat.owner.archive.force');
 
     // (Removed boat owner rehab route)
 

@@ -28,7 +28,7 @@ class BoatController extends Controller
 
         // Ensure that only boats belonging to the authenticated boat owner are fetched
         // Show oldest first so newly added boats appear at the end
-        $boats = $user->boats()->orderBy('created_at', 'asc')->get();
+        $boats = $user->boats()->notArchived()->orderBy('created_at', 'asc')->get();
 
         // ADDED: Get unread notifications count for sidebar badge
         $unreadCount = BoatOwnerNotification::where('user_id', $user->id)
@@ -238,19 +238,57 @@ class BoatController extends Controller
         if (Auth::id() !== $boat->user_id || Auth::user()?->role !== 'boat_owner') {
             abort(403, 'Unauthorized action.');
         }
+        // Instead of hard delete, archive the boat
+        try {
+            $boat->archive();
+            return redirect()->route('boat')->with('success', 'Boat "' . $boat->boat_name . '" archived successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Boat archive failed: ' . $e->getMessage(), ['boat_id' => $boat->id, 'user_id' => Auth::id()]);
+            return redirect()->route('boat')->with('error', 'Failed to archive boat: ' . $e->getMessage());
+        }
+    }
 
+    /**
+     * Show archived boats for the current boat owner.
+     */
+    public function archiveIndex(): View
+    {
+        $user = Auth::user();
+        if ($user->role !== 'boat_owner') {
+            abort(403, 'Unauthorized action.');
+        }
+        $boats = $user->boats()->archived()->orderByDesc('archived_at')->paginate(10);
+        return view('boat_owner.archive', compact('boats'));
+    }
+
+    /** Restore archived boat */
+    public function restore(Boat $boat): RedirectResponse
+    {
+        if (Auth::id() !== $boat->user_id || Auth::user()?->role !== 'boat_owner') {
+            abort(403, 'Unauthorized action.');
+        }
+        try {
+            $boat->unarchive();
+            return redirect()->route('boat.owner.archive')->with('success', 'Boat restored successfully.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to restore boat: ' . $e->getMessage());
+        }
+    }
+
+    /** Permanently delete archived boat */
+    public function forceDelete(Boat $boat): RedirectResponse
+    {
+        if (Auth::id() !== $boat->user_id || Auth::user()?->role !== 'boat_owner') {
+            abort(403, 'Unauthorized action.');
+        }
         try {
             if ($boat->image_path) {
                 Storage::disk('public')->delete($boat->image_path);
             }
-
-            $boat_name = $boat->boat_name;
             $boat->delete();
-
-            return redirect()->route('boat')->with('success', 'Boat "' . $boat_name . '" deleted successfully.');
-        } catch (\Exception $e) {
-            Log::error("Boat deletion failed: " . $e->getMessage(), ['boat_id' => $boat->id, 'user_id' => Auth::id()]);
-            return redirect()->route('boat')->with('error', 'Failed to delete boat: ' . $e->getMessage());
+            return redirect()->route('boat.owner.archive')->with('success', 'Boat permanently deleted.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to delete boat: ' . $e->getMessage());
         }
     }
 

@@ -23,6 +23,17 @@ class Boat extends Model
         'rejection_reason',
         'captain_name',
         'captain_contact',
+        // Archive fields
+        'archived',
+        'archived_at',
+    ];
+
+    /**
+     * Casts for model attributes
+     */
+    protected $casts = [
+        'archived' => 'boolean',
+        'archived_at' => 'datetime',
     ];
 
     /**
@@ -247,5 +258,56 @@ class Boat extends Model
                 });
             })
             ->first();
+    }
+
+    /**
+     * Scope: non-archived boats only
+     */
+    public function scopeNotArchived($query)
+    {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('boats', 'archived')) {
+                return $query->where(function ($q) {
+                    $q->where('archived', false)->orWhereNull('archived');
+                });
+            }
+        } catch (\Throwable $e) {
+            // ignore if schema not ready
+        }
+        return $query; // fallback: no filter if column missing
+    }
+
+    /**
+     * Scope: archived boats only
+     */
+    public function scopeArchived($query)
+    {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('boats', 'archived')) {
+                return $query->where('archived', true);
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+        // If no column, return empty result by forcing impossible condition
+        return $query->whereRaw('1 = 0');
+    }
+
+    /** Archive the boat */
+    public function archive(): void
+    {
+        $this->update([
+            'archived' => true,
+            'archived_at' => now(),
+        ]);
+    }
+
+    /** Unarchive the boat */
+    public function unarchive(): void
+    {
+        $this->update([
+            'archived' => false,
+            'archived_at' => null,
+        ]);
     }
 }

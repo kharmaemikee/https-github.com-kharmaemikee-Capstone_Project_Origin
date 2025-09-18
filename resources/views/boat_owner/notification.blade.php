@@ -267,7 +267,7 @@
                                             </strong></p>
                                             <p class="mb-1">Tour Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
                                             @if ($notification->booking->tour_type === 'day_tour')
-                                                <p class="mb-1">Departure Time: <strong>
+                                                <p class="mb-1">Departure (to resort): <strong>
                                                     @php
                                                         try {
                                                             echo \Carbon\Carbon::parse($notification->booking->day_tour_departure_time)->format('h:i A');
@@ -276,7 +276,7 @@
                                                         }
                                                     @endphp
                                                 </strong></p>
-                                                <p class="mb-1">Pick-up Time: <strong>
+                                                <p class="mb-1">Pick-up (leaving): <strong>
                                                     @php
                                                         try {
                                                             echo \Carbon\Carbon::parse($notification->booking->day_tour_time_of_pickup)->format('h:i A');
@@ -286,7 +286,16 @@
                                                     @endphp
                                                 </strong></p>
                                             @elseif ($notification->booking->tour_type === 'overnight')
-                                                <p class="mb-1">Date & Time of Pick-up: <strong>
+                                                <p class="mb-1">Departure (to resort): <strong>
+                                                    @php
+                                                        try {
+                                                            echo \Carbon\Carbon::parse($notification->booking->overnight_departure_time)->format('h:i A');
+                                                        } catch(\Exception $e) {
+                                                            echo $notification->booking->overnight_departure_time;
+                                                        }
+                                                    @endphp
+                                                </strong></p>
+                                                <p class="mb-1">Pick-up (leaving): <strong>
                                                     @php
                                                         try {
                                                             echo \Carbon\Carbon::parse($notification->booking->overnight_date_time_of_pickup)->format('M d, Y h:i A');
@@ -995,7 +1004,7 @@
 
             // --- NEW: JavaScript for real-time notification count updates ---
             
-            // Function to update notification count badges
+            // Function to update notification count badges (decrement by 1)
             function updateNotificationCount() {
                 var currentCount = parseInt(document.querySelector('#unreadBadgeDesktop')?.textContent || '0');
                 if (currentCount > 0) {
@@ -1020,6 +1029,14 @@
                         }
                     }
                 }
+            }
+
+            // Function to clear notification count badges (set to 0)
+            function clearNotificationCount() {
+                const desktopBadge = document.querySelector('#unreadBadgeDesktop');
+                const mobileBadge = document.querySelector('#unreadBadgeMobile');
+                if (desktopBadge) desktopBadge.remove();
+                if (mobileBadge) mobileBadge.remove();
             }
 
             // Handle Mark as Read (AJAX + SweetAlert2)
@@ -1231,8 +1248,14 @@
                                 }
                             });
                             
-                            // Update notification count to 0
-                            updateNotificationCount();
+                            // Update unread counters in header to 0
+                            const countBadge = document.querySelector('.count-badge');
+                            const countText = document.querySelector('.count-text');
+                            if (countBadge) countBadge.textContent = '0';
+                            if (countText) countText.textContent = '0 unread';
+
+                            // Remove sidebar badges
+                            clearNotificationCount();
                         }
                     })
                     .catch(error => {
