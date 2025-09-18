@@ -90,6 +90,10 @@
                     <td><strong>Seniors / PWDs:</strong> {{ ($booking->num_senior_citizens ?? '—') }} / {{ ($booking->num_pwds ?? '—') }}</td>
                 </tr>
                 <tr>
+                    <td colspan="2"><strong>Valid ID Type:</strong> {{ $booking->valid_id_type ?? '—' }}</td>
+                    <td colspan="2"><strong>Valid ID Number:</strong> {{ $booking->valid_id_number ?? '—' }}</td>
+                </tr>
+                <tr>
                     <td><strong>Assigned Boat:</strong> {{ optional($booking->assignedBoat)->boat_name ?? $booking->assigned_boat ?? '—' }}</td>
                     <td><strong>Boat #:</strong> {{ optional($booking->assignedBoat)->boat_number ?? '—' }}</td>
                     <td><strong>Boat Captain:</strong> {{ optional($booking->assignedBoat)->captain_name ?? $booking->boat_captain_crew ?? '—' }}</td>

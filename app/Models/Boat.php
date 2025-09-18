@@ -17,6 +17,7 @@ class Boat extends Model
         'boat_number',
         'boat_prices',
         'boat_capacities',
+        'boat_length',
         'image_path',
         'status',
         'rejection_reason',

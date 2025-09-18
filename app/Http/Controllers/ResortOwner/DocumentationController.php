@@ -5,6 +5,8 @@ namespace App\Http\Controllers\ResortOwner;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\ResortOwnerNotification;
+use App\Models\Resort;
+use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -27,15 +29,27 @@ class DocumentationController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
+        // Fallback by resort names (handles legacy records without room/resort relation)
+        $ownedResortNames = Resort::where('user_id', Auth::id())->pluck('resort_name')->filter()->values();
+        $ownedRoomIds = Room::whereHas('resort', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->pluck('id')->filter()->values();
+
         $query = Booking::query()
             ->with(['user', 'room.resort'])
-            ->where(function ($q) {
+            ->where('status', 'approved')
+            ->where(function ($q) use ($ownedResortNames, $ownedRoomIds) {
                 $q->where('resort_owner_id', Auth::id())
                   ->orWhereHas('room.resort', function ($qq) {
                       $qq->where('user_id', Auth::id());
+                  })
+                  ->when($ownedResortNames->isNotEmpty(), function ($qq) use ($ownedResortNames) {
+                      $qq->orWhereIn('name_of_resort', $ownedResortNames);
+                  })
+                  ->when($ownedRoomIds->isNotEmpty(), function ($qq) use ($ownedRoomIds) {
+                      $qq->orWhereIn('room_id', $ownedRoomIds);
                   });
-            })
-            ->where('status', '!=', 'rejected');
+            });
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -103,15 +117,26 @@ class DocumentationController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
+        $ownedResortNames = Resort::where('user_id', Auth::id())->pluck('resort_name')->filter()->values();
+        $ownedRoomIds = Room::whereHas('resort', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->pluck('id')->filter()->values();
+
         $query = Booking::query()
             ->with(['user', 'room.resort'])
-            ->where(function ($q) {
+            ->where('status', 'approved')
+            ->where(function ($q) use ($ownedResortNames, $ownedRoomIds) {
                 $q->where('resort_owner_id', Auth::id())
                   ->orWhereHas('room.resort', function ($qq) {
                       $qq->where('user_id', Auth::id());
+                  })
+                  ->when($ownedResortNames->isNotEmpty(), function ($qq) use ($ownedResortNames) {
+                      $qq->orWhereIn('name_of_resort', $ownedResortNames);
+                  })
+                  ->when($ownedRoomIds->isNotEmpty(), function ($qq) use ($ownedRoomIds) {
+                      $qq->orWhereIn('room_id', $ownedRoomIds);
                   });
-            })
-            ->where('status', '!=', 'rejected');
+            });
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -157,8 +182,8 @@ class DocumentationController extends Controller
             fputcsv($handle, [
                 'Resort', 'Room',
                 'Guest Name', 'Age', 'Gender', 'Address', 'Nationality', 'Phone', 'Username',
-                'Tour Type', 'Day Tour Departure', 'Day Tour Pickup Time', 'Overnight Pickup DateTime', 'Seniors', 'PWDs',
-                'Check-in', 'Check-out', 'Nights', 'Guests', 'Status', 'Created At'
+                'Tour Type', 'Departure Time', 'Pickup Time', 'Seniors', 'PWDs',
+                'Check-in', 'Check-out', 'Nights', 'Guests', 'Status', 'Valid ID Type', 'Valid ID Number', 'Created At'
             ]);
 
             $query->orderByDesc('check_in_date')->chunk(500, function ($rows) use ($handle) {
@@ -177,9 +202,22 @@ class DocumentationController extends Controller
                         $booking->phone_number,
                         $username,
                         $booking->tour_type,
-                        optional($booking->day_tour_departure_time) instanceof \Carbon\Carbon ? $booking->day_tour_departure_time->format('H:i') : (string) $booking->day_tour_departure_time,
-                        optional($booking->day_tour_time_of_pickup) instanceof \Carbon\Carbon ? $booking->day_tour_time_of_pickup->format('H:i') : (string) $booking->day_tour_time_of_pickup,
-                        optional($booking->overnight_date_time_of_pickup) instanceof \Carbon\Carbon ? $booking->overnight_date_time_of_pickup->format('Y-m-d H:i') : (string) $booking->overnight_date_time_of_pickup,
+                        (function($booking){
+                            try {
+                                if ($booking->tour_type === 'day_tour') {
+                                    return $booking->day_tour_departure_time ? \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i') : 'N/A';
+                                }
+                                return $booking->overnight_departure_time ? \Carbon\Carbon::parse($booking->overnight_departure_time)->format('H:i') : 'N/A';
+                            } catch (\Exception $e) { return 'N/A'; }
+                        })($booking),
+                        (function($booking){
+                            try {
+                                if ($booking->tour_type === 'day_tour') {
+                                    return $booking->day_tour_time_of_pickup ? \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') : 'N/A';
+                                }
+                                return $booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('H:i') : 'N/A';
+                            } catch (\Exception $e) { return 'N/A'; }
+                        })($booking),
                         $booking->num_senior_citizens,
                         $booking->num_pwds,
                         optional($booking->check_in_date)->format('Y-m-d'),
@@ -187,6 +225,8 @@ class DocumentationController extends Controller
                         $booking->number_of_nights,
                         $booking->number_of_guests,
                         $booking->status,
+                        $booking->valid_id_type,
+                        $booking->valid_id_number,
                         optional($booking->created_at)->format('Y-m-d H:i:s'),
                     ]);
                 }
@@ -208,15 +248,26 @@ class DocumentationController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
+        $ownedResortNames = Resort::where('user_id', Auth::id())->pluck('resort_name')->filter()->values();
+        $ownedRoomIds = Room::whereHas('resort', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->pluck('id')->filter()->values();
+
         $query = Booking::query()
             ->with(['user', 'room.resort'])
-            ->where(function ($q) {
+            ->where('status', 'approved')
+            ->where(function ($q) use ($ownedResortNames, $ownedRoomIds) {
                 $q->where('resort_owner_id', Auth::id())
                   ->orWhereHas('room.resort', function ($qq) {
                       $qq->where('user_id', Auth::id());
+                  })
+                  ->when($ownedResortNames->isNotEmpty(), function ($qq) use ($ownedResortNames) {
+                      $qq->orWhereIn('name_of_resort', $ownedResortNames);
+                  })
+                  ->when($ownedRoomIds->isNotEmpty(), function ($qq) use ($ownedRoomIds) {
+                      $qq->orWhereIn('room_id', $ownedRoomIds);
                   });
-            })
-            ->where('status', '!=', 'rejected');
+            });
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {

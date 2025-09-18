@@ -510,6 +510,13 @@ Route::delete('/resort_owner/notifications/{notification}', [BookingController::
     ->middleware(['auth'])
     ->name('resort_owner.notifications.destroy');
 
+// NEW: Route for deleting ALL Resort Owner Notifications
+Route::delete('/resort_owner/notifications', function() {
+    if (Auth::user()->role !== 'resort_owner') { abort(403, 'Unauthorized'); }
+    ResortOwnerNotification::where('user_id', Auth::id())->delete();
+    return response()->json(['success' => true]);
+})->middleware(['auth'])->name('resort.owner.notifications.destroyAll');
+
 
 Route::get('/resort_owner/documentation', [\App\Http\Controllers\ResortOwner\DocumentationController::class, 'index'])
     ->middleware(['auth'])
@@ -852,6 +859,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/boat_owner/notifications/{notification}', [NotificationController::class, 'destroyBoatOwnerNotification'])
         ->name('boat.owner.notifications.destroy');
 
+    // NEW: Route for deleting ALL Boat Owner Notifications
+    Route::delete('/boat_owner/notifications', [NotificationController::class, 'destroyAllBoatOwnerNotifications'])
+        ->name('boat.owner.notifications.destroyAll');
+    
     // Boat Owner Documentation Page
     // Removed Boat Owner Documentation route
 });
@@ -906,6 +917,27 @@ Route::get('/tourist/fillup/{room}', [BookingController::class, 'showFillupForm'
 Route::get('/tourist/fillup2', [BookingController::class, 'showFillupForm2'])
     ->middleware(['auth'])
     ->name('tourist.fillup2');
+
+// Step 1 POST handler for fillup form (named route)
+Route::post('/tourist/fillup/{room}/submit', [BookingController::class, 'handleFillupStep1Post'])
+    ->middleware(['auth'])
+    ->name('tourist.fillup.step1.post');
+
+// Fallback POST URL used directly by the form action
+Route::post('/tourist/fillup/{room}', [BookingController::class, 'handleFillupStep1Post'])
+    ->middleware(['auth'])
+    ->name('tourist.fillup.step1.post.fallback');
+
+// Secure file streaming for resort owner to view/download booking files
+Route::middleware(['auth'])->group(function () {
+    Route::get('/resort_owner/bookings/{booking}/file/{which}', [BookingController::class, 'viewBookingFile'])
+        ->name('resort.owner.booking.file.view');
+    // Tourist submit rating for a completed booking
+    Route::post('/tourist/bookings/{booking}/rating', [\App\Http\Controllers\Tourist\RatingController::class, 'store'])
+        ->name('tourist.bookings.rating.store');
+    Route::get('/resort_owner/bookings/{booking}/file/{which}/download', [BookingController::class, 'downloadBookingFile'])
+        ->name('resort.owner.booking.file.download');
+});
 
 // Route for handling post-login redirect for booking
 Route::get('/tourist/handle-post-login-booking', [BookingController::class, 'handlePostLoginBooking'])
@@ -974,6 +1006,16 @@ Route::put('/bookings/{booking}/complete', [BookingController::class, 'completeB
     ->middleware(['auth'])
     ->name('bookings.complete');
 
+// NEW: Tourist requests booking extension (days or hours)
+Route::post('/bookings/{booking}/request-extension', [BookingController::class, 'requestExtension'])
+    ->middleware(['auth'])
+    ->name('bookings.requestExtension');
+
+// NEW: Resort Owner approves booking extension (no boat auto-assignment)
+Route::post('/resort_owner/bookings/{booking}/approve-extension', [BookingController::class, 'approveExtension'])
+    ->middleware(['auth'])
+    ->name('bookings.approveExtension');
+
 // Route to mark tourist notifications as read - CORRECTED CONTROLLER
 Route::put('/tourist/notifications/{notification}/mark-as-read', [NotificationController::class, 'markTouristNotificationAsRead'])
     ->middleware(['auth'])
@@ -988,6 +1030,11 @@ Route::put('/tourist/notifications/mark-all-as-read', [NotificationController::c
 Route::delete('/tourist/notifications/{notification}', [NotificationController::class, 'destroyTouristNotification'])
     ->middleware(['auth'])
     ->name('tourist.notifications.destroy');
+
+// NEW: Route for deleting ALL Tourist Notifications
+Route::delete('/tourist/notifications', [NotificationController::class, 'destroyAllTouristNotifications'])
+    ->middleware(['auth'])
+    ->name('tourist.notifications.destroyAll');
 
 // NEW: Route for AJAX loading of Tourist Notifications
 Route::get('/tourist/notifications/ajax', [NotificationController::class, 'getTouristNotificationsAjax'])

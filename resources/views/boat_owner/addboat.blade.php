@@ -188,6 +188,15 @@
                             </div>
                             <div class="row mb-3">
                                 <div class="col-md-6">
+                                    <label for="boat_length" class="form-label">Boat Length</label>
+                                    <input type="text" class="form-control" id="boat_length" name="boat_length" placeholder="e.g., 24 ft or 7.3 m" value="{{ old('boat_length') }}">
+                                    @error('boat_length')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
                                     <label for="boat_prices" class="form-label">Boat Prices</label>
                                     <input type="number" class="form-control" id="boat_prices" name="boat_prices" placeholder="Enter boat prices" value="{{ old('boat_prices') }}" step="0.01">
                                     @error('boat_prices')

@@ -101,7 +101,13 @@ class RegisteredUserController extends Controller
         // Step 2 validations only
         $validationRules = [
             'username' => 'required|string|max:255|unique:users,username',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required', 
+                'confirmed', 
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
+                Rules\Password::defaults()
+            ],
             'role' => 'required|string|in:tourist,resort_owner,boat_owner',
         ];
 
@@ -110,7 +116,10 @@ class RegisteredUserController extends Controller
             $validationRules['owner_image'] = 'nullable|file|mimes:jpg,jpeg,png|max:2048';
         }
 
-        $request->validate($validationRules);
+        $request->validate($validationRules, [
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+        ]);
 
         try {
             // Debug: Log the request data

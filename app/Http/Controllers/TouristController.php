@@ -24,7 +24,8 @@ class TouristController extends Controller
 
         // --- ADDED LOGIC FOR MOST VISITED RESORTS ---
         // Fetch the most visited resorts, ordered by visit_count in descending order
-        $mostVisitedResorts = Resort::orderByDesc('visit_count')
+        $mostVisitedResorts = Resort::withAvg('ratings as ratings_avg', 'stars')
+                                    ->orderByDesc('visit_count')
                                     ->where('admin_status', 'approved') // Only show approved resorts
                                     ->whereIn('status', ['open', 'closed', 'maintenance']) // Show all relevant statuses for display
                                     ->take(8) // Limit to top 8, adjust as needed

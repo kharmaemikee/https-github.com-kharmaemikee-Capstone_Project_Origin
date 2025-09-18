@@ -105,7 +105,7 @@
                             <p class="form-subtitle">Please provide your personal details to complete the booking</p>
                         </div>
                         
-                        <form action="{{ route('bookings.store') }}" method="POST" class="registration-form">
+                        <form action="{{ route('bookings.store') }}" method="POST" class="registration-form" enctype="multipart/form-data">
                             @csrf
                             {{-- Hidden fields to carry over data from fillup.blade.php --}}
                             {{-- Use old() helper to retain values on validation failure --}}
@@ -269,25 +269,37 @@
                                     <i class="fas fa-moon"></i>
                                     Overnight Tour Details
                                 </h4>
-                                <div class="form-group full-width">
-                                    <label for="overnight_date_time_of_pickup" class="form-label">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        Date & Time of Pick-up
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="overnight_departure_time_time" class="form-label">
+                                            <i class="fas fa-clock"></i>
+                                            Departure Time
                                     </label>
-                                    <input type="datetime-local" class="form-control @error('overnight_date_time_of_pickup') is-invalid @enderror" id="overnight_date_time_of_pickup" name="overnight_date_time_of_pickup" value="{{ old('overnight_date_time_of_pickup') }}">
+                                        <input type="time" class="form-control" id="overnight_departure_time_time" value="">
+                                        <input type="hidden" id="overnight_departure_time" name="overnight_departure_time" value="{{ old('overnight_departure_time') }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="overnight_pickup_time" class="form-label">
+                                            <i class="fas fa-clock"></i>
+                                            Time of Pick-up
+                                        </label>
+                                        <input type="time" class="form-control" id="overnight_pickup_time" value="">
+                                        <input type="hidden" class="form-control @error('overnight_date_time_of_pickup') is-invalid @enderror" id="overnight_date_time_of_pickup" name="overnight_date_time_of_pickup" value="{{ old('overnight_date_time_of_pickup') }}">
                                     @error('overnight_date_time_of_pickup')
                                         <div class="invalid-feedback">
                                             {{ $message }}
                                         </div>
                                     @enderror
+                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="num_senior_citizens" class="form-label">
+                                        <label for="num_senior_citizens_display" class="form-label">
                                             <i class="fas fa-user-clock"></i>
                                             No. of Senior Citizens
                                         </label>
-                                            <input type="number" class="form-control @error('num_senior_citizens') is-invalid @enderror" id="num_senior_citizens" name="num_senior_citizens" min="0" value="{{ old('num_senior_citizens', 0) }}">
+                                            <input type="number" class="form-control" id="num_senior_citizens_display" value="{{ old('num_senior_citizens', 0) }}" readonly style="background-color:#e9ecef; cursor: default;">
+                                            <input type="hidden" id="num_senior_citizens" name="num_senior_citizens" value="{{ old('num_senior_citizens', 0) }}">
                                             @error('num_senior_citizens')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}
@@ -305,6 +317,31 @@
                                                     {{ $message }}
                                                 </div>
                                             @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-section" id="seniorPwdUploadsRow" style="display:none;">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-id-badge"></i>
+                                        Senior/PWD ID Uploads
+                                    </h4>
+                                    <div class="form-row">
+                                        <div class="form-group full-width">
+                                            <label class="form-label">
+                                                <i class="fas fa-user-clock"></i>
+                                                Senior ID Images
+                                            </label>
+                                            <div id="seniorUploads"></div>
+                                            <small class="help-text">One image per senior.</small>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">
+                                                <i class="fas fa-wheelchair"></i>
+                                                PWD ID Images
+                                            </label>
+                                            <div id="pwdUploads"></div>
+                                            <small class="help-text">One image per PWD.</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1306,7 +1343,11 @@
                     wrap.appendChild(nameInput);
                     wrap.appendChild(ageInput);
                     guestInputs.appendChild(wrap);
+                    // Wire senior detection on age input as they're created
+                    ageInput.addEventListener('input', evaluateSeniors);
                 }
+                // Re-evaluate seniors after rendering
+                evaluateSeniors();
             }
 
             function syncGuestInputs() {
@@ -1365,6 +1406,9 @@
                     overEl.style.display = 'block';
                     overEl.querySelectorAll('input').forEach(function(input){ input.setAttribute('required', 'required'); });
                 }
+
+                // Re-evaluate seniors whenever tour type toggles
+                evaluateSeniors();
             }
 
             // Set initial state on page load
@@ -1384,16 +1428,122 @@
                 tourTypeSelect.addEventListener('blur', reToggle);
             }
 
-            // Set minimum date for datetime-local input for overnight pick-up
-            const overnightDateTimeInput = document.getElementById('overnight_date_time_of_pickup');
-            if (overnightDateTimeInput) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                overnightDateTimeInput.min = `${year}-${month}-${day}T${hours}:${minutes}`;
+            // Build hidden overnight datetime from reservation date (step 1) + time input here
+            const overnightHidden = document.getElementById('overnight_date_time_of_pickup');
+            const overnightTime = document.getElementById('overnight_pickup_time');
+            const overnightDepartureHidden = document.getElementById('overnight_departure_time');
+            const overnightDepartureTime = document.getElementById('overnight_departure_time_time');
+            const reservationDate = (document.querySelector('input[name="reservation_date"]')?.value) || '';
+            const numNightsStr = (document.querySelector('input[name="num_nights"]')?.value) || '1';
+            function addDaysToYMD(ymd, days) {
+                try {
+                    const [y,m,d] = ymd.split('-').map(x=>parseInt(x,10));
+                    if (!y || !m || !d) return ymd;
+                    const dt = new Date(y, m - 1, d);
+                    dt.setDate(dt.getDate() + (days||0));
+                    const yy = dt.getFullYear();
+                    const mm = String(dt.getMonth()+1).padStart(2,'0');
+                    const dd = String(dt.getDate()).padStart(2,'0');
+                    return `${yy}-${mm}-${dd}`;
+                } catch(e) { return ymd; }
+            }
+            function syncOvernightDateTime() {
+                if (!overnightHidden) return;
+                if (!reservationDate || !overnightTime || !overnightTime.value) {
+                    overnightHidden.value = '';
+                    return;
+                }
+                // For overnight, pickup is next morning (checkout). Use reservation_date + num_nights days
+                const nights = parseInt(numNightsStr || '1', 10) || 1;
+                const pickupDateYMD = addDaysToYMD(reservationDate, nights);
+                overnightHidden.value = `${pickupDateYMD}T${overnightTime.value}`;
+            }
+            if (overnightTime) {
+                overnightTime.addEventListener('input', syncOvernightDateTime);
+                overnightTime.addEventListener('change', syncOvernightDateTime);
+                // Initialize if old value exists
+                syncOvernightDateTime();
+            }
+
+            function syncOvernightDeparture() {
+                if (!overnightDepartureHidden) return;
+                if (!reservationDate || !overnightDepartureTime || !overnightDepartureTime.value) {
+                    overnightDepartureHidden.value = '';
+                    return;
+                }
+                overnightDepartureHidden.value = `${reservationDate}T${overnightDepartureTime.value}`;
+            }
+            if (overnightDepartureTime) {
+                overnightDepartureTime.addEventListener('input', syncOvernightDeparture);
+                overnightDepartureTime.addEventListener('change', syncOvernightDeparture);
+                syncOvernightDeparture();
+            }
+
+            // Senior citizen auto-detection for Overnight
+            function evaluateSeniors() {
+                const tourType = (document.getElementById('tour_type')?.value) || '';
+                const seniorsHidden = document.getElementById('num_senior_citizens');
+                const seniorsDisplay = document.getElementById('num_senior_citizens_display');
+                if (!seniorsHidden || !seniorsDisplay) return;
+
+                // Only apply for overnight
+                if (tourType !== 'overnight') {
+                    // For day tour keep value as-is but ensure it's readable-only in display
+                    seniorsDisplay.value = seniorsHidden.value || 0;
+                    return;
+                }
+
+                const ageInputs = Array.from(document.querySelectorAll('input[name="guest_ages[]"]'));
+                const seniorCount = ageInputs.reduce((acc, inp) => {
+                    const v = parseInt(inp.value || '');
+                    return acc + (!isNaN(v) && v >= 60 ? 1 : 0);
+                }, 0);
+
+                seniorsHidden.value = seniorCount;
+                seniorsDisplay.value = seniorCount;
+                // Toggle and render dynamic inputs per senior/PWD
+                const pwds = parseInt((document.getElementById('num_pwds')?.value)||'0',10)||0;
+                const row = document.getElementById('seniorPwdUploadsRow');
+                const seniorWrap = document.getElementById('seniorUploads');
+                const pwdWrap = document.getElementById('pwdUploads');
+                const showUploads = (seniorCount > 0) || (pwds > 0);
+                if (row) row.style.display = showUploads ? 'block' : 'none';
+                if (seniorWrap) {
+                    seniorWrap.innerHTML = '';
+                    for (let i = 0; i < seniorCount; i++) {
+                        const inp = document.createElement('input');
+                        inp.type = 'file'; inp.accept = 'image/*';
+                        inp.name = 'senior_id_images[]';
+                        inp.className = 'form-control mb-2';
+                        seniorWrap.appendChild(inp);
+                    }
+                }
+                if (pwdWrap) {
+                    pwdWrap.innerHTML = '';
+                    for (let i = 0; i < pwds; i++) {
+                        const inp = document.createElement('input');
+                        inp.type = 'file'; inp.accept = 'image/*';
+                        inp.name = 'pwd_id_images[]';
+                        inp.className = 'form-control mb-2';
+                        pwdWrap.appendChild(inp);
+                    }
+                }
+            }
+
+            // Initial seniors evaluation
+            setTimeout(evaluateSeniors, 0);
+            // Also watch guestInputs container for changes (in case of autofill)
+            guestInputs.addEventListener('input', function(e){
+                if (e.target && e.target.name === 'guest_ages[]') {
+                    evaluateSeniors();
+                }
+            });
+
+            // Also react to PWD count changes to show upload row
+            const numPwdsInput = document.getElementById('num_pwds');
+            if (numPwdsInput) {
+                numPwdsInput.addEventListener('input', evaluateSeniors);
+                numPwdsInput.addEventListener('change', evaluateSeniors);
             }
         });
     </script>

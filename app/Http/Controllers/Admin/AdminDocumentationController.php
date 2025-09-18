@@ -40,6 +40,7 @@ class AdminDocumentationController extends Controller
             'assignedBoat', // Assigned boat
             'resortOwner' // Resort owner
         ])
+        ->where('status', 'approved')
         ->orderBy('created_at', 'desc');
 
         // Apply search filter
@@ -111,6 +112,7 @@ class AdminDocumentationController extends Controller
             'assignedBoat',
             'resortOwner'
         ])
+        ->where('status', 'approved')
         ->orderBy('created_at', 'desc');
 
         // Apply same filters as index method
@@ -177,9 +179,10 @@ class AdminDocumentationController extends Controller
             'Nationality',
             'Phone Number',
             'Tour Type',
-            'Pick-up Time (Day Tour)',
-            'Departure Time (Day Tour)',
-            'Pick-up Time (Overnight)',
+            'Day Tour Departure',
+            'Day Tour Pick-up',
+            'Overnight Departure',
+            'Overnight Pick-up',
             'Number of Seniors',
             'Number of PWDs',
             'Check-in Date',
@@ -189,6 +192,8 @@ class AdminDocumentationController extends Controller
             'Boat Number',
             'Boat Captain',
             'Boat Contact',
+            'Valid ID Type',
+            'Valid ID Number',
             'Created At'
         ];
 
@@ -207,27 +212,22 @@ class AdminDocumentationController extends Controller
                 $booking->guest_nationality ?? 'N/A',
                 $booking->phone_number ?? 'N/A',
                 ucfirst($booking->tour_type ?? 'N/A'),
-                $booking->day_tour_time_of_pickup ? (function($time) {
-                    try {
-                        return Carbon::parse($time)->format('H:i');
-                    } catch (\Exception $e) {
-                        return $time;
-                    }
-                })($booking->day_tour_time_of_pickup) : 'N/A',
-                $booking->day_tour_departure_time ? (function($time) {
-                    try {
-                        return Carbon::parse($time)->format('H:i');
-                    } catch (\Exception $e) {
-                        return $time;
-                    }
-                })($booking->day_tour_departure_time) : 'N/A',
-                $booking->overnight_date_time_of_pickup ? (function($time) {
-                    try {
-                        return Carbon::parse($time)->format('Y-m-d H:i');
-                    } catch (\Exception $e) {
-                        return $time;
-                    }
-                })($booking->overnight_date_time_of_pickup) : 'N/A',
+                // Day Tour Departure
+                (function($booking) { try { return $booking->tour_type === 'day_tour'
+                    ? ($booking->day_tour_departure_time ? Carbon::parse($booking->day_tour_departure_time)->format('H:i') : 'N/A')
+                    : 'N/A'; } catch (\Exception $e) { return 'N/A'; } })($booking),
+                // Day Tour Pick-up
+                (function($booking) { try { return $booking->tour_type === 'day_tour'
+                    ? ($booking->day_tour_time_of_pickup ? Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') : 'N/A')
+                    : 'N/A'; } catch (\Exception $e) { return 'N/A'; } })($booking),
+                // Overnight Departure
+                (function($booking) { try { return $booking->tour_type === 'overnight'
+                    ? ($booking->overnight_departure_time ? Carbon::parse($booking->overnight_departure_time)->format('H:i') : 'N/A')
+                    : 'N/A'; } catch (\Exception $e) { return 'N/A'; } })($booking),
+                // Overnight Pick-up
+                (function($booking) { try { return $booking->tour_type === 'overnight'
+                    ? ($booking->overnight_date_time_of_pickup ? Carbon::parse($booking->overnight_date_time_of_pickup)->format('H:i') : 'N/A')
+                    : 'N/A'; } catch (\Exception $e) { return 'N/A'; } })($booking),
                 $booking->num_senior_citizens ?? 0,
                 $booking->num_pwds ?? 0,
                 $booking->check_in_date ? $booking->check_in_date->format('Y-m-d') : 'N/A',
@@ -237,6 +237,8 @@ class AdminDocumentationController extends Controller
                 $booking->assignedBoat->boat_number ?? 'N/A',
                 $booking->assignedBoat->captain_name ?? $booking->boat_captain_crew ?? 'N/A',
                 $booking->assignedBoat->captain_contact ?? $booking->boat_contact_number ?? 'N/A',
+                $booking->valid_id_type ?? 'N/A',
+                $booking->valid_id_number ?? 'N/A',
                 $booking->created_at ? $booking->created_at->format('Y-m-d H:i:s') : 'N/A'
             ];
 
@@ -269,6 +271,7 @@ class AdminDocumentationController extends Controller
         ];
 
         $query = Booking::with(['user', 'room.resort', 'assignedBoat', 'resortOwner'])
+            ->where('status', 'approved')
             ->orderBy('created_at', 'desc');
 
         if (!empty($filters['search'])) {

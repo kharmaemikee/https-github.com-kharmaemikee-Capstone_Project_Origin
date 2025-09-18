@@ -146,11 +146,11 @@
                                                 $windowTime = null;
                                                 if ($booking->tour_type === 'day_tour' && $booking->day_tour_departure_time) {
                                                     try {
-                                                        $windowTime = \Carbon\Carbon::parse((string)$booking->check_in_date.' '.(string)$booking->day_tour_departure_time)->subMinutes(30);
+                                                        $windowTime = \Carbon\Carbon::parse((string)$booking->check_in_date.' '.(string)$booking->day_tour_departure_time);
                                                     } catch (\Exception $e) { $windowTime = null; }
                                                 } elseif ($booking->tour_type === 'overnight' && $booking->overnight_date_time_of_pickup) {
                                                     try {
-                                                        $windowTime = \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_pickup)->subMinutes(30);
+                                                        $windowTime = \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_pickup);
                                                     } catch (\Exception $e) { $windowTime = null; }
                                                 }
                                                 if ($windowTime) { $showAssignment = $now->gte($windowTime); }
@@ -201,7 +201,7 @@
                                                 <div class="boat-item">
                                                     <i class="fas fa-clock"></i>
                                                     <span class="boat-label">Status</span>
-                                                    <span class="boat-value">Waiting to assign the boat on the date and time of your booking (auto-assigns 30 minutes before departure)</span>
+                                                    <span class="boat-value">Waiting to assign the boat on your booking date at the departure time</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -359,7 +359,7 @@
                                                 View Details
                                             </a>
                                             @if ($booking->display_status === 'pending')
-                                                <button type="button" class="action-btn cancel-btn cancel-booking-btn" data-booking-id="{{ $booking->id }}">
+                                                <button type="button" class="action-btn cancel-btn cancel-booking-btn" data-booking-id="{{ $booking->id }}" data-cancel-url="{{ route('bookings.cancel', $booking->id) }}">
                                                     <i class="fas fa-times me-1"></i>
                                                     Cancel
                                                 </button>
@@ -370,10 +370,55 @@
                                                     Delete
                                                 </button>
                                             @endif
+                                            @if ($booking->display_status === 'completed')
+                                                <button type="button" class="action-btn" data-bs-toggle="modal" data-bs-target="#rateModal{{ $booking->id }}">
+                                                    <i class="fas fa-star me-1"></i>
+                                                    Rate
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {{-- Rate Modal --}}
+                            @if ($booking->display_status === 'completed')
+                            <div class="modal fade" id="rateModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Rate your stay</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="{{ route('tourist.bookings.rating.store', $booking->id) }}">
+                                            @csrf
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Stars</label>
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <div>
+                                                                <input type="radio" class="btn-check" name="stars" id="rate{{ $booking->id }}_{{ $i }}" value="{{ $i }}" autocomplete="off" {{ $i==5 ? 'checked' : '' }}>
+                                                                <label class="btn btn-outline-warning" for="rate{{ $booking->id }}_{{ $i }}">
+                                                                    <i class="fas fa-star"></i> {{ $i }}
+                                                                </label>
+                                                            </div>
+                                                        @endfor
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Comment (optional)</label>
+                                                    <textarea name="comment" class="form-control" rows="3" placeholder="Share your experience"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         @endforeach
                     </div>
                     
@@ -1714,15 +1759,25 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             // Send AJAX request to cancel booking
-                            fetch(`/bookings/${bookingId}/cancel`, {
-                                method: 'PUT',
+                            const url = button.getAttribute('data-cancel-url') || `/bookings/${bookingId}/cancel`;
+                            const formData = new FormData();
+                            formData.append('_method', 'PUT');
+                            formData.append('_token', csrfToken);
+                            fetch(url, {
+                                method: 'POST',
+                                body: formData,
                                 headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': csrfToken,
                                     'Accept': 'application/json'
                                 }
                             })
-                            .then(response => response.json())
+                            .then(async response => {
+                                // Try to parse JSON; if not JSON, treat 2xx as success
+                                const contentType = response.headers.get('content-type') || '';
+                                if (!contentType.includes('application/json')) {
+                                    return { success: response.ok };
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 if (data.success) {
                                     // Reload the page to show updated status

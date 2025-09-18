@@ -32,6 +32,20 @@ class Resort extends Model
         'visit_count' => 'integer', // <--- ADDED: Cast visit_count to integer
     ];
 
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function getAverageRatingAttribute(): ?float
+    {
+        if (!array_key_exists('ratings_avg', $this->attributes)) {
+            // Fallback compute if not eager loaded
+            return round((float) $this->ratings()->avg('stars'), 2);
+        }
+        return $this->attributes['ratings_avg'];
+    }
+
     /**
      * Get the user (owner) that owns the resort.
      */

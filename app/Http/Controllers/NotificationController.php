@@ -79,6 +79,24 @@ class NotificationController extends Controller
     }
 
     /**
+     * Delete all tourist notifications for the authenticated user.
+     */
+    public function destroyAllTouristNotifications(Request $request)
+    {
+        if (Auth::user()->role !== 'tourist') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            TouristNotification::where('user_id', Auth::id())->delete();
+            return response()->json(['success' => true, 'message' => 'All notifications deleted successfully.']);
+        } catch (\Exception $e) {
+            Log::error("Failed to delete all tourist notifications: " . $e->getMessage());
+            return response()->json(['error' => 'Failed to delete all notifications. Please try again.'], 500);
+        }
+    }
+
+    /**
      * Get tourist notifications via AJAX for the notification dropdown.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -196,6 +214,24 @@ class NotificationController extends Controller
             Log::error("Failed to delete boat owner notification: " . $e->getMessage());
             // Nagbalik na rin ito ng JSON response na may 'error' message
             return response()->json(['error' => 'Failed to delete notification. Please try again.'], 500);
+        }
+    }
+
+    /**
+     * Delete all boat owner notifications for the authenticated user.
+     */
+    public function destroyAllBoatOwnerNotifications(Request $request)
+    {
+        if (Auth::user()->role !== 'boat_owner') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            BoatOwnerNotification::where('user_id', Auth::id())->delete();
+            return response()->json(['success' => true, 'message' => 'All notifications deleted successfully.']);
+        } catch (\Exception $e) {
+            Log::error("Failed to delete all boat owner notifications: " . $e->getMessage());
+            return response()->json(['error' => 'Failed to delete all notifications. Please try again.'], 500);
         }
     }
 

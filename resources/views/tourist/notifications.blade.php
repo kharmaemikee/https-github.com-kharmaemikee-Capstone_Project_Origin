@@ -102,18 +102,19 @@
                 @php
                     $unreadCount = $notifications->where('is_read', false)->count();
                 @endphp
-                @if($unreadCount > 0)
                             <div class="unread-info">
                                 <span class="unread-badge">{{ $unreadCount }} unread</span>
-                        <form action="{{ route('tourist.notifications.markAllAsRead') }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('PUT')
+                                <form action="{{ route('tourist.notifications.markAllAsRead') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-check-double me-1"></i>Mark All as Read
-                            </button>
-                        </form>
-                    </div>
-                @endif
+                                    </button>
+                                </form>
+                                <button type="button" id="deleteAllNotificationsBtn" class="btn btn-outline-light">
+                                    <i class="fas fa-trash me-1"></i>Delete All
+                                </button>
+                            </div>
                     </div>
 
                     {{-- Notifications List --}}
@@ -125,7 +126,33 @@
                                         <i class="fas fa-bell"></i>
                                     </div>
                                     <div class="notification-content">
-                                        <h5 class="notification-title">{{ $notification->message }}</h5>
+                                        @php
+                                            $type = $notification->type ?? null;
+                                            $title = $notification->message;
+                                            if ($type === 'boat_assigned') {
+                                                $title = 'Boat Assigned';
+                                            } elseif ($type === 'booking_completed') {
+                                                $title = 'Booking Completed';
+                                            } elseif ($type === 'rating_request') {
+                                                $title = 'Rate Your Stay';
+                                            } elseif ($type === 'extension_requested') {
+                                                $title = 'Extension Requested';
+                                            } elseif ($type === 'extension_approved') {
+                                                $title = 'Extension Approved';
+                                            }
+                                        @endphp
+                                        <h5 class="notification-title">{{ $title }}</h5>
+                                        @if($type === 'boat_assigned')
+                                            <div class="text-muted small">Your boat has been assigned for your trip.</div>
+                                        @elseif($type === 'booking_completed')
+                                            <div class="text-muted small">Your booking has been marked as completed.</div>
+                                        @elseif($type === 'rating_request')
+                                            <div class="text-muted small">Please submit your 1–5 star rating for your stay.</div>
+                                        @elseif($type === 'extension_requested')
+                                            <div class="text-muted small">Your extension request has been sent to the resort owner for approval.</div>
+                                        @elseif($type === 'extension_approved')
+                                            <div class="text-muted small">Your room booking extension has been approved.</div>
+                                        @endif
                                         <p class="notification-time">{{ $notification->created_at->diffForHumans() }}</p>
                                     </div>
                                     @unless ($notification->is_read)
@@ -141,11 +168,11 @@
                                     $windowTime = null;
                                     if ($notification->booking->tour_type === 'day_tour' && $notification->booking->day_tour_departure_time) {
                                         try {
-                                            $windowTime = \Carbon\Carbon::parse((string)$notification->booking->check_in_date.' '.(string)$notification->booking->day_tour_departure_time)->subMinutes(30);
+                                            $windowTime = \Carbon\Carbon::parse((string)$notification->booking->check_in_date.' '.(string)$notification->booking->day_tour_departure_time);
                                         } catch (\Exception $e) { $windowTime = null; }
                                     } elseif ($notification->booking->tour_type === 'overnight' && $notification->booking->overnight_date_time_of_pickup) {
                                         try {
-                                            $windowTime = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup)->subMinutes(30);
+                                            $windowTime = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup);
                                         } catch (\Exception $e) { $windowTime = null; }
                                     }
                                     if ($windowTime) { $showAssignment = $now->gte($windowTime); }
@@ -216,13 +243,121 @@
                                         <div class="boat-info-grid">
                                             <div class="info-item">
                                                 <span class="info-label">Status:</span>
-                                                <span class="info-value">Waiting to assign the boat on the date and time of your booking (auto-assigns 30 minutes before departure)</span>
+                                                <span class="info-value">Waiting to assign the boat on your booking date at the departure time</span>
                                             </div>
                                         </div>
                                     </div>
                                 @endif
                             @endif
                             
+                                {{-- Extension Request (visible when booking is finished) --}}
+                            @if ($notification->booking)
+                                @php
+                                    $booking = $notification->booking;
+                                    $isFinished = ($booking->status === 'completed');
+                                    if (!$isFinished && method_exists($booking, 'isCompleted')) {
+                                        try { $isFinished = $booking->isCompleted(); } catch (\Throwable $e) { $isFinished = false; }
+                                    }
+                                @endphp
+                                @if ($isFinished && !in_array($booking->status, ['pending_update_approval']))
+                                    <div class="boat-info-section">
+                                        <div class="boat-info-header">
+                                            <i class="fas fa-clock-rotate-left"></i>
+                                            <h6>Booking Completed</h6>
+                                        </div>
+                                        <div class="mb-2 text-muted small">Thank you for visiting. You can request an extension below or rate your stay from your bookings page.</div>
+                                        <form action="{{ route('bookings.requestExtension', $booking->id) }}" method="POST" class="row g-2 align-items-end">
+                                            @csrf
+                                            <div class="col-12 col-md-4">
+                                                <label class="form-label mb-1">Extend By</label>
+                                                <select name="extension_type" class="form-select" required>
+                                                    <option value="days">Days</option>
+                                                    <option value="hours">Hours</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label class="form-label mb-1">Amount</label>
+                                                <input type="number" min="1" name="extension_value" class="form-control" placeholder="Enter number" required>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <button type="submit" class="btn btn-primary w-100">
+                                                    <i class="fas fa-paper-plane me-1"></i>Send Request
+                                                </button>
+                                            </div>
+                                        </form>
+                                        <div class="boat-info-note mt-2">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>After you submit, the resort owner will review your request. No boat will be auto-assigned.</span>
+                                        </div>
+                                    </div>
+                                @elseif($booking->status === 'pending_update_approval')
+                                    <div class="boat-info-section">
+                                        <div class="boat-info-header">
+                                            <i class="fas fa-hourglass-half"></i>
+                                            <h6>Extension Request Pending</h6>
+                                        </div>
+                                        <div class="boat-info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Status:</span>
+                                                <span class="info-value">Awaiting resort owner approval</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+
+                                {{-- Rating Request (visible when booking is completed or notification asks for rating) --}}
+                            @if ($notification->booking)
+                                @php
+                                    $booking = $notification->booking;
+                                    $isCompleted = ($booking->status === 'completed');
+                                    if (!$isCompleted && method_exists($booking, 'isCompleted')) {
+                                        try { $isCompleted = $booking->isCompleted(); } catch (\Throwable $e) { $isCompleted = false; }
+                                    }
+                                    $shouldShowRating = ($type === 'rating_request') || $isCompleted;
+                                    $alreadyRated = false;
+                                    try { $alreadyRated = \App\Models\Rating::where('booking_id', $booking->id)->exists(); } catch (\Throwable $e) { $alreadyRated = false; }
+                                @endphp
+                                @if ($shouldShowRating && !$alreadyRated)
+                                    <div class="boat-info-section">
+                                        <div class="boat-info-header" style="color:#ffc107; border-color:#ffc107;">
+                                            <i class="fas fa-star"></i>
+                                            <h6>Rate Your Stay</h6>
+                                        </div>
+                                        <div class="mb-2 text-muted small">Please rate your experience (1–5 stars).</div>
+                                        <form method="POST" action="{{ route('tourist.bookings.rating.store', $booking->id) }}" class="d-flex flex-column gap-2">
+                                            @csrf
+                                            <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <div>
+                                                        <input type="radio" class="btn-check" name="stars" id="notif_rate_{{ $booking->id }}_{{ $i }}" value="{{ $i }}" autocomplete="off" {{ $i==5 ? 'checked' : '' }}>
+                                                        <label class="btn btn-outline-warning btn-sm" for="notif_rate_{{ $booking->id }}_{{ $i }}">
+                                                            <i class="fas fa-star"></i> {{ $i }}
+                                                        </label>
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                            <div>
+                                                <textarea name="comment" class="form-control" rows="2" placeholder="Optional comment"></textarea>
+                                            </div>
+                                            <div>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-paper-plane me-1"></i>Submit Rating
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @elseif($shouldShowRating && $alreadyRated)
+                                    <div class="boat-info-section">
+                                        <div class="boat-info-header" style="color:#28a745;">
+                                            <i class="fas fa-check"></i>
+                                            <h6>Thanks for your rating</h6>
+                                        </div>
+                                        <div class="text-muted small">Your feedback has been recorded.</div>
+                                    </div>
+                                @endif
+                            @endif
+
                                 {{-- Action Buttons --}}
                                 <div class="notification-actions">
                                 @unless ($notification->is_read)
@@ -1252,6 +1387,48 @@
                 }
             });
 
+            // Handle Mark All as Read (AJAX)
+            document.addEventListener('submit', function(e) {
+                if (e.target.action && e.target.action.includes('mark-all-as-read')) {
+                    e.preventDefault();
+                    fetch(e.target.action, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            // Mark all cards as read in the UI
+                            document.querySelectorAll('.notification-card').forEach(card => {
+                                card.classList.remove('unread');
+                                card.classList.add('read');
+                                const dot = card.querySelector('.unread-indicator');
+                                if (dot) dot.remove();
+                            });
+                            // Update unread count display in header
+                            const headerUnread = document.querySelector('.unread-badge');
+                            if (headerUnread) headerUnread.textContent = '0 unread';
+                            // Clear sidebar badges if present
+                            const desktopBadge = document.querySelector('#unreadBadgeDesktop');
+                            const mobileBadge = document.querySelector('#unreadBadgeMobile');
+                            if (desktopBadge) desktopBadge.remove();
+                            if (mobileBadge) mobileBadge.remove();
+                            // Notify
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ title: 'All notifications marked as read', icon: 'success' });
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        // Fallback to normal submit if AJAX fails
+                        e.target.submit();
+                    });
+                }
+            });
+
             // Handle delete notification button clicks
             document.querySelectorAll('.delete-notification-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1340,6 +1517,69 @@
                     });
                 });
             });
+
+            // Handle Delete All Notifications
+            const deleteAllBtn = document.getElementById('deleteAllNotificationsBtn');
+            if (deleteAllBtn) {
+                deleteAllBtn.addEventListener('click', function() {
+                    Swal.fire({
+                        title: "Delete all notifications?",
+                        text: "This will permanently delete all your notifications.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes, delete all",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                            popup: 'swal2-popup-responsive',
+                            title: 'swal2-title-responsive',
+                            content: 'swal2-content-responsive',
+                            confirmButton: 'swal2-confirm-responsive',
+                            cancelButton: 'swal2-cancel-responsive'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: "Deleting...",
+                                text: "Please wait while we delete all notifications.",
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                didOpen: () => { Swal.showLoading(); },
+                                customClass: { popup: 'swal2-popup-responsive', title: 'swal2-title-responsive', content: 'swal2-content-responsive' }
+                            });
+
+                            fetch(`{{ route('tourist.notifications.destroyAll') }}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Remove all notification cards from the DOM
+                                    document.querySelectorAll('.notification-card').forEach(card => card.remove());
+                                    // Clear unread badges
+                                    const desktopBadge = document.querySelector('#unreadBadgeDesktop');
+                                    const mobileBadge = document.querySelector('#unreadBadgeMobile');
+                                    if (desktopBadge) desktopBadge.remove();
+                                    if (mobileBadge) mobileBadge.remove();
+                                    Swal.fire({ title: "Deleted!", text: "All notifications deleted.", icon: "success" });
+                                } else {
+                                    throw new Error('Delete all failed');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire({ title: "Error!", text: "Failed to delete all notifications. Please try again.", icon: "error" });
+                            });
+                        }
+                    });
+                });
+            }
         });
     </script>
 </x-app-layout>

@@ -27,7 +27,8 @@ class BoatController extends Controller
         }
 
         // Ensure that only boats belonging to the authenticated boat owner are fetched
-        $boats = $user->boats()->orderBy('created_at', 'desc')->get();
+        // Show oldest first so newly added boats appear at the end
+        $boats = $user->boats()->orderBy('created_at', 'asc')->get();
 
         // ADDED: Get unread notifications count for sidebar badge
         $unreadCount = BoatOwnerNotification::where('user_id', $user->id)
@@ -73,6 +74,7 @@ class BoatController extends Controller
             'boat_number' => 'required|string|regex:/^[0-9]{11}$/|unique:boats',
             'boat_prices' => 'required|numeric|min:0',
             'boat_capacities' => 'required|integer|min:1',
+            'boat_length' => 'nullable|string|max:50',
             'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'captain_name' => 'nullable|string|max:255',
             'captain_contact' => 'nullable|string|regex:/^[0-9]{11}$/',
@@ -93,14 +95,18 @@ class BoatController extends Controller
             $imagePath = 'image/' . $filename;
         }
 
-        $boat = Auth::user()->boats()->create([
+        $createData = [
             'boat_name' => $validated['boat_name'],
             'boat_number' => $validated['boat_number'],
             'boat_prices' => $validated['boat_prices'],
             'boat_capacities' => $validated['boat_capacities'],
             'image_path' => $imagePath,
             'status' => Boat::STATUS_PENDING, // Always set to pending on creation
-        ]);
+        ];
+        if (Schema::hasColumn('boats', 'boat_length')) {
+            $createData['boat_length'] = $validated['boat_length'] ?? null;
+        }
+        $boat = Auth::user()->boats()->create($createData);
 
         // Conditionally persist captain fields if columns exist
         try {
@@ -161,6 +167,7 @@ class BoatController extends Controller
             'boat_number' => 'required|string|regex:/^[0-9]{11}$/|unique:boats,boat_number,' . $boat->id,
             'boat_prices' => 'required|numeric|min:0',
             'boat_capacities' => 'required|integer|min:1',
+            'boat_length' => 'nullable|string|max:50',
             'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             // Captain fields are optional
             'captain_name' => 'nullable|string|max:255',
@@ -174,6 +181,9 @@ class BoatController extends Controller
         $updateData = $request->only([
             'boat_name', 'boat_number', 'boat_prices', 'boat_capacities'
         ]);
+        if (Schema::hasColumn('boats', 'boat_length')) {
+            $updateData['boat_length'] = $request->input('boat_length');
+        }
 
         // Handle image upload
         if ($request->hasFile('image_path')) {

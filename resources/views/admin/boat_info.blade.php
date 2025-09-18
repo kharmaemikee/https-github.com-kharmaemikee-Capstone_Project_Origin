@@ -212,11 +212,13 @@
                     <table class="table modern-table">
                         <thead class="table-header">
                         <tr>
+                                <th scope="col">Assign No</th>
                                 <th scope="col" class="text-center">Image</th>
                             <th scope="col">Boat Name</th>
                             <th scope="col">Boat No</th>
                             <th scope="col">Price</th>
                             <th scope="col">Capacity</th>
+                            <th scope="col">Length</th>
                             <th scope="col">Owner</th>
                                 <th scope="col" class="text-center">Status</th>
                                 <th scope="col" class="text-center">Actions</th>
@@ -225,6 +227,7 @@
                     <tbody>
                         @forelse ($boats as $boat)
                                 <tr class="table-row">
+                                    <td>{{ $loop->iteration }}</td>
                                     <td class="image-cell">
                                         <div class="boat-image-wrapper">
                                     @if ($boat->image_path)
@@ -257,6 +260,12 @@
                                         <div class="capacity-info">
                                             <i class="fas fa-users text-info me-1"></i>
                                             {{ $boat->boat_capacities }} pax
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="capacity-info">
+                                            <i class="fas fa-ruler-horizontal text-muted me-1"></i>
+                                            {{ $boat->boat_length ?? 'N/A' }}
                                         </div>
                                     </td>
                                     
@@ -326,8 +335,11 @@
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#viewBoatModal"
                                                 data-boat-name="{{ $boat->boat_name }}"
+                                                data-assign-no="{{ $loop->iteration }}"
+                                                data-boat-length="{{ $boat->boat_length ?? '' }}"
                                                 data-captain-name="{{ $boat->captain_name ?? 'N/A' }}"
                                                 data-captain-contact="{{ $boat->captain_contact ?? 'N/A' }}"
+                                                data-boat-number="{{ $boat->boat_number }}"
                                                 data-boat-image="{{ $boat->image_path ? asset($boat->image_path) : asset('images/default_boat.png') }}">
                                             <i class="fas fa-eye me-1"></i>
                                             View
@@ -419,6 +431,18 @@
                                 <div>
                                     <div class="text-muted small">Boat Name</div>
                                     <div class="fw-bold" id="viewBoatName">N/A</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Assignment No</div>
+                                    <div class="fw-semibold" id="viewAssignNo">N/A</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Boat Length</div>
+                                    <div class="fw-semibold" id="viewBoatLength">N/A</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Boat Number</div>
+                                    <div class="fw-semibold" id="viewBoatNumber">N/A</div>
                                 </div>
                                 <div>
                                     <div class="text-muted small">Captain</div>
@@ -1665,15 +1689,24 @@
                     const button = event.relatedTarget;
                     if (!button) return;
                     const boatName = button.getAttribute('data-boat-name') || 'N/A';
+                    const assignNo = button.getAttribute('data-assign-no') || 'N/A';
+                    const boatNumber = button.getAttribute('data-boat-number') || 'N/A';
+                    const boatLength = button.getAttribute('data-boat-length') || 'N/A';
                     const captainName = button.getAttribute('data-captain-name') || 'N/A';
                     const captainContact = button.getAttribute('data-captain-contact') || 'N/A';
                     const boatImage = button.getAttribute('data-boat-image') || '';
 
                     const nameEl = document.getElementById('viewBoatName');
+                    const assignEl = document.getElementById('viewAssignNo');
+                    const numberEl = document.getElementById('viewBoatNumber');
+                    const lengthEl = document.getElementById('viewBoatLength');
                     const capEl = document.getElementById('viewCaptainName');
                     const contactEl = document.getElementById('viewCaptainContact');
                     const imgEl = document.getElementById('viewBoatImage');
                     if (nameEl) nameEl.textContent = boatName;
+                    if (assignEl) assignEl.textContent = assignNo;
+                    if (numberEl) numberEl.textContent = boatNumber;
+                    if (lengthEl) lengthEl.textContent = boatLength;
                     if (capEl) capEl.textContent = captainName;
                     if (contactEl) contactEl.textContent = captainContact;
                     if (imgEl) {

@@ -144,11 +144,13 @@
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr>
+                            <th scope="col">Assign No</th>
                             <th scope="col">Boat Image</th>
                             <th scope="col">Boat Name</th>
-                            <th scope="col">Boat No</th>
+                            <th scope="col">Boat Plate Number</th>
                             <th scope="col">Price</th>
                             <th scope="col">Capacity</th>
+                            <th scope="col">Length</th>
                             <th scope="col">Boat Captain</th>
                             <th scope="col">Captain Contact</th>
                             <th scope="col">Status</th>
@@ -158,6 +160,7 @@
                     <tbody>
                         @forelse ($boats as $boat)
                             <tr>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>
                                     @if ($boat->image_path)
                                         <img src="{{ asset($boat->image_path) }}"
@@ -174,6 +177,7 @@
                                 <td>{{ $boat->boat_number }}</td>
                                 <td>₱{{ number_format($boat->boat_prices, 2) }}</td>
                                 <td>{{ $boat->boat_capacities }} pax</td>
+                                <td>{{ $boat->boat_length ?? 'N/A' }}</td>
                                 <td>
                                     @php
                                         $captainName = !empty($boat->captain_name) ? $boat->captain_name : null;

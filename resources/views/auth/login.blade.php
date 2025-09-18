@@ -376,6 +376,8 @@
             cursor: pointer;
         }
 
+        
+
         /* Modern Link Styling */
         .forgot-password-link {
             color: #e3f2fd;
@@ -500,6 +502,8 @@
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
+
+                
                 <div class="mb-2">
                     <a href="/forgot-password" class="forgot-password-link">Forgot Password?</a>
                 </div>
@@ -564,6 +568,8 @@
                 validateLoginInput(loginInput);
             }
         });
+
+        
     </script>
 </body>
 </html>

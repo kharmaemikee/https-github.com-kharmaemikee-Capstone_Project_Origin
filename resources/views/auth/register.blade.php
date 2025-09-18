@@ -444,6 +444,72 @@
             cursor: pointer;
         }
 
+        /* Password strength indicator styles */
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak .strength-fill {
+            width: 25%;
+            background: #ff4444;
+        }
+
+        .strength-fair .strength-fill {
+            width: 50%;
+            background: #ff8800;
+        }
+
+        .strength-good .strength-fill {
+            width: 75%;
+            background: #ffbb00;
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: #00aa00;
+        }
+
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .requirement.met {
+            color: #00aa00;
+        }
+
+        .requirement.unmet {
+            color: #ff4444;
+        }
+
+        .requirement i {
+            margin-right: 0.5rem;
+            font-size: 0.7rem;
+        }
+
         /* Style for hidden file inputs */
         .file-upload-group {
             display: none; /* Hidden by default */

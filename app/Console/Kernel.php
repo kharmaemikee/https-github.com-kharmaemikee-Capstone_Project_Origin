@@ -20,6 +20,10 @@ class Kernel extends ConsoleKernel
         
         // Assign boats on pickup every 15 minutes
         $schedule->command('boats:assign-on-pickup')->everyFifteenMinutes();
+
+        // Assign boats at the booking's departure time (booking date + departure time)
+        // Run frequently to catch departures precisely
+        $schedule->command('boats:assign')->everyMinute();
     }
 
     /**

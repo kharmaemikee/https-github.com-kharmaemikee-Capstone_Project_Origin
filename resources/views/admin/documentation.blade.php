@@ -363,13 +363,13 @@
                                             <i class="fas fa-map-marked-alt me-1"></i>Tour Type
                                         </th>
                                         <th class="table-header-cell">
-                                            <i class="fas fa-clock me-1"></i>Departure Time
+                                            <i class="fas fa-clock me-1"></i>Departure Time (Overnight)
                                         </th>
                                         <th class="table-header-cell">
-                                            <i class="fas fa-sun me-1"></i>Pick-up (Day)
+                                            <i class="fas fa-clock me-1"></i>Departure Time (Daytour)
                                         </th>
                                         <th class="table-header-cell">
-                                            <i class="fas fa-moon me-1"></i>Pick-up (Overnight)
+                                            <i class="fas fa-truck-pickup me-1"></i>Pick-up
                                         </th>
                                         <th class="table-header-cell">
                                             <i class="fas fa-ship me-1"></i>Assigned Boat
@@ -417,67 +417,108 @@
                                             </td>
                                             <td class="table-cell">
                                                 <div class="cell-content">
-                                                    @if($booking->day_tour_departure_time)
                                                         @php
+                                                        $overnightDep = null;
                                                             try {
-                                                                echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i');
+                                                            if (!empty($booking->overnight_departure_time)) {
+                                                                $overnightDep = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A');
+                                                            }
+                                                        } catch(\Exception $e) { $overnightDep = $booking->overnight_departure_time ?? null; }
+                                                        @endphp
+                                                    <span class="cell-text">{{ $overnightDep ?? '—' }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="table-cell">
+                                                <div class="cell-content">
+                                                        @php
+                                                        $dayDep = null;
+                                                            try {
+                                                            if (!empty($booking->day_tour_departure_time)) {
+                                                                $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
+                                                            }
+                                                        } catch(\Exception $e) { $dayDep = $booking->day_tour_departure_time ?? null; }
+                                                        @endphp
+                                                    <span class="cell-text">{{ $dayDep ?? '—' }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="table-cell">
+                                                <div class="cell-content">
+                                                    @php
+                                                        $pickupText = '—';
+                                                        try {
+                                                            if (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                                                $pickupText = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d h:i A');
+                                                            } elseif (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_time_of_pickup) {
+                                                                $pickupText = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
+                                                            }
                                                             } catch(\Exception $e) {
-                                                                echo $booking->day_tour_departure_time;
+                                                            $pickupText = ($booking->tour_type === 'overnight') ? ($booking->overnight_date_time_of_pickup ?? '—') : ($booking->day_tour_time_of_pickup ?? '—');
                                                             }
                                                         @endphp
-                                                    @else
-                                                        <span class="text-muted">—</span>
-                                                    @endif
+                                                    <span class="cell-text">{{ $pickupText }}</span>
                                                 </div>
                                             </td>
                                             <td class="table-cell">
                                                 <div class="cell-content">
-                                                    @if($booking->day_tour_time_of_pickup)
-                                                        @php
-                                                            try {
-                                                                echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i');
-                                                            } catch(\Exception $e) {
-                                                                echo $booking->day_tour_time_of_pickup;
+                                                    @php
+                                                        $nowTs = \Carbon\Carbon::now();
+                                                        $canShowBoat = false;
+                                                        try {
+                                                            if (($booking->tour_type ?? '') === 'day_tour' && $booking->check_in_date && $booking->day_tour_departure_time) {
+                                                                $depTime = $booking->day_tour_departure_time;
+                                                                if (is_string($depTime) && strpos($depTime, ' ') !== false) {
+                                                                    $parts = explode(' ', $depTime);
+                                                                    $depTime = end($parts);
+                                                                }
+                                                                $start = \Carbon\Carbon::parse(optional($booking->check_in_date)->format('Y-m-d') . ' ' . $depTime);
+                                                                $canShowBoat = $nowTs->greaterThanOrEqualTo($start);
+                                                            } elseif (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                                                $start = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup);
+                                                                $canShowBoat = $nowTs->greaterThanOrEqualTo($start);
                                                             }
-                                                        @endphp
-                                                    @else
-                                                        <span class="text-muted">—</span>
-                                                    @endif
+                                                        } catch (\Exception $e) {
+                                                            $canShowBoat = false;
+                                                        }
+                                                    @endphp
+                                                    <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->boat_name ?? $booking->assigned_boat ?? '—') : '—' }}</span>
                                                 </div>
                                             </td>
                                             <td class="table-cell">
                                                 <div class="cell-content">
-                                                    @if($booking->overnight_date_time_of_pickup)
-                                                        @php
+                                                    @php
+                                                        // reuse $canShowBoat from previous column if available; recompute if not
+                                                        if (!isset($canShowBoat)) {
+                                                            $nowTs = \Carbon\Carbon::now();
+                                                            $canShowBoat = false;
                                                             try {
-                                                                echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i');
-                                                            } catch(\Exception $e) {
-                                                                echo $booking->overnight_date_time_of_pickup;
+                                                                if (($booking->tour_type ?? '') === 'day_tour' && $booking->check_in_date && $booking->day_tour_departure_time) {
+                                                                    $depTime = $booking->day_tour_departure_time;
+                                                                    if (is_string($depTime) && strpos($depTime, ' ') !== false) {
+                                                                        $parts = explode(' ', $depTime);
+                                                                        $depTime = end($parts);
+                                                                    }
+                                                                    $start = \Carbon\Carbon::parse(optional($booking->check_in_date)->format('Y-m-d') . ' ' . $depTime);
+                                                                    $canShowBoat = $nowTs->greaterThanOrEqualTo($start);
+                                                                } elseif (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                                                    $start = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup);
+                                                                    $canShowBoat = $nowTs->greaterThanOrEqualTo($start);
+                                                                }
+                                                            } catch (\Exception $e) {
+                                                                $canShowBoat = false;
                                                             }
-                                                        @endphp
-                                                    @else
-                                                        <span class="text-muted">—</span>
-                                                    @endif
+                                                        }
+                                                    @endphp
+                                                    <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->boat_number ?? '—') : '—' }}</span>
                                                 </div>
                                             </td>
                                             <td class="table-cell">
                                                 <div class="cell-content">
-                                                    <span class="cell-text">{{ optional($booking->assignedBoat)->boat_name ?? $booking->assigned_boat ?? '—' }}</span>
+                                                    <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->captain_name ?? $booking->boat_captain_crew ?? '—') : '—' }}</span>
                                                 </div>
                                             </td>
                                             <td class="table-cell">
                                                 <div class="cell-content">
-                                                    <span class="cell-text">{{ optional($booking->assignedBoat)->boat_number ?? '—' }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="table-cell">
-                                                <div class="cell-content">
-                                                    <span class="cell-text">{{ optional($booking->assignedBoat)->captain_name ?? $booking->boat_captain_crew ?? '—' }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="table-cell">
-                                                <div class="cell-content">
-                                                    <span class="cell-text">{{ optional($booking->assignedBoat)->captain_contact ?? $booking->boat_contact_number ?? '—' }}</span>
+                                                    <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->captain_contact ?? $booking->boat_contact_number ?? '—') : '—' }}</span>
                                                 </div>
                                             </td>
                                             <td class="table-cell text-center">
@@ -495,6 +536,14 @@
                                                         data-checkout="{{ optional($booking->check_out_date)->format('Y-m-d') }}"
                                                         data-seniors="{{ $booking->num_senior_citizens ?? '' }}"
                                                         data-pwds="{{ $booking->num_pwds ?? '' }}"
+                                                        data-extended="{{ $booking->is_extended ? 'Yes' : 'No' }}"
+                                                        data-extension="{{ $booking->is_extended ? ('+' . ($booking->extension_value ?? '') . ' ' . ($booking->extension_type ?? '')) : '' }}"
+                                                        data-downpayment="{{ $booking->downpayment_receipt_path ?? '' }}"
+                                                        data-valid-id-type="{{ $booking->valid_id_type ?? '' }}"
+                                                        data-valid-id="{{ $booking->valid_id_image_path ?? '' }}"
+                                                        data-valid-id-number="{{ $booking->valid_id_number ?? '' }}"
+                                                        data-senior-id="{{ $booking->senior_id_image_path ?? '' }}"
+                                                        data-pwd-id="{{ $booking->pwd_id_image_path ?? '' }}"
                                                         data-guest-count="{{ $booking->number_of_guests ?? '' }}">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -691,6 +740,25 @@
                                         <span class="info-label">PWDs:</span>
                                         <span class="info-value" id="docPWDs">N/A</span>
                                     </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Extended:</span>
+                                        <span class="info-value" id="docExtended">No</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Extension Details:</span>
+                                        <span class="info-value" id="docExtension">—</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Valid ID:</span>
+                                        <span class="info-value">
+                                            <span id="docValidIdType">—</span>
+                                            <button type="button" id="btnViewValidId" class="btn btn-sm btn-outline-primary ms-2" style="display:none;">View</button>
+                                        </span>
+                                    </div>
+                                    <div class="info-item" id="docValidIdNumberRow" style="display:none;">
+                                        <span class="info-label">ID Number:</span>
+                                        <span class="info-value" id="docValidIdNumber">—</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -710,6 +778,24 @@
                     <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Close
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal (Valid ID / Receipts) -->
+    <div class="modal fade" id="imageViewModalAdmin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageViewModalAdminTitle">View Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="imageViewModalAdminImg" src="" alt="Preview" class="img-fluid" style="max-height:70vh; object-fit:contain;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -2137,9 +2223,17 @@
                     const phone = this.getAttribute('data-phone') || 'N/A';
                     const seniors = this.getAttribute('data-seniors') || 'N/A';
                     const pwds = this.getAttribute('data-pwds') || 'N/A';
+                    const extended = this.getAttribute('data-extended') || 'No';
+                    const extension = this.getAttribute('data-extension') || '—';
                     const guestCount = this.getAttribute('data-guest-count') || 'N/A';
                     const checkin = this.getAttribute('data-checkin') || 'N/A';
                     const checkout = this.getAttribute('data-checkout') || 'N/A';
+                    const downpayment = this.getAttribute('data-downpayment') || '';
+                    const validIdType = this.getAttribute('data-valid-id-type') || '';
+                    const validIdPath = this.getAttribute('data-valid-id') || '';
+                    const validIdNumber = this.getAttribute('data-valid-id-number') || '';
+                    const seniorId = this.getAttribute('data-senior-id') || '';
+                    const pwdId = this.getAttribute('data-pwd-id') || '';
 
                     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
                     setText('docGuestName', guestName);
@@ -2153,6 +2247,106 @@
                     setText('docGuestCount', guestCount);
                     setText('docSeniors', seniors);
                     setText('docPWDs', pwds);
+                    setText('docExtended', extended);
+                    setText('docExtension', extension);
+
+                    const downBtn = document.getElementById('btnViewDownpayment');
+                    const idBtn = document.getElementById('btnViewValidId');
+                    const idTypeSpan = document.getElementById('docValidIdType');
+                    const idNumRow = document.getElementById('docValidIdNumberRow');
+                    const idNumSpan = document.getElementById('docValidIdNumber');
+                    const openImageModal = (src, title='View Image') => {
+                        const m = document.getElementById('imageViewModalAdmin');
+                        const img = document.getElementById('imageViewModalAdminImg');
+                        const ttl = document.getElementById('imageViewModalAdminTitle');
+                        if (!m || !img || !ttl) return;
+                        ttl.textContent = title;
+                        img.onerror = null; // reset previous handler
+                        img.src = src;
+                        const modal = new bootstrap.Modal(m);
+                        modal.show();
+                    };
+                    const imageBase = "{{ asset('image') }}";
+                    const storageBase = "{{ asset('storage') }}";
+
+                    const resolveUrlWithFallback = (rawPath) => {
+                        if (!rawPath) return '';
+                        if (rawPath.startsWith('http')) return rawPath;
+                        const cleanStorage = rawPath.replace(/^\/+/, '');
+                        const cleanImage = rawPath.replace(/^image\//i, '');
+                        // If path includes bookings/ (stored via public disk), prefer storage first
+                        if (/^bookings\//i.test(cleanStorage)) {
+                            return {
+                                primary: storageBase + '/' + cleanStorage,
+                                fallback: imageBase + '/' + cleanImage
+                            };
+                        }
+                        // Otherwise prefer public/image first
+                        return {
+                            primary: imageBase + '/' + cleanImage,
+                            fallback: storageBase + '/' + cleanStorage
+                        };
+                    };
+
+                    if (downBtn) {
+                        if (downpayment) {
+                            downBtn.style.display = 'inline-block';
+                            const { primary, fallback } = resolveUrlWithFallback(downpayment);
+                            downBtn.onclick = ()=> {
+                                const m = document.getElementById('imageViewModalAdmin');
+                                const img = document.getElementById('imageViewModalAdminImg');
+                                const ttl = document.getElementById('imageViewModalAdminTitle');
+                                if (!m || !img || !ttl) return;
+                                ttl.textContent = 'Downpayment Receipt';
+                                img.onerror = function(){ img.onerror = null; img.src = fallback; };
+                                img.src = primary || fallback;
+                                new bootstrap.Modal(m).show();
+                            };
+                        } else { downBtn.style.display = 'none'; }
+                    }
+                    if (idBtn) {
+                        idTypeSpan.textContent = validIdType || '—';
+                        if (validIdPath) {
+                            idBtn.style.display = 'inline-block';
+                            const { primary, fallback } = resolveUrlWithFallback(validIdPath);
+                            idBtn.onclick = ()=> {
+                                const m = document.getElementById('imageViewModalAdmin');
+                                const img = document.getElementById('imageViewModalAdminImg');
+                                const ttl = document.getElementById('imageViewModalAdminTitle');
+                                if (!m || !img || !ttl) return;
+                                ttl.textContent = 'Valid ID';
+                                img.onerror = function(){ img.onerror = null; img.src = fallback; };
+                                img.src = primary || fallback;
+                                new bootstrap.Modal(m).show();
+                            };
+                        } else { idBtn.style.display = 'none'; }
+                    }
+                    if (idNumRow && idNumSpan) {
+                        if (validIdNumber && validIdNumber.trim() !== '') { idNumRow.style.display = 'block'; idNumSpan.textContent = validIdNumber; } else { idNumRow.style.display = 'none'; idNumSpan.textContent = '—'; }
+                    }
+                    // Senior / PWD IDs (reuse viewer modal)
+                    const addRow = (label, src) => {
+                        if (!src) return;
+                        const wrap = document.createElement('div');
+                        wrap.className = 'info-item';
+                        const lbl = document.createElement('span');
+                        lbl.className = 'info-label';
+                        lbl.textContent = label;
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'btn btn-sm btn-outline-primary ms-2';
+                        btn.textContent = 'View';
+                        btn.onclick = ()=> openImageModal((src.startsWith('http')?src:(storageBase + '/' + src.replace(/^\/+/, ''))), label);
+                        wrap.appendChild(lbl);
+                        const val = document.createElement('span');
+                        val.className='info-value';
+                        val.appendChild(btn);
+                        wrap.appendChild(val);
+                        const infoGrid = document.querySelector('#docViewModal .info-card .info-grid');
+                        if (infoGrid) infoGrid.appendChild(wrap);
+                    };
+                    addRow('Senior ID:', seniorId);
+                    addRow('PWD ID:', pwdId);
                 });
             });
         });

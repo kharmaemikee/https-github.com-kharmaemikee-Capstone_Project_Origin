@@ -21,6 +21,9 @@ class Booking extends Model
         'check_out_date', // Nullable for daytour
         'number_of_guests',
         'status', // e.g., 'pending', 'approved', 'completed', 'cancelled'
+        'is_extended',
+        'extension_type',
+        'extension_value',
         'room_id', // If bookings can also be linked to rooms (e.g., for resort bookings)
         'guest_name',
         'guest_age',
@@ -30,8 +33,17 @@ class Booking extends Model
         'phone_number',
         'number_of_nights',
         'special_requests',
+        'downpayment_receipt_path',
+        'valid_id_type',
+        'valid_id_image_path',
+        'valid_id_number',
+        'senior_id_image_path',
+        'pwd_id_image_path',
+        'senior_id_image_paths',
+        'pwd_id_image_paths',
         'day_tour_departure_time',
         'day_tour_time_of_pickup',
+        'overnight_departure_time',
         'overnight_date_time_of_pickup',
         'num_senior_citizens',
         'num_pwds',
@@ -46,7 +58,9 @@ class Booking extends Model
         'check_in_date' => 'date',
         'check_out_date' => 'date',
         'day_tour_departure_time' => 'datetime',
+        'overnight_departure_time' => 'datetime',
         'overnight_date_time_of_pickup' => 'datetime',
+        'is_extended' => 'boolean',
     ];
 
     /**

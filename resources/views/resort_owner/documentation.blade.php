@@ -162,7 +162,18 @@
             <div class="container py-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h3 class="mb-4">Documentation - Resort Bookings</h3>
+                        @php
+                            $items = ($bookings instanceof \Illuminate\Pagination\AbstractPaginator)
+                                ? $bookings->items()
+                                : (is_iterable($bookings) ? $bookings : []);
+                            $firstBooking = is_array($items) ? ($items[0] ?? null) : (collect($items)->first() ?? null);
+                            $headerResortName = null;
+                            try { $headerResortName = optional(optional(optional($firstBooking)->room)->resort)->resort_name; } catch (\Throwable $e) {}
+                            if (!$headerResortName && $firstBooking && property_exists($firstBooking, 'name_of_resort')) {
+                                $headerResortName = $firstBooking->name_of_resort;
+                            }
+                        @endphp
+                        <h3 class="mb-4">{{ $headerResortName ?? 'Resort Documentation' }}</h3>
 
                         <form method="GET" action="{{ route('resort.owner.documentation') }}" class="row g-3 align-items-end mb-4">
                             <div class="col-md-4">
@@ -207,13 +218,12 @@
                             <table class="table table-striped table-hover align-middle">
                                 <thead>
                                     <tr>
-                                        <th>Resort</th>
                                         <th>Room</th>
                                         <th>Tourist</th>
                                         <th>Tour Type</th>
-                                        <th>Departure Time</th>
-                                        <th>Pick-up (Day)</th>
-                                        <th>Pick-up (Overnight)</th>
+                                        <th>Departure Time (Overnight)</th>
+                                        <th>Departure Time (Daytour)</th>
+                                        <th>Pick-up</th>
                                         <th>Seniors</th>
                                         <th>PWDs</th>
                                         <th>Check-in Date</th>
@@ -224,7 +234,6 @@
                                 <tbody>
                                     @forelse($bookings as $booking)
                                         <tr>
-                                            <td>{{ optional(optional($booking->room)->resort)->resort_name ?? ($booking->name_of_resort ?? '—') }}</td>
                                             <td>{{ optional($booking->room)->room_name ?? '—' }}</td>
                                             <td>
                                                 @php
@@ -234,66 +243,50 @@
                                             </td>
                                             <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
                                             <td>
-                                                @if($booking->day_tour_departure_time)
-                                                    @php
-                                                        try {
-                                                            // Try to parse as time first
-                                                            if (preg_match('/^\d{1,2}:\d{2}$/', $booking->day_tour_departure_time)) {
-                                                                echo \Carbon\Carbon::createFromFormat('H:i', $booking->day_tour_departure_time)->format('H:i');
-                                                            } else {
-                                                                echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i');
-                                                            }
-                                                        } catch (\Exception $e) {
-                                                            echo $booking->day_tour_departure_time;
+                                                @php
+                                                    $overnightDep = null;
+                                                    try {
+                                                        if (!empty($booking->overnight_departure_time)) {
+                                                            $overnightDep = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A');
                                                         }
+                                                    } catch (\Exception $e) { $overnightDep = $booking->overnight_departure_time ?? null; }
                                                     @endphp
-                                                @else
-                                                    —
-                                                @endif
+                                                {{ $overnightDep ?? '—' }}
                                             </td>
                                             <td>
-                                                @if($booking->day_tour_time_of_pickup)
-                                                    @php
-                                                        try {
-                                                            // Try to parse as time first
-                                                            if (preg_match('/^\d{1,2}:\d{2}$/', $booking->day_tour_time_of_pickup)) {
-                                                                echo \Carbon\Carbon::createFromFormat('H:i', $booking->day_tour_time_of_pickup)->format('H:i');
-                                                            } else {
-                                                                echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i');
-                                                            }
-                                                        } catch (\Exception $e) {
-                                                            echo $booking->day_tour_time_of_pickup;
+                                                @php
+                                                    $dayDep = null;
+                                                    try {
+                                                        if (!empty($booking->day_tour_departure_time)) {
+                                                            $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
                                                         }
+                                                    } catch (\Exception $e) { $dayDep = $booking->day_tour_departure_time ?? null; }
                                                     @endphp
-                                                @else
-                                                    —
-                                                @endif
+                                                {{ $dayDep ?? '—' }}
                                             </td>
                                             <td>
-                                                @if($booking->overnight_date_time_of_pickup)
-                                                    @php
-                                                        try {
-                                                            // Try to parse as datetime first
-                                                            if (preg_match('/^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}$/', $booking->overnight_date_time_of_pickup)) {
-                                                                echo \Carbon\Carbon::createFromFormat('Y-m-d H:i', $booking->overnight_date_time_of_pickup)->format('Y-m-d H:i');
-                                                            } elseif (preg_match('/^\d{1,2}:\d{2}$/', $booking->overnight_date_time_of_pickup)) {
-                                                                echo \Carbon\Carbon::createFromFormat('H:i', $booking->overnight_date_time_of_pickup)->format('H:i');
-                                                            } else {
-                                                                echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d H:i');
+                                                @php
+                                                    $pickupText = '—';
+                                                    try {
+                                                        if (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                                            $pickupText = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d h:i A');
+                                                        } elseif (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_time_of_pickup) {
+                                                            $pickupText = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
                                                             }
                                                         } catch (\Exception $e) {
-                                                            echo $booking->overnight_date_time_of_pickup;
+                                                        $pickupText = ($booking->tour_type === 'overnight') ? ($booking->overnight_date_time_of_pickup ?? '—') : ($booking->day_tour_time_of_pickup ?? '—');
                                                         }
                                                     @endphp
-                                                @else
-                                                    —
-                                                @endif
+                                                {{ $pickupText }}
                                             </td>
                                             <td>{{ $booking->num_senior_citizens ?? '—' }}</td>
                                             <td>{{ $booking->num_pwds ?? '—' }}</td>
                                             <td>{{ optional($booking->check_in_date)->format('Y-m-d') }}</td>
                                             <td>{{ optional($booking->check_out_date)->format('Y-m-d') }}</td>
                                             <td class="text-center">
+                                                @php
+                                                    $assignedBoat = optional($booking)->assignedBoat;
+                                                @endphp
                                                 <button type="button" class="btn btn-info btn-sm viewDocBtn"
                                                         title="View details" aria-label="View details"
                                                         data-bs-toggle="modal" data-bs-target="#docViewModal"
@@ -303,14 +296,24 @@
                                                         data-guest-address="{{ $booking->guest_address ?? '' }}"
                                                         data-guest-nationality="{{ $booking->guest_nationality ?? '' }}"
                                                         data-phone="{{ $booking->phone_number ?? '' }}"
-                                                        data-guest-count="{{ $booking->number_of_guests ?? '' }}">
+                                                        data-downpayment="{{ $booking->downpayment_receipt_path ?? '' }}"
+                                                        data-valid-id-type="{{ $booking->valid_id_type ?? '' }}"
+                                                        data-valid-id="{{ $booking->valid_id_image_path ?? '' }}"
+                                                        data-valid-id-number="{{ $booking->valid_id_number ?? '' }}"
+                                                        data-senior-id="{{ $booking->senior_id_image_path ?? '' }}"
+                                                        data-pwd-id="{{ $booking->pwd_id_image_path ?? '' }}"
+                                                        data-guest-count="{{ $booking->number_of_guests ?? '' }}"
+                                                        data-extended="{{ ($booking->is_extended ?? false) ? 'Yes' : 'No' }}"
+                                                        data-extension="{{ ($booking->is_extended ?? false) ? ('+' . ($booking->extension_value ?? '') . ' ' . ($booking->extension_type ?? '')) : '' }}"
+                                                        data-boat-name="{{ $assignedBoat->boat_name ?? '' }}"
+                                                        data-boat-number="{{ $assignedBoat->boat_number ?? '' }}">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="12" class="text-center text-muted">No bookings found.</td>
+                                            <td colspan="11" class="text-center text-muted">No bookings found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -319,7 +322,7 @@
 
                         @if(empty($showAll) || !$showAll)
                             <div class="mt-3">
-                                {{ $bookings->links() }}
+                                {{ $bookings->appends(request()->query())->links('vendor.pagination.resort-owner') }}
                             </div>
                         @endif
 
@@ -493,6 +496,17 @@
                     <div class="mb-2"><strong>Phone:</strong> <span id="docPhone">N/A</span></div>
                     <div class="mb-2"><strong>Address:</strong> <span id="docGuestAddress">N/A</span></div>
                     <div class="mb-2"><strong>Guests (Count):</strong> <span id="docGuestCount">N/A</span></div>
+                    <hr>
+                    <div class="mb-2"><strong>Assigned Boat:</strong> <span id="docBoatName">N/A</span></div>
+                    <div class="mb-2"><strong>Boat No:</strong> <span id="docBoatNumber">N/A</span></div>
+                    
+                    <div class="mb-2"><strong>Downpayment Receipt:</strong> <button type="button" id="btnViewDownpaymentRO" class="btn btn-sm btn-outline-primary" style="display:none;">View</button></div>
+                    <div class="mb-2"><strong>Valid ID:</strong> <span id="docValidIdTypeRO">—</span> <button type="button" id="btnViewValidIdRO" class="btn btn-sm btn-outline-primary ms-2" style="display:none;">View</button></div>
+                    <div class="mb-2" id="docValidIdNumberRowRO" style="display:none;"><strong>ID Number:</strong> <span id="docValidIdNumberRO">—</span></div>
+                        <div class="mb-2" id="docSeniorIdRowRO" style="display:none;"><strong>Senior ID:</strong> <button type="button" id="btnViewSeniorIdRO" class="btn btn-sm btn-outline-primary ms-2">View</button></div>
+                        <div class="mb-2" id="docPwdIdRowRO" style="display:none;"><strong>PWD ID:</strong> <button type="button" id="btnViewPwdIdRO" class="btn btn-sm btn-outline-primary ms-2">View</button></div>
+                    <div class="mb-2"><strong>Extended:</strong> <span id="docExtended">No</span></div>
+                    <div class="mb-2"><strong>Extension Details:</strong> <span id="docExtension">—</span></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -514,6 +528,41 @@
                     setText('docPhone', this.getAttribute('data-phone'));
                     setText('docGuestAddress', this.getAttribute('data-guest-address'));
                     setText('docGuestCount', this.getAttribute('data-guest-count'));
+                    const down = this.getAttribute('data-downpayment') || '';
+                    // Boat details
+                    setText('docBoatName', this.getAttribute('data-boat-name'));
+                    setText('docBoatNumber', this.getAttribute('data-boat-number'));
+                    
+                    const idType = this.getAttribute('data-valid-id-type') || '';
+                    const idPath = this.getAttribute('data-valid-id') || '';
+                    const idNum = this.getAttribute('data-valid-id-number') || '';
+                    const seniorId = this.getAttribute('data-senior-id') || '';
+                    const pwdId = this.getAttribute('data-pwd-id') || '';
+                    const downBtn = document.getElementById('btnViewDownpaymentRO');
+                    const idBtn = document.getElementById('btnViewValidIdRO');
+                    const idTypeSpan = document.getElementById('docValidIdTypeRO');
+                    if (downBtn) { if (down) { downBtn.style.display='inline-block'; downBtn.onclick = ()=> window.open('/storage/' + down, '_blank'); } else { downBtn.style.display='none'; } }
+                    if (idBtn) { idTypeSpan.textContent = idType || '—'; if (idPath) { idBtn.style.display='inline-block'; idBtn.onclick = ()=> window.open('/storage/' + idPath, '_blank'); } else { idBtn.style.display='none'; } }
+                    const idNumRow = document.getElementById('docValidIdNumberRowRO');
+                    const idNumSpan = document.getElementById('docValidIdNumberRO');
+                    if (idNumRow && idNumSpan) {
+                        if (idNum && idNum.trim() !== '') { idNumRow.style.display = 'block'; idNumSpan.textContent = idNum; } else { idNumRow.style.display = 'none'; idNumSpan.textContent = '—'; }
+                    }
+                    // Senior/PWD
+                    const seniorRow = document.getElementById('docSeniorIdRowRO');
+                    const seniorBtn = document.getElementById('btnViewSeniorIdRO');
+                    if (seniorRow && seniorBtn) {
+                        if (seniorId) { seniorRow.style.display='block'; seniorBtn.onclick = ()=> window.open('/storage/' + seniorId, '_blank'); }
+                        else { seniorRow.style.display='none'; }
+                    }
+                    const pwdRow = document.getElementById('docPwdIdRowRO');
+                    const pwdBtn = document.getElementById('btnViewPwdIdRO');
+                    if (pwdRow && pwdBtn) {
+                        if (pwdId) { pwdRow.style.display='block'; pwdBtn.onclick = ()=> window.open('/storage/' + pwdId, '_blank'); }
+                        else { pwdRow.style.display='none'; }
+                    }
+                    setText('docExtended', this.getAttribute('data-extended') || 'No');
+                    setText('docExtension', this.getAttribute('data-extension') || '—');
                 });
             });
         });

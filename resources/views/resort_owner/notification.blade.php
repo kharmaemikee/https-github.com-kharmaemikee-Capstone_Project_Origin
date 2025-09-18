@@ -228,12 +228,12 @@
                             @php
                                 $unreadCount = $resortOwnerNotifications->where('is_read', false)->count();
                             @endphp
-                            @if($unreadCount > 0)
-                                <div class="notification-header">
-                                    <div class="unread-count">
-                                        <span class="count-badge">{{ $unreadCount }}</span>
-                                        <span class="count-text">unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
-                                    </div>
+                            <div class="notification-header">
+                                <div class="unread-count">
+                                    <span class="count-badge">{{ $unreadCount }}</span>
+                                    <span class="count-text">{{ $unreadCount }} unread</span>
+                                </div>
+                                <div class="d-flex gap-2">
                                     <form action="{{ route('resort.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline markAllAsReadForm">
                                         @csrf
                                         @method('PUT')
@@ -241,8 +241,11 @@
                                             <i class="fas fa-check-double me-1"></i>Mark All as Read
                                         </button>
                                     </form>
+                                    <button type="button" id="deleteAllResortNotificationsBtn" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash me-1"></i>Delete All
+                                    </button>
                                 </div>
-                            @endif
+                            </div>
                             <div class="notifications-list">
                                 @foreach ($resortOwnerNotifications as $notification)
                                     <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}" data-notification-id="{{ $notification->id }}">
@@ -343,6 +346,87 @@
                                 <p class="mb-1">Boat Price: <strong>₱{{ number_format($boatPrice, 2) }}</strong></p>
                                 <p class="mb-1">Total Price: <strong>₱{{ number_format($totalPrice, 2) }}</strong></p>
 
+                                {{-- Uploaded Payment & ID (Step 1) --}}
+                                    @if ($notification->booking->downpayment_receipt_path || $notification->booking->valid_id_image_path)
+                                    <hr class="my-2">
+                                    <h6>Uploaded Files:</h6>
+                                    @if ($notification->booking->downpayment_receipt_path)
+                                        @php
+                                            $dpUrl = route('resort.owner.booking.file.view', ['booking' => $notification->booking->id, 'which' => 'downpayment']);
+                                            $dpDl  = route('resort.owner.booking.file.download', ['booking' => $notification->booking->id, 'which' => 'downpayment']);
+                                        @endphp
+                                        <p class="mb-1">
+                                            Downpayment Receipt:
+                                            <button type="button" class="btn btn-outline-primary btn-sm view-image-btn ms-1"
+                                                data-title="Downpayment Receipt"
+                                                data-img-url="{{ $dpUrl }}" data-dl-url="{{ $dpDl }}">
+                                                View
+                                            </button>
+                                        </p>
+                                    @endif
+                                    @if ($notification->booking->valid_id_type || $notification->booking->valid_id_image_path)
+                                        @php
+                                            $idUrl = $notification->booking->valid_id_image_path ? route('resort.owner.booking.file.view', ['booking' => $notification->booking->id, 'which' => 'valid_id']) : null;
+                                            $idDl  = $notification->booking->valid_id_image_path ? route('resort.owner.booking.file.download', ['booking' => $notification->booking->id, 'which' => 'valid_id']) : null;
+                                        @endphp
+                                        <p class="mb-1">
+                                            Valid ID {{ $notification->booking->valid_id_type ? '(' . $notification->booking->valid_id_type . ')' : '' }}:
+                                            @if ($idUrl)
+                                                <button type="button" class="btn btn-outline-primary btn-sm view-image-btn ms-1"
+                                                    data-title="Valid ID{{ $notification->booking->valid_id_type ? ' (' . $notification->booking->valid_id_type . ')' : '' }}"
+                                                    data-id-number="{{ $notification->booking->valid_id_number ?? '' }}"
+                                                    data-img-url="{{ $idUrl }}" data-dl-url="{{ $idDl }}">
+                                                    View
+                                                </button>
+                                            @else
+                                                <span class="text-muted">No image uploaded</span>
+                                            @endif
+                                        </p>
+                                        @if(!empty($notification->booking->valid_id_number))
+                                            <p class="mb-1">ID Number: <strong>{{ $notification->booking->valid_id_number }}</strong></p>
+                                        @endif
+                                    @endif
+
+                                    @php
+                                        $seniorPaths = [];
+                                        try { $seniorPaths = $notification->booking->senior_id_image_paths ? json_decode($notification->booking->senior_id_image_paths, true) : []; } catch (\Throwable $e) { $seniorPaths = []; }
+                                        if (empty($seniorPaths) && !empty($notification->booking->senior_id_image_path)) {
+                                            $seniorPaths = [$notification->booking->senior_id_image_path];
+                                        }
+                                        $pwdPaths = [];
+                                        try { $pwdPaths = $notification->booking->pwd_id_image_paths ? json_decode($notification->booking->pwd_id_image_paths, true) : []; } catch (\Throwable $e) { $pwdPaths = []; }
+                                        if (empty($pwdPaths) && !empty($notification->booking->pwd_id_image_path)) {
+                                            $pwdPaths = [$notification->booking->pwd_id_image_path];
+                                        }
+                                    @endphp
+                                    @if (!empty($seniorPaths))
+                                        <p class="mb-1">
+                                            Senior ID{{ count($seniorPaths) > 1 ? 's' : '' }}:
+                                            @foreach ($seniorPaths as $sp)
+                                                @php $spUrl = asset('storage/' . ltrim($sp, '/')); @endphp
+                                                <button type="button" class="btn btn-outline-secondary btn-sm view-image-btn ms-1"
+                                                    data-title="Senior ID"
+                                                    data-img-url="{{ $spUrl }}" data-dl-url="{{ $spUrl }}">
+                                                    View
+                                                </button>
+                                            @endforeach
+                                        </p>
+                                    @endif
+                                    @if (!empty($pwdPaths))
+                                        <p class="mb-1">
+                                            PWD ID{{ count($pwdPaths) > 1 ? 's' : '' }}:
+                                            @foreach ($pwdPaths as $pp)
+                                                @php $ppUrl = asset('storage/' . ltrim($pp, '/')); @endphp
+                                                <button type="button" class="btn btn-outline-secondary btn-sm view-image-btn ms-1"
+                                                    data-title="PWD ID"
+                                                    data-img-url="{{ $ppUrl }}" data-dl-url="{{ $ppUrl }}">
+                                                    View
+                                                </button>
+                                            @endforeach
+                                        </p>
+                                    @endif
+                                @endif
+
                                 @if ($notification->type === 'booking_cancelled')
                                     <p class="mb-1 text-danger fw-bold">Cancelled by: {{ $notification->booking->user->name ?? 'N/A' }}</p>
                                     <p class="mb-1 text-danger fw-bold">Cancellation Reason: {{ $notification->booking->cancellation_reason ?? 'N/A' }}</p>
@@ -359,7 +443,7 @@
                                         <span class="status-badge status-badge-rejected">Cancelled by Tourist</span>
                                     @elseif ($notification->booking->status === 'completed')
                                         <span class="status-badge status-badge-approved">Completed</span>
-                                    @elseif ($notification->booking->status === 'updated_pending_approval')
+                                    @elseif ($notification->booking->status === 'pending_update_approval')
                                         <span class="status-badge status-badge-pending">Updated, Awaiting Re-approval</span>
                                     @endif
                                 </p>
@@ -372,11 +456,11 @@
                                         $windowTime = null;
                                         if ($notification->booking->tour_type === 'day_tour' && $notification->booking->day_tour_departure_time) {
                                             try {
-                                                $windowTime = \Carbon\Carbon::parse((string)$notification->booking->check_in_date.' '.(string)$notification->booking->day_tour_departure_time)->subMinutes(30);
+                                                $windowTime = \Carbon\Carbon::parse((string)$notification->booking->check_in_date.' '.(string)$notification->booking->day_tour_departure_time);
                                             } catch (\Exception $e) { $windowTime = null; }
                                         } elseif ($notification->booking->tour_type === 'overnight' && $notification->booking->overnight_date_time_of_pickup) {
                                             try {
-                                                $windowTime = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup)->subMinutes(30);
+                                                $windowTime = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup);
                                             } catch (\Exception $e) { $windowTime = null; }
                                         }
                                         if ($windowTime) { $showAssignment = $now->gte($windowTime); }
@@ -414,9 +498,9 @@
                                     @else
                                         <hr class="my-2">
                                         <h6>Boat Assignment:</h6>
-                                        <p class="mb-1 text-muted"><em>Waiting to assign the boat on the date and time of this booking (auto-assigns 30 minutes before departure).</em></p>
+                                        <p class="mb-1 text-muted"><em>Waiting to assign the boat on the booking date at the departure time.</em></p>
                                     @endif
-                                @elseif ($notification->booking->status === 'pending' || $notification->booking->status === 'updated_pending_approval')
+                                @elseif ($notification->booking->status === 'pending' || $notification->booking->status === 'pending_update_approval')
                                     <hr class="my-2">
                                     <h6>Boat Assignment:</h6>
                                     <p class="mb-1 text-muted"><em>Boat will be assigned automatically upon approval</em></p>
@@ -483,12 +567,21 @@
                                 @endif
 
                                 <div class="mt-3 d-flex justify-content-end align-items-center">
-                                    {{-- The key change is here: include 'updated_pending_approval' for the confirm/reject buttons --}}
-                                    @if ($notification->booking->status === 'pending' || $notification->booking->status === 'updated_pending_approval')
+                                    @if ($notification->booking->status === 'pending')
                                         <form action="{{ route('resort.owner.bookings.confirm', $notification->booking->id) }}" method="POST" class="d-inline me-2">
                                             @csrf
                                             @method('PUT')
                                             <button type="submit" class="btn btn-primary btn-sm">Confirm</button>
+                                        </form>
+                                        <form action="{{ route('resort.owner.bookings.reject', $notification->booking->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                        </form>
+                                    @elseif ($notification->booking->status === 'pending_update_approval')
+                                        <form action="{{ route('bookings.approveExtension', $notification->booking->id) }}" method="POST" class="d-inline me-2">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-sm">Approve Extension</button>
                                         </form>
                                         <form action="{{ route('resort.owner.bookings.reject', $notification->booking->id) }}" method="POST" class="d-inline">
                                             @csrf
@@ -534,6 +627,29 @@
                             @endif
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Image Preview Modal --}}
+    <div class="modal fade" id="imageViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageViewModalTitle">View Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="imageViewModalImg" src="" alt="Preview" class="img-fluid" style="max-height:70vh;">
+                    <div id="imageViewIdNumberWrap" class="mt-3" style="display:none;">
+                        <span class="text-muted">ID Number:</span>
+                        <strong id="imageViewIdNumber"></strong>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="imageViewDownload" href="#" class="btn btn-primary" download>Download</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -827,6 +943,45 @@
 
             // --- End NEW JavaScript for notification count updates ---
 
+            // Image view modal handlers
+            const imageModalEl = document.getElementById('imageViewModal');
+            const imageModal = new bootstrap.Modal(imageModalEl);
+            document.addEventListener('click', function(e){
+                const btn = e.target.closest('.view-image-btn');
+                if (!btn) return;
+                const url = btn.getAttribute('data-img-url');
+                const title = btn.getAttribute('data-title') || 'View Image';
+                const idNumber = btn.getAttribute('data-id-number') || '';
+                const imgEl = document.getElementById('imageViewModalImg');
+                const titleEl = document.getElementById('imageViewModalTitle');
+                const dlEl = document.getElementById('imageViewDownload');
+                const idWrapEl = document.getElementById('imageViewIdNumberWrap');
+                const idNumEl = document.getElementById('imageViewIdNumber');
+                if (imgEl && titleEl && dlEl && url) {
+                    imgEl.src = url;
+                    titleEl.textContent = title;
+                    dlEl.href = btn.getAttribute('data-dl-url') || url;
+                    // derive filename from URL for better download naming
+                    try {
+                        const u = new URL(url, window.location.origin);
+                        const path = u.pathname.split('/').pop();
+                        if (path) dlEl.setAttribute('download', path);
+                    } catch (err) {
+                        // fallback: leave default download attribute
+                    }
+                    if (idWrapEl && idNumEl) {
+                        if (idNumber && idNumber.trim() !== '') {
+                            idNumEl.textContent = idNumber;
+                            idWrapEl.style.display = 'block';
+                        } else {
+                            idNumEl.textContent = '';
+                            idWrapEl.style.display = 'none';
+                        }
+                    }
+                    imageModal.show();
+                }
+            });
+
             // Handle delete notification button clicks
             document.querySelectorAll('.delete-notification-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -915,6 +1070,48 @@
                     });
                 });
             });
+
+            // Handle Delete All (Resort Owner)
+            const deleteAllResortBtn = document.getElementById('deleteAllResortNotificationsBtn');
+            if (deleteAllResortBtn) {
+                deleteAllResortBtn.addEventListener('click', function() {
+                    Swal.fire({
+                        title: "Delete all notifications?",
+                        text: "This will permanently delete all your notifications.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes, delete all",
+                        cancelButtonText: "Cancel",
+                        customClass: { popup: 'swal2-popup-responsive', title: 'swal2-title-responsive', content: 'swal2-content-responsive', confirmButton: 'swal2-confirm-responsive', cancelButton: 'swal2-cancel-responsive' }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({ title: "Deleting...", allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading(), customClass: { popup: 'swal2-popup-responsive' } });
+                            fetch(`{{ route('resort.owner.notifications.destroyAll') }}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(r => r.json()).then(data => {
+                                if (data.success) {
+                                    document.querySelectorAll('.notification-item').forEach(el => el.remove());
+                                    const desktopBadge = document.querySelector('#unreadBadgeDesktop');
+                                    const mobileBadge = document.querySelector('#unreadBadgeMobile');
+                                    if (desktopBadge) desktopBadge.remove();
+                                    if (mobileBadge) mobileBadge.remove();
+                                    Swal.fire({ title: "Deleted!", text: "All notifications deleted.", icon: "success" });
+                                } else { throw new Error('Failed'); }
+                            }).catch(() => {
+                                Swal.fire({ title: "Error", text: "Failed to delete all notifications.", icon: "error" });
+                            });
+                        }
+                    });
+                });
+            }
 
             // Disable upload button and show thank-you message after resubmit
             document.querySelectorAll('.permit-resubmit-form').forEach(function(form){

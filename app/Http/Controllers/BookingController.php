@@ -125,6 +125,78 @@ class BookingController extends Controller
     }
 
     /**
+     * Handle POST request for step 1 of booking form.
+     * Stores uploaded files in session and redirects to step 2.
+     */
+    public function handleFillupStep1Post(Request $request, Room $room)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'tourist') {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'nationality' => 'required|string|max:255',
+            'contact_number' => 'required|string|regex:/^[0-9]{11}$/',
+            'reservation_date' => 'required|date|after_or_equal:' . Carbon::today()->format('Y-m-d'),
+            'num_nights' => 'required|integer|min:1',
+            'num_guests' => 'required|integer|min:1',
+            'downpayment_receipt' => 'nullable|image|max:5120',
+            'valid_id_type' => 'nullable|string|in:National I.D,Passport,License,Other Valid I.D',
+            'valid_id_image' => 'nullable|image|max:5120',
+            'valid_id_number' => 'nullable|string|max:255',
+            'senior_id_images' => 'nullable',
+            'senior_id_images.*' => 'image|max:5120',
+            'pwd_id_images' => 'nullable',
+            'pwd_id_images.*' => 'image|max:5120',
+        ]);
+
+        // Store uploads to public disk and save paths in session for step 2
+        $dpPath = null; $idPath = null; $seniorId = null; $pwdId = null;
+        if ($request->hasFile('downpayment_receipt')) {
+            $dpPath = $request->file('downpayment_receipt')->store('bookings/downpayments', 'public');
+        }
+        if ($request->hasFile('valid_id_image')) {
+            $idPath = $request->file('valid_id_image')->store('bookings/valid_ids', 'public');
+        }
+        $seniorPaths = [];
+        if ($request->hasFile('senior_id_images')) {
+            foreach ($request->file('senior_id_images') as $img) {
+                if ($img) { $seniorPaths[] = $img->store('bookings/senior_ids', 'public'); }
+            }
+            $seniorId = $seniorPaths[0] ?? null;
+        }
+        $pwdPaths = [];
+        if ($request->hasFile('pwd_id_images')) {
+            foreach ($request->file('pwd_id_images') as $img) {
+                if ($img) { $pwdPaths[] = $img->store('bookings/pwd_ids', 'public'); }
+            }
+            $pwdId = $pwdPaths[0] ?? null;
+        }
+        session([
+            'booking_dp_path' => $dpPath,
+            'booking_valid_id_type' => $validated['valid_id_type'] ?? null,
+            'booking_valid_id_path' => $idPath,
+            'booking_valid_id_number' => $validated['valid_id_number'] ?? null,
+            'booking_senior_id_path' => $seniorId,
+            'booking_pwd_id_path' => $pwdId,
+            'booking_senior_id_paths' => !empty($seniorPaths) ? json_encode($seniorPaths) : null,
+            'booking_pwd_id_paths' => !empty($pwdPaths) ? json_encode($pwdPaths) : null,
+        ]);
+
+        // Redirect to step 2 with query params
+        return redirect()->route('tourist.fillup2', [
+            'room_id' => $room->id,
+            'nationality' => $validated['nationality'],
+            'contact_number' => $validated['contact_number'],
+            'reservation_date' => $validated['reservation_date'],
+            'num_nights' => $validated['num_nights'],
+            'num_guests' => $validated['num_guests'],
+            'valid_id_type' => $validated['valid_id_type'] ?? null,
+            'valid_id_number' => $validated['valid_id_number'] ?? null,
+        ]);
+    }
+
+    /**
      * Check room availability for specific dates.
      * This method can be called via AJAX to check availability before submitting the booking form.
      *
@@ -230,6 +302,10 @@ class BookingController extends Controller
             'num_senior_citizens' => 'nullable|integer|min:0',
             'num_pwds' => 'nullable|integer|min:0',
             'special_requests' => 'nullable|string|max:1000',
+            'downpayment_receipt' => 'nullable|image|max:5120',
+            'valid_id_type' => 'nullable|string|in:National I.D,Passport,License,Other Valid I.D',
+            'valid_id_image' => 'nullable|image|max:5120',
+            'valid_id_number' => 'nullable|string|max:255',
             'guest_names' => 'array',
             'guest_names.*' => 'string|max:255',
             'guest_ages' => 'array',
@@ -327,6 +403,10 @@ class BookingController extends Controller
                 'number_of_nights' => $numberOfNights,
                 'number_of_guests' => $validatedData['num_guests'],
                 'special_requests' => $validatedData['special_requests'] ?? null,
+                'downpayment_receipt_path' => null,
+                'valid_id_type' => $validatedData['valid_id_type'] ?? null,
+                'valid_id_image_path' => null,
+                'valid_id_number' => $validatedData['valid_id_number'] ?? (session('booking_valid_id_number') ?: null),
                 'status' => 'pending', // Initial status
                 'tour_type' => $validatedData['tour_type'],
                 'day_tour_departure_time' => $validatedData['day_tour_departure_time'] ?? null,
@@ -340,6 +420,38 @@ class BookingController extends Controller
                 'boat_contact_number' => null, // Initially null
                 'name_of_resort' => $room->resort->resort_name,
             ]);
+
+            // Handle file uploads
+            if ($request->hasFile('downpayment_receipt')) {
+                $path = $request->file('downpayment_receipt')->store('bookings/downpayments', 'public');
+                $booking->downpayment_receipt_path = $path;
+            } else {
+                $sess = session('booking_dp_path');
+                if ($sess) { $booking->downpayment_receipt_path = $sess; }
+            }
+            if ($request->hasFile('valid_id_image')) {
+                $path = $request->file('valid_id_image')->store('bookings/valid_ids', 'public');
+                $booking->valid_id_image_path = $path;
+            } else {
+                $sess = session('booking_valid_id_path');
+                if ($sess) { $booking->valid_id_image_path = $sess; }
+            }
+            if (!empty($seniorPaths)) {
+                $booking->senior_id_image_path = $seniorPaths[0] ?? null;
+                $booking->senior_id_image_paths = json_encode($seniorPaths);
+            } else if (session('booking_senior_id_paths')) { $booking->senior_id_image_paths = session('booking_senior_id_paths'); }
+            if (!empty($pwdPaths)) {
+                $booking->pwd_id_image_path = $pwdPaths[0] ?? null;
+                $booking->pwd_id_image_paths = json_encode($pwdPaths);
+            } else if (session('booking_pwd_id_paths')) { $booking->pwd_id_image_paths = session('booking_pwd_id_paths'); }
+            if (!$booking->valid_id_type && session('booking_valid_id_type')) {
+                $booking->valid_id_type = session('booking_valid_id_type');
+            }
+            if ($booking->isDirty(['downpayment_receipt_path','valid_id_image_path','valid_id_type'])) {
+                $booking->save();
+            }
+            // Clear session temp
+            session()->forget(['booking_dp_path','booking_valid_id_path','booking_valid_id_type','booking_valid_id_number']);
 
             // <--- ADDED: Increment visit_count for the resort after successful booking
             if ($resort) {
@@ -487,122 +599,14 @@ class BookingController extends Controller
 
         DB::beginTransaction();
         try {
-            // Get the last assigned boat ID from settings
-            $lastAssignedBoatId = (int) Setting::get('last_assigned_boat_id', 0);
-            
-            // Get boats in the correct assignment sequence
-            $boatsInSequence = Boat::getBoatsInAssignmentSequence($lastAssignedBoatId);
-            
-            if ($boatsInSequence->isEmpty()) {
-                DB::rollBack();
-                return back()->with('error', 'No available boats found. Please ensure there are "Open" status boats registered by a Boat Owner.');
-            }
-
-            // Determine the booking's time slot
-            $newBookingStartTime = null;
-            $newBookingEndTime = null;
-
-            if ($booking->tour_type === 'day_tour') {
-                // Fix: Handle both time and datetime formats
-                if ($booking->day_tour_departure_time && $booking->day_tour_time_of_pickup) {
-                    // Extract just the time part if it's a full datetime
-                    $departureTime = $booking->day_tour_departure_time;
-                    $pickupTime = $booking->day_tour_time_of_pickup;
-                    
-                    // If the time contains a space, extract just the time part
-                    if (strpos($departureTime, ' ') !== false) {
-                        $departureTime = explode(' ', $departureTime)[1];
-                    }
-                    if (strpos($pickupTime, ' ') !== false) {
-                        $pickupTime = explode(' ', $pickupTime)[1];
-                    }
-                    
-                    try {
-                        $newBookingStartTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $departureTime);
-                    } catch (\Exception $e) {
-                        DB::rollBack();
-                        return back()->with('error', 'Invalid departure time format. Please contact support.');
-                    }
-                    try {
-                        $newBookingEndTime = Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $pickupTime);
-                    } catch (\Exception $e) {
-                        DB::rollBack();
-                        return back()->with('error', 'Invalid pickup time format. Please contact support.');
-                    }
-                    if ($newBookingEndTime->lessThan($newBookingStartTime)) {
-                        $newBookingEndTime->addDay(); // Handle overnight day tours
-                    }
-                }
-            } elseif ($booking->tour_type === 'overnight') {
-                if ($booking->overnight_date_time_of_pickup && $booking->check_out_date) {
-                    try {
-                        $newBookingStartTime = Carbon::parse($booking->overnight_date_time_of_pickup);
-                    } catch (\Exception $e) {
-                        DB::rollBack();
-                        return back()->with('error', 'Invalid pickup time format for overnight booking. Please contact support.');
-                    }
-                    try {
-                        $newBookingEndTime = Carbon::parse($booking->check_out_date->format('Y-m-d') . ' 23:59:59'); // Assume end of day for overnight checkout
-                    } catch (\Exception $e) {
-                        DB::rollBack();
-                        return back()->with('error', 'Invalid checkout date format for overnight booking. Please contact support.');
-                    }
-                }
-            }
-
-            // IMPROVED SEQUENTIAL ASSIGNMENT LOGIC:
-            // 1. Try to assign boats in strict sequential order (boats are already in correct sequence)
-            // 2. This ensures all boats are assigned before any boat is reassigned
-            // 3. The numbering system is maintained through the sequence
-            
-            // Validate that we have valid times for the booking
-            if (!$newBookingStartTime || !$newBookingEndTime) {
-                DB::rollBack();
-                return back()->with('error', 'Invalid booking times. Please ensure departure and pickup times are properly set.');
-            }
-            
-            $foundBoat = null;
-            
-            foreach ($boatsInSequence as $currentBoat) {
-                // 1. Check Capacity
-                if (!$currentBoat->hasSufficientCapacity($booking->number_of_guests)) {
-                    continue;
-                }
-
-                // 2. Check for Time Conflict using the helper method
-                if (!$currentBoat->isAvailableForTimeSlot($newBookingStartTime, $newBookingEndTime)) {
-                    continue; // This boat has a conflict, try the next one
-                }
-
-                // Found an available boat that meets all criteria
-                $foundBoat = $currentBoat;
-                break;
-            }
-
-            if (!$foundBoat) {
-                DB::rollBack();
-                return back()->with('error', 'No available boat found for the requested time and guest count. All eligible boats are either booked or too small for the selected time slot.');
-            }
-
-            // Update booking status and assign boat details (but don't change boat status yet)
+            // Set approved only; defer boat assignment to the actual departure time via scheduler
             $booking->status = 'approved';
-            $booking->assigned_boat_id = $foundBoat->id;
-            $booking->assigned_boat = $foundBoat->boat_name . ' (#' . $foundBoat->boat_number . ')';
-            
-            // Ensure the user relationship is loaded to get boat owner details
-            if (!$foundBoat->relationLoaded('user')) {
-                $foundBoat->load('user');
-            }
-            
-            $booking->boat_captain_crew = $foundBoat->captain_name ?? 'N/A';
-            $booking->boat_contact_number = $foundBoat->captain_contact ?? 'N/A';
+            // Clear any pre-filled boat fields to avoid showing reservations
+            $booking->assigned_boat_id = null;
+            $booking->assigned_boat = null;
+            $booking->boat_captain_crew = null;
+            $booking->boat_contact_number = null;
             $booking->save();
-
-            // DON'T mark the boat as assigned yet - this will happen on pickup day/time
-            // The boat remains "open" until the actual pickup time
-
-            // Update the last assigned boat ID in settings for sequential assignment
-            Setting::set('last_assigned_boat_id', $foundBoat->id);
 
             // Mark associated resort owner notification as read
             ResortOwnerNotification::where('booking_id', $booking->id)
@@ -610,20 +614,20 @@ class BookingController extends Controller
                                     ->whereIn('type', ['new_booking', 'booking_updated']) // Mark both new booking and updated booking notifications as read
                                     ->update(['is_read' => true]);
 
-            // Notify Tourist: booking approved, boat will be activated 30 mins before departure
+            // Notify Tourist: booking approved, boat will be assigned on booking date at departure time
             TouristNotification::create([
                 'user_id' => $booking->user_id,
                 'booking_id' => $booking->id,
-                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . $booking->name_of_resort . ' has been APPROVED. A boat will be assigned 30 minutes before departure.',
+                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . $booking->name_of_resort . ' has been APPROVED. A boat will be assigned on your booking date at the departure time.',
                 'type' => 'booking_approved_pending_assignment',
                 'is_read' => false,
             ]);
 
-            // Inform each party that assignment will happen on the reservation date
+            // Inform each party that assignment will happen on the booking's departure time
             ResortOwnerNotification::create([
                 'user_id' => $booking->resort_owner_id,
                 'booking_id' => $booking->id,
-                'message' => 'Booking approved. Boat will be assigned automatically on the reservation date.',
+                'message' => 'Booking approved. Boat will be assigned automatically at the departure time.',
                 'type' => 'boat_assignment_pending',
                 'is_read' => false,
             ]);
@@ -631,29 +635,99 @@ class BookingController extends Controller
             TouristNotification::create([
                 'user_id' => $booking->user_id,
                 'booking_id' => $booking->id,
-                'message' => 'Booking approved. Please wait — your boat will be assigned on your reservation date.',
+                'message' => 'Booking approved. Please wait — your boat will be assigned at your departure time.',
                 'type' => 'boat_assignment_pending',
                 'is_read' => false,
             ]);
 
             // Boat owner heads-up without revealing guest details earlier than necessary
-            if ($foundBoat && $foundBoat->user_id) {
-            BoatOwnerNotification::create([
-                'user_id' => $foundBoat->user_id,
-                'booking_id' => $booking->id,
-                    'message' => 'A booking using your boat is approved. Assignment will occur on the guest\'s reservation date.',
-                    'type' => 'boat_assignment_pending',
-                'is_read' => false,
-            ]);
-            }
+            // Boat owner notification will be sent at assignment time by the scheduler
 
             DB::commit();
-            return back()->with('success', 'Booking approved. Your reserved boat ('. $foundBoat->boat_name .') will be activated 30 minutes before departure.');
+            return back()->with('success', 'Booking approved. A boat will be assigned automatically at the departure time.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Failed to confirm booking: " . $e->getMessage(), ['booking_id' => $booking->id, 'user_id' => Auth::id(), 'exception' => $e]);
             return back()->with('error', 'Failed to confirm booking. Please try again.');
         }
+    }
+
+    /**
+     * Stream booking file (downpayment receipt or valid ID) for resort owner preview.
+     */
+    public function viewBookingFile(Booking $booking, string $which)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'resort_owner' || Auth::id() !== $booking->resort_owner_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $path = null;
+        if ($which === 'downpayment') {
+            $path = $booking->downpayment_receipt_path;
+        } elseif ($which === 'valid_id') {
+            $path = $booking->valid_id_image_path;
+        } else {
+            abort(404);
+        }
+
+        if (!$path) { 
+            abort(404, 'File not found');
+        }
+
+        // Normalize path - remove leading public/ if present
+        if (strpos($path, 'public/') === 0) { 
+            $path = substr($path, 7); 
+        }
+
+        $fullPath = storage_path('app/public/' . ltrim($path, '/'));
+        
+        if (!file_exists($fullPath)) { 
+            \Log::error('File not found at path: ' . $fullPath . ' (original path: ' . $booking->downpayment_receipt_path . ')');
+            abort(404, 'File not found on disk');
+        }
+
+        return response()->file($fullPath);
+    }
+
+    /**
+     * Download booking file with correct filename.
+     */
+    public function downloadBookingFile(Booking $booking, string $which)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'resort_owner' || Auth::id() !== $booking->resort_owner_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $path = null;
+        $defaultName = 'file.jpg';
+        if ($which === 'downpayment') {
+            $path = $booking->downpayment_receipt_path; 
+            $defaultName = 'downpayment_receipt.jpg';
+        } elseif ($which === 'valid_id') {
+            $path = $booking->valid_id_image_path; 
+            $defaultName = 'valid_id_' . strtolower(str_replace(' ', '_', $booking->valid_id_type ?? 'id')) . '.jpg';
+        } else {
+            abort(404);
+        }
+
+        if (!$path) { 
+            abort(404, 'File not found');
+        }
+
+        // Normalize path - remove leading public/ if present
+        if (strpos($path, 'public/') === 0) { 
+            $path = substr($path, 7); 
+        }
+
+        $fullPath = storage_path('app/public/' . ltrim($path, '/'));
+        
+        if (!file_exists($fullPath)) { 
+            \Log::error('Download file not found at path: ' . $fullPath . ' (original path: ' . $path . ')');
+            abort(404, 'File not found on disk');
+        }
+
+        $filename = basename($fullPath) ?: $defaultName;
+        return response()->download($fullPath, $filename);
     }
 
     /**
@@ -754,6 +828,141 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             Log::error("Failed to mark all resort owner notifications as read: " . $e->getMessage());
             return response()->json(['error' => 'Failed to mark all notifications as read. Please try again.'], 500);
+        }
+    }
+
+    /**
+     * Tourist requests to extend a completed booking.
+     * No boat auto-assignment should be triggered by this action.
+     */
+    public function requestExtension(Request $request, Booking $booking)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'tourist' || Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Only allow extension request if booking has finished/completed
+        $isFinished = $booking->status === 'completed' || (method_exists($booking, 'isCompleted') && $booking->isCompleted());
+        if (!$isFinished) {
+            return back()->with('error', 'You can only request an extension after your booking is finished.');
+        }
+
+        $data = $request->validate([
+            'extension_type' => 'required|in:days,hours',
+            'extension_value' => 'required|integer|min:1',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Update booking to pending update approval; do NOT assign any boat here
+            $booking->status = 'pending_update_approval';
+            $booking->extension_type = $data['extension_type'];
+            $booking->extension_value = $data['extension_value'];
+            $booking->save();
+
+            // Notify resort owner for approval
+            ResortOwnerNotification::create([
+                'user_id' => $booking->resort_owner_id,
+                'booking_id' => $booking->id,
+                'message' => 'Tourist requested to extend booking by ' . $data['extension_value'] . ' ' . $data['extension_type'] . '. Please review and approve.',
+                'type' => 'extension_request',
+                'is_read' => false,
+            ]);
+
+            // Acknowledge to tourist
+            TouristNotification::create([
+                'user_id' => $booking->user_id,
+                'booking_id' => $booking->id,
+                'message' => 'Your extension request (' . $data['extension_value'] . ' ' . $data['extension_type'] . ') has been sent to the resort owner for approval.',
+                'type' => 'extension_requested',
+                'is_read' => false,
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Extension request submitted. You will be notified once the resort owner responds.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to request extension: '.$e->getMessage(), ['booking_id' => $booking->id, 'user_id' => Auth::id()]);
+            return back()->with('error', 'Failed to submit extension request. Please try again.');
+        }
+    }
+
+    /**
+     * Resort Owner approves an extension request.
+     * Should not auto-assign any boat here.
+     */
+    public function approveExtension(Request $request, Booking $booking)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'resort_owner' || Auth::id() !== $booking->resort_owner_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($booking->status !== 'pending_update_approval') {
+            return back()->with('error', 'This booking is not awaiting extension approval.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Return booking to approved state without boat auto-assignment
+            $booking->status = 'approved';
+            $booking->is_extended = true;
+            // Recalculate dates/times for overnight based on extension
+            if (($booking->tour_type ?? '') === 'overnight' && $booking->check_out_date) {
+                try {
+                    if (($booking->extension_type ?? null) === 'days' && ($booking->extension_value ?? 0) > 0) {
+                        $booking->check_out_date = optional($booking->check_out_date)->copy()->addDays((int)$booking->extension_value);
+                    } elseif (($booking->extension_type ?? null) === 'hours' && ($booking->extension_value ?? 0) > 0) {
+                        // Hours extension does not shift checkout date necessarily, but we can shift pickup time if provided
+                        if ($booking->overnight_date_time_of_pickup) {
+                            $booking->overnight_date_time_of_pickup = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->addHours((int)$booking->extension_value);
+                        }
+                    }
+                } catch (\Throwable $e) { /* ignore */ }
+            }
+            $booking->save();
+
+            // Notify tourist about approval (distinct message for extension, no departure/pickup time)
+            TouristNotification::create([
+                'user_id' => $booking->user_id,
+                'booking_id' => $booking->id,
+                'message' => 'Your extension has been approved: +' . ($booking->extension_value ?? 'N/A') . ' ' . ($booking->extension_type ?? '') . '. Your booking remains approved.',
+                'type' => 'extension_approved',
+                'is_read' => false,
+            ]);
+
+            // Notify the assigned boat owner, if there is one, that the tourist has extended
+            if ($booking->assigned_boat_id && $booking->assignedBoat) {
+                try {
+                    $boatPickupText = null;
+                    if (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                        $boatPickupText = Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d h:i A');
+                    } elseif (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_time_of_pickup) {
+                        $boatPickupText = Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
+                    }
+                    BoatOwnerNotification::create([
+                        'user_id' => $booking->assignedBoat->user_id,
+                        'booking_id' => $booking->id,
+                        'message' => 'Extension approved (+' . ($booking->extension_value ?? 'N/A') . ' ' . ($booking->extension_type ?? '') . '). Pickup: ' . ($boatPickupText ?: 'TBA') . '.',
+                        'type' => 'booking_extended',
+                        'is_read' => false,
+                    ]);
+                } catch (\Exception $e) {
+                    // Silent catch; notification is best-effort
+                }
+            }
+
+            // Mark related resort owner notifications about this extension as read
+            ResortOwnerNotification::where('booking_id', $booking->id)
+                ->where('user_id', Auth::id())
+                ->where('type', 'extension_request')
+                ->update(['is_read' => true]);
+
+            DB::commit();
+            return back()->with('success', 'Extension approved. The tourist has been notified.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to approve extension: '.$e->getMessage(), ['booking_id' => $booking->id, 'user_id' => Auth::id()]);
+            return back()->with('error', 'Failed to approve extension. Please try again.');
         }
     }
 
@@ -918,6 +1127,15 @@ class BookingController extends Controller
                 'is_read' => false,
             ]);
 
+            // Prompt tourist to rate the resort (1-5 stars)
+            TouristNotification::create([
+                'user_id' => $booking->user_id,
+                'booking_id' => $booking->id,
+                'message' => 'Please rate your stay at ' . ($booking->name_of_resort ?? optional(optional($booking->room)->resort)->resort_name ?? 'the resort') . ' (1-5 stars).',
+                'type' => 'rating_request',
+                'is_read' => false,
+            ]);
+
             // If a boat was assigned, notify the boat owner that the booking is completed
             if ($booking->assigned_boat_id && $booking->assignedBoat) {
                 BoatOwnerNotification::create([
@@ -967,7 +1185,7 @@ class BookingController extends Controller
             'phone_number', 'check_in_date', 'check_out_date', 'number_of_nights',
             'number_of_guests', 'special_requests', 'tour_type',
             'day_tour_departure_time', 'day_tour_time_of_pickup', 'overnight_date_time_of_pickup',
-            'num_senior_citizens', 'num_pwds', 'name_of_resort'
+            'overnight_departure_time', 'num_senior_citizens', 'num_pwds', 'name_of_resort'
         ]);
         // Add room price, resort address, and resort contact number from related models
         $originalData['room_price'] = $booking->room->price ?? 'N/A';
@@ -992,9 +1210,13 @@ class BookingController extends Controller
             'day_tour_departure_time' => 'nullable|required_if:tour_type,day_tour|date_format:H:i',
             'day_tour_time_of_pickup' => 'nullable|required_if:tour_type,day_tour|date_format:H:i',
             'overnight_date_time_of_pickup' => 'nullable|required_if:tour_type,overnight|date_format:Y-m-d\TH:i',
+            'overnight_departure_time' => 'nullable|required_if:tour_type,overnight',
             'num_senior_citizens' => 'nullable|integer|min:0',
             'num_pwds' => 'nullable|integer|min:0',
             'special_requests' => 'nullable|string|max:1000',
+            'downpayment_receipt' => 'nullable|image|max:5120',
+            'valid_id_type' => 'nullable|string|in:National I.D,Passport,License,Other Valid I.D',
+            'valid_id_image' => 'nullable|image|max:5120',
         ], [
             'contact_number.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
@@ -1026,10 +1248,12 @@ class BookingController extends Controller
                 'number_of_nights' => $numberOfNights,
                 'number_of_guests' => $validatedData['num_guests'],
                 'special_requests' => $validatedData['special_requests'] ?? null,
+                'valid_id_type' => $validatedData['valid_id_type'] ?? null,
                 'tour_type' => $validatedData['tour_type'],
                 // Set to null if not applicable based on tour_type
                 'day_tour_departure_time' => ($validatedData['tour_type'] === 'day_tour') ? ($validatedData['day_tour_departure_time'] ?? null) : null,
                 'day_tour_time_of_pickup' => ($validatedData['tour_type'] === 'day_tour') ? ($validatedData['day_tour_time_of_pickup'] ?? null) : null,
+                'overnight_departure_time' => ($validatedData['tour_type'] === 'overnight') ? ($request->input('overnight_departure_time') ?? null) : null,
                 'overnight_date_time_of_pickup' => ($validatedData['tour_type'] === 'overnight') ? ($validatedData['overnight_date_time_of_pickup'] ?? null) : null,
                 'num_senior_citizens' => $validatedData['num_senior_citizens'] ?? 0,
                 'num_pwds' => $validatedData['num_pwds'] ?? 0,
@@ -1123,6 +1347,12 @@ class BookingController extends Controller
                     $changedFields
                 );
                 $compareAndAddChange(
+                    $originalData['overnight_departure_time'] ?? '',
+                    $freshBooking->overnight_departure_time ?? '',
+                    'Departure Time (Overnight)',
+                    $changedFields
+                );
+                $compareAndAddChange(
                     $originalData['number_of_nights'] ?? 0,
                     $freshBooking->number_of_nights ?? 0,
                     'Number of Nights',
@@ -1170,6 +1400,18 @@ class BookingController extends Controller
                     ]);
                 }
             }
+
+            // File uploads update
+            $dirty = false;
+            if ($request->hasFile('downpayment_receipt')) {
+                $path = $request->file('downpayment_receipt')->store('bookings/downpayments', 'public');
+                $booking->downpayment_receipt_path = $path; $dirty = true;
+            }
+            if ($request->hasFile('valid_id_image')) {
+                $path = $request->file('valid_id_image')->store('bookings/valid_ids', 'public');
+                $booking->valid_id_image_path = $path; $dirty = true;
+            }
+            if ($dirty) { $booking->save(); }
 
 
             DB::commit();

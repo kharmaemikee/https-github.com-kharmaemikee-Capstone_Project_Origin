@@ -124,6 +124,20 @@
         <div class="flex-grow-1 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Edit Boat: {{ $boat->boat_name }}</h2>
+                @php
+                    $totalBoats = isset($allBoats) ? $allBoats->count() : (isset($boats) ? $boats->count() : null);
+                    $position = null;
+                    if(isset($allBoats)){
+                        $position = $allBoats->pluck('id')->search($boat->id);
+                        $position = $position === false ? null : ($position + 1);
+                    } elseif(isset($boats)) {
+                        $position = $boats->pluck('id')->search($boat->id);
+                        $position = $position === false ? null : ($position + 1);
+                    }
+                @endphp
+                @if($position && $totalBoats)
+                    <span class="badge bg-primary">Assignment No: {{ $position }} of {{ $totalBoats }}</span>
+                @endif
             </div>
 
             @if (session('success'))
@@ -188,6 +202,14 @@
                         <label for="boat_capacities" class="form-label">Capacity (pax)</label>
                         <input type="number" class="form-control" id="boat_capacities" name="boat_capacities" value="{{ old('boat_capacities', $boat->boat_capacities) }}" required>
                         @error('boat_capacities')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="boat_length" class="form-label">Boat Length</label>
+                        <input type="text" class="form-control" id="boat_length" name="boat_length" value="{{ old('boat_length', $boat->boat_length ?? '') }}" placeholder="e.g., 24 ft or 7.3 m">
+                        @error('boat_length')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>

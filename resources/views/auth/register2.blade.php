@@ -393,6 +393,72 @@
             transform: translateY(-2px);
         }
 
+        /* Password strength indicator styles */
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak .strength-fill {
+            width: 25%;
+            background: #ff4444;
+        }
+
+        .strength-fair .strength-fill {
+            width: 50%;
+            background: #ff8800;
+        }
+
+        .strength-good .strength-fill {
+            width: 75%;
+            background: #ffbb00;
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: #00aa00;
+        }
+
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .requirement.met {
+            color: #00aa00;
+        }
+
+        .requirement.unmet {
+            color: #ff4444;
+        }
+
+        .requirement i {
+            margin-right: 0.5rem;
+            font-size: 0.7rem;
+        }
+
         /* Animation for form elements */
         .register-card {
             animation: slideInUp 0.8s ease-out;
@@ -453,13 +519,42 @@
 
                 <div class="mb-2 input-group flex-wrap">
                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required autocomplete="new-password">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required autocomplete="new-password" oninput="checkPasswordStrength(this.value)">
                     <span class="input-group-text toggle-password" data-target="password">
                         <i class="fas fa-eye"></i>
                     </span>
                     @error('password')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
+                </div>
+
+                <!-- Password Strength Indicator -->
+                <div id="passwordStrength" class="password-strength" style="display: none;">
+                    <div class="strength-bar">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <div class="password-requirements">
+                        <div class="requirement" id="req-length">
+                            <i class="fas fa-times"></i>
+                            <span>At least 8 characters</span>
+                        </div>
+                        <div class="requirement" id="req-uppercase">
+                            <i class="fas fa-times"></i>
+                            <span>One uppercase letter</span>
+                        </div>
+                        <div class="requirement" id="req-lowercase">
+                            <i class="fas fa-times"></i>
+                            <span>One lowercase letter</span>
+                        </div>
+                        <div class="requirement" id="req-number">
+                            <i class="fas fa-times"></i>
+                            <span>One number</span>
+                        </div>
+                        <div class="requirement" id="req-special">
+                            <i class="fas fa-times"></i>
+                            <span>One special character</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-2 input-group flex-wrap">
@@ -506,7 +601,101 @@
             });
         });
 
-        
+        function checkPasswordStrength(password) {
+            const strengthDiv = document.getElementById('passwordStrength');
+            const strengthBar = strengthDiv.querySelector('.strength-fill');
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            // Show/hide strength indicator
+            if (password.length > 0) {
+                strengthDiv.style.display = 'block';
+            } else {
+                strengthDiv.style.display = 'none';
+                return;
+            }
+
+            // Update requirement indicators
+            Object.keys(requirements).forEach(req => {
+                const reqElement = document.getElementById(`req-${req}`);
+                const icon = reqElement.querySelector('i');
+                if (requirements[req]) {
+                    reqElement.classList.add('met');
+                    reqElement.classList.remove('unmet');
+                    icon.className = 'fas fa-check';
+                } else {
+                    reqElement.classList.add('unmet');
+                    reqElement.classList.remove('met');
+                    icon.className = 'fas fa-times';
+                }
+            });
+
+            // Calculate strength score
+            const score = Object.values(requirements).filter(Boolean).length;
+            const strengthLevels = ['', 'strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
+            
+            // Reset classes
+            strengthBar.parentElement.className = 'strength-bar';
+            if (score > 0) {
+                strengthBar.parentElement.classList.add(strengthLevels[score]);
+            }
+
+            // Validate password confirmation
+            const confirmPassword = document.getElementById('password_confirmation');
+            if (confirmPassword.value) {
+                validatePasswordMatch();
+            }
+        }
+
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation');
+            
+            if (confirmPassword.value && password !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Passwords do not match');
+                confirmPassword.classList.add('is-invalid');
+            } else {
+                confirmPassword.setCustomValidity('');
+                confirmPassword.classList.remove('is-invalid');
+            }
+        }
+
+        // Add event listener for password confirmation
+        document.getElementById('password_confirmation').addEventListener('input', validatePasswordMatch);
+
+        // Form validation before submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            
+            // Check if password meets all requirements
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+            
+            const allRequirementsMet = Object.values(requirements).every(Boolean);
+            
+            if (!allRequirementsMet) {
+                e.preventDefault();
+                alert('Password must meet all requirements: at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.');
+                return false;
+            }
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match.');
+                return false;
+            }
+        });
     </script>
 </body>
 </html>

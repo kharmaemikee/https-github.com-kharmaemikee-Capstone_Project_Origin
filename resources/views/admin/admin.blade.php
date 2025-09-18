@@ -261,12 +261,12 @@
                                     </h3>
                                     <p class="chart-subtitle">Distribution of day tours vs overnight stays</p>
                                 </div>
-                                <div class="chart-actions">
+                                <!-- <div class="chart-actions">
                                     <button class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-download me-1"></i>
                                         Export
                                     </button>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="chart-content">
                                 <div class="row">
@@ -296,6 +296,62 @@
                                                         {{ $overnightCount > 0 || $dayTourCount > 0 ? round(($overnightCount / (($dayTourCount ?? 0) + ($overnightCount ?? 0))) * 100) : 0 }}%
                                             </div>
                                         </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Boat Revenue (per Boat Owner) Chart --}}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div class="chart-title-section">
+                                    <h3 class="chart-title">
+                                        <i class="fas fa-coins me-2"></i>
+                                        Boat Revenue (Total Income per Boat Owner)
+                                    </h3>
+                                    <p class="chart-subtitle">Aggregated revenue by boat owners</p>
+                                </div>
+                            </div>
+                            <div class="chart-content">
+                                @php
+                                    $boatRevenueLabels = $boatRevenueLabels ?? [];
+                                    $boatRevenueTotals = $boatRevenueTotals ?? [];
+                                    $boatRevenueTotalSum = is_array($boatRevenueTotals) ? array_sum($boatRevenueTotals) : 0;
+                                @endphp
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="chart-wrapper">
+                                            <canvas id="boatRevenueChart" width="400" height="200"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="chart-legend">
+                                            @foreach($boatRevenueLabels as $i => $label)
+                                                @php
+                                                    $amt = (float)($boatRevenueTotals[$i] ?? 0);
+                                                    $pct = $boatRevenueTotalSum > 0 ? round(($amt / $boatRevenueTotalSum) * 100) : 0;
+                                                @endphp
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: linear-gradient(135deg, #20c997 0%, #17a589 100%);"></div>
+                                                    <div class="legend-info">
+                                                        <h6 class="legend-title">{{ $label }}</h6>
+                                                        <span class="legend-count">₱{{ number_format($amt, 2) }}</span>
+                                                        <div class="legend-percentage">{{ $pct }}%</div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            <div class="legend-item" style="background: #fff; border: 1px solid #eee;">
+                                                <div class="legend-color" style="background: #999;"></div>
+                                                <div class="legend-info">
+                                                    <h6 class="legend-title">Total</h6>
+                                                    <span class="legend-count">₱{{ number_format($boatRevenueTotalSum, 2) }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1153,6 +1209,59 @@
                 }
             });
             // --- End JavaScript for Chart ---
+
+            // --- JavaScript for Boat Revenue Chart ---
+            const boatRevEl = document.getElementById('boatRevenueChart');
+            if (boatRevEl) {
+                const boatRevenueCtx = boatRevEl.getContext('2d');
+                const boatOwnerLabels = {!! json_encode($boatRevenueLabels ?? []) !!};
+                const boatOwnerTotals = {!! json_encode($boatRevenueTotals ?? []) !!};
+                new Chart(boatRevenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: boatOwnerLabels,
+                        datasets: [{
+                            label: 'Total Income (₱)',
+                            data: boatOwnerTotals,
+                            backgroundColor: '#20c997',
+                            borderColor: '#17a589',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const val = context.parsed.y || 0;
+                                        return '₱' + val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#666',
+                                    callback: function(value) {
+                                        return '₱' + Number(value).toLocaleString();
+                                    }
+                                },
+                                grid: { color: 'rgba(0,0,0,0.1)', drawBorder: false }
+                            },
+                            x: { ticks: { color: '#666' }, grid: { display: false } }
+                        },
+                        animation: { duration: 1500, easing: 'easeInOutQuart' }
+                    }
+                });
+            }
+            // --- End JavaScript for Boat Revenue Chart ---
         });
     </script>
 </x-app-layout>

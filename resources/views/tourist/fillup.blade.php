@@ -106,8 +106,8 @@
                                         <p class="form-subtitle">Please provide your information to proceed</p>
                                     </div>
                             {{-- Step 1 (Schedule & Contact). Personal info moved to Step 2. --}}
-                            <form id="fillupForm" action="{{ route('tourist.fillup2') }}" method="GET">
-                                {{-- @csrf is not needed for GET forms --}}
+                            <form id="fillupForm" action="{{ url('tourist/fillup/' . $room->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
                                 <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
 
                                 {{-- Personal information fields moved to the next step (fillup2). --}}
@@ -189,6 +189,70 @@
                                             @error('num_guests')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
+                                        </div>
+                                    </div>
+
+                                    {{-- Row 4: Payment & Identification (Step 1 uploads) --}}
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-receipt"></i>
+                                                Downpayment Receipt
+                                            </label>
+                                            <input type="file" class="form-control @error('downpayment_receipt') is-invalid @enderror" name="downpayment_receipt" accept="image/*">
+                                            @error('downpayment_receipt')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label"></label>
+                                                <i class="fas fa-id-card"></i>
+                                                Send Valid ID (Type)
+                                            </label>
+                                            <select class="form-control @error('valid_id_type') is-invalid @enderror" name="valid_id_type" id="validIdType">
+                                                <option value="">Select ID Type</option>
+                                                <option value="National I.D">National I.D</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="License">License</option>
+                                                <option value="Other Valid I.D">Other Valid I.D</option>
+                                            </select>
+                                            @error('valid_id_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="form-group" id="seniorPwdUploadRow" style="display:none;">
+                                            <label class="form-label">
+                                                <i class="fas fa-id-badge"></i>
+                                                Upload Senior/PWD IDs (if applicable)
+                                            </label>
+                                            <div class="row g-2">
+                                                <div class="col-12 col-md-6">
+                                                    <input type="file" class="form-control @error('senior_id_image') is-invalid @enderror" name="senior_id_image" id="senior_id_image" accept="image/*">
+                                                    @error('senior_id_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                    <small class="text-muted">Senior citizen ID image</small>
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <input type="file" class="form-control @error('pwd_id_image') is-invalid @enderror" name="pwd_id_image" id="pwd_id_image" accept="image/*">
+                                                    @error('pwd_id_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                                    <small class="text-muted">PWD ID image</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row" id="validIdNumberWrap" style="display:none;">
+                                        <div class="form-group full-width">
+                                            <label class="form-label" id="validIdNumberLabel">
+                                                <i class="fas fa-hashtag"></i>
+                                                ID Number
+                                            </label>
+                                            <input type="text" class="form-control @error('valid_id_number') is-invalid @enderror" name="valid_id_number" id="validIdNumber" value="{{ old('valid_id_number') }}" placeholder="Enter ID number">
+                                            @error('valid_id_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="form-row" id="validIdImageWrap" style="display:none;">
+                                        <div class="form-group full-width">
+                                            <label class="form-label">
+                                                <i class="fas fa-image"></i>
+                                                Upload Valid ID Image
+                                            </label>
+                                            <input type="file" class="form-control @error('valid_id_image') is-invalid @enderror" name="valid_id_image" id="validIdImage" accept="image/*">
+                                            @error('valid_id_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
                                 </div>
@@ -1322,6 +1386,73 @@
                     filipinoOption.selected = true;
                     console.log('Set default nationality to: Filipino');
                 }
+            }
+
+            // Function to toggle valid ID image input visibility and required attribute
+            function toggleValidIdImage() {
+                const validIdTypeSelect = document.getElementById('validIdType');
+                const validIdImageInput = document.getElementById('validIdImage');
+                const validIdImageWrap = document.getElementById('validIdImageWrap');
+                const validIdNumberWrap = document.getElementById('validIdNumberWrap');
+                const validIdNumberLabel = document.getElementById('validIdNumberLabel');
+                const validIdNumberInput = document.getElementById('validIdNumber');
+
+                if (validIdTypeSelect.value === '') {
+                    validIdImageInput.setAttribute('required', 'required');
+                    validIdImageWrap.style.display = 'none';
+                    if (validIdNumberWrap) validIdNumberWrap.style.display = 'none';
+                    if (validIdNumberInput) validIdNumberInput.value = '';
+                } else {
+                    validIdImageInput.removeAttribute('required');
+                    validIdImageWrap.style.display = 'block';
+                    if (validIdNumberWrap) validIdNumberWrap.style.display = 'block';
+                    if (validIdNumberLabel) {
+                        const type = validIdTypeSelect.value;
+                        let labelText = 'ID Number';
+                        if (type === 'National I.D') labelText = 'National I.D Number';
+                        else if (type === 'Passport') labelText = 'Passport Number';
+                        else if (type === 'License') labelText = 'License Number';
+                        else if (type === 'Other Valid I.D') labelText = 'ID Number';
+                        validIdNumberLabel.innerHTML = '<i class="fas fa-hashtag"></i> ' + labelText;
+                    }
+                }
+            }
+
+            // Initial call to set the state on page load
+            toggleValidIdImage();
+
+            // Add event listener for valid_id_type change
+            document.getElementById('validIdType').addEventListener('change', toggleValidIdImage);
+
+            // Valid ID image toggle based on type selection
+            const idType = document.getElementById('validIdType');
+            const idWrap = document.getElementById('validIdImageWrap');
+            const idInput = document.getElementById('validIdImage');
+            const idNumWrap = document.getElementById('validIdNumberWrap');
+            const idNumInput = document.getElementById('validIdNumber');
+            const idNumLabel = document.getElementById('validIdNumberLabel');
+            const syncValidId = () => {
+                const hasType = idType && idType.value && idType.value.trim() !== '';
+                if (idWrap) idWrap.style.display = hasType ? 'block' : 'none';
+                if (idInput) {
+                    if (hasType) { idInput.setAttribute('required','required'); }
+                    else { idInput.removeAttribute('required'); idInput.value = ''; }
+                }
+                if (idNumWrap) idNumWrap.style.display = hasType ? 'block' : 'none';
+                if (idNumLabel) {
+                    const type = idType.value;
+                    let labelText = 'ID Number';
+                    if (type === 'National I.D') labelText = 'National I.D Number';
+                    else if (type === 'Passport') labelText = 'Passport Number';
+                    else if (type === 'License') labelText = 'License Number';
+                    else if (type === 'Other Valid I.D') labelText = 'ID Number';
+                    idNumLabel.innerHTML = '<i class="fas fa-hashtag"></i> ' + labelText;
+                }
+            };
+            if (idType) {
+                idType.addEventListener('change', syncValidId);
+                idType.addEventListener('input', syncValidId);
+                syncValidId();
             }
         });
     </script>

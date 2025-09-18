@@ -184,12 +184,12 @@
                             @php
                                 $unreadCount = $boatOwnerNotifications->where('is_read', false)->count();
                             @endphp
-                            @if($unreadCount > 0)
-                                <div class="notification-header">
-                                    <div class="unread-count">
-                                        <span class="count-badge">{{ $unreadCount }}</span>
-                                        <span class="count-text">unread notification{{ $unreadCount > 1 ? 's' : '' }}</span>
-                                    </div>
+                            <div class="notification-header">
+                                <div class="unread-count">
+                                    <span class="count-badge">{{ $unreadCount }}</span>
+                                    <span class="count-text">{{ $unreadCount }} unread</span>
+                                </div>
+                                <div class="d-flex gap-2">
                                     <form action="{{ route('boat.owner.notifications.markAllAsRead') }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PUT')
@@ -197,8 +197,11 @@
                                             <i class="fas fa-check-double me-1"></i>Mark All as Read
                                         </button>
                                     </form>
+                                    <button type="button" id="deleteAllBoatNotificationsBtn" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash me-1"></i>Delete All
+                                    </button>
                                 </div>
-                            @endif
+                            </div>
                             <div class="notifications-list">
                                 @foreach ($boatOwnerNotifications as $notification)
                                     <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}" id="notification-{{ $notification->id }}" data-notification-id="{{ $notification->id }}">
@@ -323,14 +326,23 @@
                                             {{-- Show assigned boat & captain if available --}}
                                             @if ($notification->booking->status === 'approved')
                                                 @php
-                                                    $assignedBoatName = $notification->booking->assigned_boat ?? ($notification->booking->assignedBoat->boat_name ?? null);
+                                                    $assignedBoatModel = $notification->booking->assignedBoat;
+                                                    $assignedBoatName = $notification->booking->assigned_boat ?? ($assignedBoatModel->boat_name ?? null);
                                                     $captainName = $notification->booking->boat_captain_crew
-                                                        ?? ($notification->booking->assignedBoat->captain_name ?? null);
+                                                        ?? ($assignedBoatModel->captain_name ?? null);
+                                                    $boatNumber = $assignedBoatModel->boat_number ?? null;
+                                                    $boatLength = $assignedBoatModel->boat_length ?? null;
                                                 @endphp
                                                 @if ($assignedBoatName || $captainName)
                                                     <div class="mt-2">
                                                         @if($assignedBoatName)
                                                             <p class="mb-1">Assigned Boat: <strong>{{ $assignedBoatName }}</strong></p>
+                                                        @endif
+                                                        @if($boatNumber)
+                                                            <p class="mb-1">Boat No: <strong>{{ $boatNumber }}</strong></p>
+                                                        @endif
+                                                        @if($boatLength)
+                                                            <p class="mb-1">Boat Length: <strong>{{ $boatLength }}</strong></p>
                                                         @endif
                                                         <p class="mb-1">Boat Captain: <strong>{{ $captainName ?? 'N/A' }}</strong></p>
                                                     </div>
@@ -1144,6 +1156,48 @@
                     });
                 });
             });
+
+            // Handle Delete All notifications (Boat Owner)
+            const deleteAllBoatBtn = document.getElementById('deleteAllBoatNotificationsBtn');
+            if (deleteAllBoatBtn) {
+                deleteAllBoatBtn.addEventListener('click', function() {
+                    Swal.fire({
+                        title: "Delete all notifications?",
+                        text: "This will permanently delete all your notifications.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes, delete all",
+                        cancelButtonText: "Cancel",
+                        customClass: { popup: 'swal2-popup-responsive', title: 'swal2-title-responsive', content: 'swal2-content-responsive', confirmButton: 'swal2-confirm-responsive', cancelButton: 'swal2-cancel-responsive' }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({ title: "Deleting...", allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading(), customClass: { popup: 'swal2-popup-responsive' } });
+                            fetch(`{{ route('boat.owner.notifications.destroyAll') }}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(r => r.json()).then(data => {
+                                if (data.success) {
+                                    document.querySelectorAll('.notification-item').forEach(el => el.remove());
+                                    const desktopBadge = document.querySelector('#unreadBadgeDesktop');
+                                    const mobileBadge = document.querySelector('#unreadBadgeMobile');
+                                    if (desktopBadge) desktopBadge.remove();
+                                    if (mobileBadge) mobileBadge.remove();
+                                    Swal.fire({ title: "Deleted!", text: "All notifications deleted.", icon: "success" });
+                                } else { throw new Error('Failed'); }
+                            }).catch(() => {
+                                Swal.fire({ title: "Error", text: "Failed to delete all notifications.", icon: "error" });
+                            });
+                        }
+                    });
+                });
+            }
 
             // Handle "Mark All as Read" form submission
             document.addEventListener('submit', function(e) {
