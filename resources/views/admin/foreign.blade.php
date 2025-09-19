@@ -93,66 +93,187 @@
                     <div class="page-title-section">
                         <h1 class="page-title">
                             <i class="fas fa-globe-americas me-2"></i>
-                            Foreign Users
+                            Foreign Users & Guests
                         </h1>
-                        <p class="page-subtitle">List of all registered foreign users in the system</p>
+                        <p class="page-subtitle">List of all foreign registered users and guest visitors</p>
                     </div>
                     <div class="page-stats">
                         <div class="stat-card">
-                            <div class="stat-number">{{ $foreigners->count() }}</div>
-                            <div class="stat-label">Total Foreigners</div>
+                            <div class="stat-number">{{ $registeredForeigners->count() }}</div>
+                            <div class="stat-label">Registered Foreign Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{{ $guestForeigners->count() }}</div>
+                            <div class="stat-label">Foreign Guest Visitors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{{ $guestFilipinos->count() }}</div>
+                            <div class="stat-label">Filipino Guest Visitors</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Users Table --}}
-            <div class="table-container">
+            {{-- Registered Users Section --}}
+            <div class="table-container mb-4">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-users me-2"></i>
+                        Registered Foreign Users
+                    </h3>
+                    <span class="badge bg-primary">{{ $registeredForeigners->count() }} users</span>
+                </div>
                 <div class="table-responsive">
                     <table class="table modern-table">
                         <thead class="table-header">
                             <tr>
                                 <th scope="col" class="text-center">#</th>
-                                <th scope="col">First Name</th>
-                                <th scope="col">Middle Name</th>
-                                <th scope="col">Last Name</th>
+                                <th scope="col">Name</th>
                                 <th scope="col">Nationality</th>
-                                <th scope="col">Registered On</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Registered Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($foreigners as $foreigner)
+                            @forelse($registeredForeigners as $user)
                                 <tr class="table-row">
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td class="name-cell">
-                                        <div class="user-name">{{ $foreigner->first_name }}</div>
-                                    </td>
-                                    <td class="name-cell">
-                                        <div class="user-name">{{ $foreigner->middle_name ?? 'N/A' }}</div>
-                                    </td>
-                                    <td class="name-cell">
-                                        <div class="user-name">{{ $foreigner->last_name }}</div>
+                                        <div class="user-name">{{ $user->first_name }} {{ $user->last_name }}</div>
                                     </td>
                                     <td class="nationality-cell">
                                         <div class="nationality-info">
                                             <i class="fas fa-flag text-info me-1"></i>
-                                            {{ $foreigner->nationality }}
+                                            {{ $user->nationality }}
                                         </div>
+                                    </td>
+                                    <td class="email-cell">
+                                        <div class="email-info">{{ $user->email }}</div>
                                     </td>
                                     <td class="date-cell">
                                         <div class="date-info">
                                             <i class="fas fa-calendar text-primary me-1"></i>
-                                            {{ $foreigner->created_at->format('M d, Y') }}
+                                            {{ $user->created_at->format('M d, Y') }}
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center empty-state-cell">
+                                    <td colspan="5" class="text-center empty-state-cell">
                                         <div class="empty-state">
-                                            <i class="fas fa-globe empty-icon"></i>
-                                            <h5 class="empty-title">No Foreign Users Found</h5>
-                                            <p class="empty-description">There are no foreign users registered in the system yet.</p>
+                                            <i class="fas fa-users empty-icon"></i>
+                                            <h5 class="empty-title">No Registered Foreign Users</h5>
+                                            <p class="empty-description">There are no foreign registered users in the system yet.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Guest Visitors Section --}}
+            <div class="table-container">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-user-friends me-2"></i>
+                        Foreign Guest Visitors
+                    </h3>
+                    <span class="badge bg-success">{{ $guestForeigners->count() }} guests</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col" class="text-center">#</th>
+                                <th scope="col">Guest Name</th>
+                                <th scope="col">Nationality</th>
+                                <th scope="col">Booking Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($guestForeigners as $guest)
+                                <tr class="table-row">
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="name-cell">
+                                        <div class="user-name">{{ $guest->guest_name }}</div>
+                                    </td>
+                                    <td class="nationality-cell">
+                                        <div class="nationality-info">
+                                            <i class="fas fa-flag text-info me-1"></i>
+                                            {{ $guest->guest_nationality }}
+                                        </div>
+                                    </td>
+                                    <td class="date-cell">
+                                        <div class="date-info">
+                                            <i class="fas fa-calendar text-primary me-1"></i>
+                                            {{ $guest->created_at->format('M d, Y') }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center empty-state-cell">
+                                        <div class="empty-state">
+                                            <i class="fas fa-user-friends empty-icon"></i>
+                                            <h5 class="empty-title">No Foreign Guest Visitors</h5>
+                                            <p class="empty-description">There are no foreign guest visitors in the system yet.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Filipino Guest Visitors Section --}}
+            <div class="table-container">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-flag me-2"></i>
+                        Filipino Guest Visitors
+                    </h3>
+                    <span class="badge bg-primary">{{ $guestFilipinos->count() }} guests</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col" class="text-center">#</th>
+                                <th scope="col">Guest Name</th>
+                                <th scope="col">Nationality</th>
+                                <th scope="col">Booking Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($guestFilipinos as $guest)
+                                <tr class="table-row">
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="name-cell">
+                                        <div class="user-name">{{ $guest->guest_name }}</div>
+                                    </td>
+                                    <td class="nationality-cell">
+                                        <div class="nationality-info">
+                                            <i class="fas fa-flag text-primary me-1"></i>
+                                            {{ $guest->guest_nationality }}
+                                        </div>
+                                    </td>
+                                    <td class="date-cell">
+                                        <div class="date-info">
+                                            <i class="fas fa-calendar text-primary me-1"></i>
+                                            {{ $guest->created_at->format('M d, Y') }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center empty-state-cell">
+                                        <div class="empty-state">
+                                            <i class="fas fa-flag empty-icon"></i>
+                                            <h5 class="empty-title">No Filipino Guest Visitors</h5>
+                                            <p class="empty-description">There are no Filipino guest visitors in the system yet.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -419,6 +540,35 @@
             opacity: 0.9;
         }
 
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            border-bottom: 2px solid #f1f3f4;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #495057;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            color: #007bff;
+        }
+
+        .badge {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
         /* Table Container */
         .table-container {
             background: white;
@@ -646,9 +796,19 @@
                 padding: 1rem 0.75rem;
             }
             
-            .name-cell, .nationality-cell, .date-cell {
+            .name-cell, .nationality-cell, .date-cell, .email-cell {
                 min-width: 100px;
                 max-width: 120px;
+            }
+
+            .email-cell {
+                min-width: 200px;
+                max-width: 250px;
+            }
+
+            .email-info {
+                font-size: 0.85rem;
+                color: #6c757d;
             }
         }
 
@@ -692,9 +852,14 @@
                 padding: 0.75rem 0.5rem;
             }
             
-            .name-cell, .nationality-cell, .date-cell {
+            .name-cell, .nationality-cell, .date-cell, .email-cell {
                 min-width: 80px;
                 max-width: 100px;
+            }
+
+            .email-cell {
+                min-width: 150px;
+                max-width: 200px;
             }
             
             .user-name, .nationality-info, .date-info {

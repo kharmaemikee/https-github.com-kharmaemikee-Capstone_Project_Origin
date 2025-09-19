@@ -175,6 +175,204 @@
                                         <small class="help-text">This is the main guest for the booking (usually the tourist making the booking)</small>
                                     </div>
                                     <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fas fa-flag"></i>
+                                            Nationality
+                                        </label>
+                                        <select class="form-control @error('nationality') is-invalid @enderror" name="nationality" required>
+                                            <option value="">Select your nationality</option>
+                                            <option value="Afghan" {{ old('nationality', $user->nationality ?? '') == 'Afghan' ? 'selected' : '' }}>Afghan</option>
+                                            <option value="Albanian" {{ old('nationality', $user->nationality ?? '') == 'Albanian' ? 'selected' : '' }}>Albanian</option>
+                                            <option value="Algerian" {{ old('nationality', $user->nationality ?? '') == 'Algerian' ? 'selected' : '' }}>Algerian</option>
+                                            <option value="American" {{ old('nationality', $user->nationality ?? '') == 'American' ? 'selected' : '' }}>American</option>
+                                            <option value="Andorran" {{ old('nationality', $user->nationality ?? '') == 'Andorran' ? 'selected' : '' }}>Andorran</option>
+                                            <option value="Angolan" {{ old('nationality', $user->nationality ?? '') == 'Angolan' ? 'selected' : '' }}>Angolan</option>
+                                            <option value="Antiguan" {{ old('nationality', $user->nationality ?? '') == 'Antiguan' ? 'selected' : '' }}>Antiguan</option>
+                                            <option value="Argentine" {{ old('nationality', $user->nationality ?? '') == 'Argentine' ? 'selected' : '' }}>Argentine</option>
+                                            <option value="Armenian" {{ old('nationality', $user->nationality ?? '') == 'Armenian' ? 'selected' : '' }}>Armenian</option>
+                                            <option value="Australian" {{ old('nationality', $user->nationality ?? '') == 'Australian' ? 'selected' : '' }}>Australian</option>
+                                            <option value="Austrian" {{ old('nationality', $user->nationality ?? '') == 'Austrian' ? 'selected' : '' }}>Austrian</option>
+                                            <option value="Azerbaijani" {{ old('nationality', $user->nationality ?? '') == 'Azerbaijani' ? 'selected' : '' }}>Azerbaijani</option>
+                                            <option value="Bahamian" {{ old('nationality', $user->nationality ?? '') == 'Bahamian' ? 'selected' : '' }}>Bahamian</option>
+                                            <option value="Bahraini" {{ old('nationality', $user->nationality ?? '') == 'Bahraini' ? 'selected' : '' }}>Bahraini</option>
+                                            <option value="Bangladeshi" {{ old('nationality', $user->nationality ?? '') == 'Bangladeshi' ? 'selected' : '' }}>Bangladeshi</option>
+                                            <option value="Barbadian" {{ old('nationality', $user->nationality ?? '') == 'Barbadian' ? 'selected' : '' }}>Barbadian</option>
+                                            <option value="Belarusian" {{ old('nationality', $user->nationality ?? '') == 'Belarusian' ? 'selected' : '' }}>Belarusian</option>
+                                            <option value="Belgian" {{ old('nationality', $user->nationality ?? '') == 'Belgian' ? 'selected' : '' }}>Belgian</option>
+                                            <option value="Belizean" {{ old('nationality', $user->nationality ?? '') == 'Belizean' ? 'selected' : '' }}>Belizean</option>
+                                            <option value="Beninese" {{ old('nationality', $user->nationality ?? '') == 'Beninese' ? 'selected' : '' }}>Beninese</option>
+                                            <option value="Bhutanese" {{ old('nationality', $user->nationality ?? '') == 'Bhutanese' ? 'selected' : '' }}>Bhutanese</option>
+                                            <option value="Bolivian" {{ old('nationality', $user->nationality ?? '') == 'Bolivian' ? 'selected' : '' }}>Bolivian</option>
+                                            <option value="Bosnian" {{ old('nationality', $user->nationality ?? '') == 'Bosnian' ? 'selected' : '' }}>Bosnian</option>
+                                            <option value="Botswanan" {{ old('nationality', $user->nationality ?? '') == 'Botswanan' ? 'selected' : '' }}>Botswanan</option>
+                                            <option value="Brazilian" {{ old('nationality', $user->nationality ?? '') == 'Brazilian' ? 'selected' : '' }}>Brazilian</option>
+                                            <option value="British" {{ old('nationality', $user->nationality ?? '') == 'British' ? 'selected' : '' }}>British</option>
+                                            <option value="Bruneian" {{ old('nationality', $user->nationality ?? '') == 'Bruneian' ? 'selected' : '' }}>Bruneian</option>
+                                            <option value="Bulgarian" {{ old('nationality', $user->nationality ?? '') == 'Bulgarian' ? 'selected' : '' }}>Bulgarian</option>
+                                            <option value="Burkinabé" {{ old('nationality', $user->nationality ?? '') == 'Burkinabé' ? 'selected' : '' }}>Burkinabé</option>
+                                            <option value="Burundian" {{ old('nationality', $user->nationality ?? '') == 'Burundian' ? 'selected' : '' }}>Burundian</option>
+                                            <option value="Cambodian" {{ old('nationality', $user->nationality ?? '') == 'Cambodian' ? 'selected' : '' }}>Cambodian</option>
+                                            <option value="Cameroonian" {{ old('nationality', $user->nationality ?? '') == 'Cameroonian' ? 'selected' : '' }}>Cameroonian</option>
+                                            <option value="Canadian" {{ old('nationality', $user->nationality ?? '') == 'Canadian' ? 'selected' : '' }}>Canadian</option>
+                                            <option value="Cape Verdean" {{ old('nationality', $user->nationality ?? '') == 'Cape Verdean' ? 'selected' : '' }}>Cape Verdean</option>
+                                            <option value="Central African" {{ old('nationality', $user->nationality ?? '') == 'Central African' ? 'selected' : '' }}>Central African</option>
+                                            <option value="Chadian" {{ old('nationality', $user->nationality ?? '') == 'Chadian' ? 'selected' : '' }}>Chadian</option>
+                                            <option value="Chilean" {{ old('nationality', $user->nationality ?? '') == 'Chilean' ? 'selected' : '' }}>Chilean</option>
+                                            <option value="Chinese" {{ old('nationality', $user->nationality ?? '') == 'Chinese' ? 'selected' : '' }}>Chinese</option>
+                                            <option value="Colombian" {{ old('nationality', $user->nationality ?? '') == 'Colombian' ? 'selected' : '' }}>Colombian</option>
+                                            <option value="Comoran" {{ old('nationality', $user->nationality ?? '') == 'Comoran' ? 'selected' : '' }}>Comoran</option>
+                                            <option value="Congolese" {{ old('nationality', $user->nationality ?? '') == 'Congolese' ? 'selected' : '' }}>Congolese</option>
+                                            <option value="Costa Rican" {{ old('nationality', $user->nationality ?? '') == 'Costa Rican' ? 'selected' : '' }}>Costa Rican</option>
+                                            <option value="Croatian" {{ old('nationality', $user->nationality ?? '') == 'Croatian' ? 'selected' : '' }}>Croatian</option>
+                                            <option value="Cuban" {{ old('nationality', $user->nationality ?? '') == 'Cuban' ? 'selected' : '' }}>Cuban</option>
+                                            <option value="Cypriot" {{ old('nationality', $user->nationality ?? '') == 'Cypriot' ? 'selected' : '' }}>Cypriot</option>
+                                            <option value="Czech" {{ old('nationality', $user->nationality ?? '') == 'Czech' ? 'selected' : '' }}>Czech</option>
+                                            <option value="Danish" {{ old('nationality', $user->nationality ?? '') == 'Danish' ? 'selected' : '' }}>Danish</option>
+                                            <option value="Djiboutian" {{ old('nationality', $user->nationality ?? '') == 'Djiboutian' ? 'selected' : '' }}>Djiboutian</option>
+                                            <option value="Dominican" {{ old('nationality', $user->nationality ?? '') == 'Dominican' ? 'selected' : '' }}>Dominican</option>
+                                            <option value="Dutch" {{ old('nationality', $user->nationality ?? '') == 'Dutch' ? 'selected' : '' }}>Dutch</option>
+                                            <option value="Ecuadorian" {{ old('nationality', $user->nationality ?? '') == 'Ecuadorian' ? 'selected' : '' }}>Ecuadorian</option>
+                                            <option value="Egyptian" {{ old('nationality', $user->nationality ?? '') == 'Egyptian' ? 'selected' : '' }}>Egyptian</option>
+                                            <option value="Emirati" {{ old('nationality', $user->nationality ?? '') == 'Emirati' ? 'selected' : '' }}>Emirati</option>
+                                            <option value="Equatorial Guinean" {{ old('nationality', $user->nationality ?? '') == 'Equatorial Guinean' ? 'selected' : '' }}>Equatorial Guinean</option>
+                                            <option value="Eritrean" {{ old('nationality', $user->nationality ?? '') == 'Eritrean' ? 'selected' : '' }}>Eritrean</option>
+                                            <option value="Estonian" {{ old('nationality', $user->nationality ?? '') == 'Estonian' ? 'selected' : '' }}>Estonian</option>
+                                            <option value="Ethiopian" {{ old('nationality', $user->nationality ?? '') == 'Ethiopian' ? 'selected' : '' }}>Ethiopian</option>
+                                            <option value="Fijian" {{ old('nationality', $user->nationality ?? '') == 'Fijian' ? 'selected' : '' }}>Fijian</option>
+                                            <option value="Filipino" {{ old('nationality', $user->nationality ?? '') == 'Filipino' ? 'selected' : '' }}>Filipino</option>
+                                            <option value="Finnish" {{ old('nationality', $user->nationality ?? '') == 'Finnish' ? 'selected' : '' }}>Finnish</option>
+                                            <option value="French" {{ old('nationality', $user->nationality ?? '') == 'French' ? 'selected' : '' }}>French</option>
+                                            <option value="Gabonese" {{ old('nationality', $user->nationality ?? '') == 'Gabonese' ? 'selected' : '' }}>Gabonese</option>
+                                            <option value="Gambian" {{ old('nationality', $user->nationality ?? '') == 'Gambian' ? 'selected' : '' }}>Gambian</option>
+                                            <option value="Georgian" {{ old('nationality', $user->nationality ?? '') == 'Georgian' ? 'selected' : '' }}>Georgian</option>
+                                            <option value="German" {{ old('nationality', $user->nationality ?? '') == 'German' ? 'selected' : '' }}>German</option>
+                                            <option value="Ghanaian" {{ old('nationality', $user->nationality ?? '') == 'Ghanaian' ? 'selected' : '' }}>Ghanaian</option>
+                                            <option value="Greek" {{ old('nationality', $user->nationality ?? '') == 'Greek' ? 'selected' : '' }}>Greek</option>
+                                            <option value="Grenadian" {{ old('nationality', $user->nationality ?? '') == 'Grenadian' ? 'selected' : '' }}>Grenadian</option>
+                                            <option value="Guatemalan" {{ old('nationality', $user->nationality ?? '') == 'Guatemalan' ? 'selected' : '' }}>Guatemalan</option>
+                                            <option value="Guinean" {{ old('nationality', $user->nationality ?? '') == 'Guinean' ? 'selected' : '' }}>Guinean</option>
+                                            <option value="Guyanese" {{ old('nationality', $user->nationality ?? '') == 'Guyanese' ? 'selected' : '' }}>Guyanese</option>
+                                            <option value="Haitian" {{ old('nationality', $user->nationality ?? '') == 'Haitian' ? 'selected' : '' }}>Haitian</option>
+                                            <option value="Honduran" {{ old('nationality', $user->nationality ?? '') == 'Honduran' ? 'selected' : '' }}>Honduran</option>
+                                            <option value="Hungarian" {{ old('nationality', $user->nationality ?? '') == 'Hungarian' ? 'selected' : '' }}>Hungarian</option>
+                                            <option value="Icelandic" {{ old('nationality', $user->nationality ?? '') == 'Icelandic' ? 'selected' : '' }}>Icelandic</option>
+                                            <option value="Indian" {{ old('nationality', $user->nationality ?? '') == 'Indian' ? 'selected' : '' }}>Indian</option>
+                                            <option value="Indonesian" {{ old('nationality', $user->nationality ?? '') == 'Indonesian' ? 'selected' : '' }}>Indonesian</option>
+                                            <option value="Iranian" {{ old('nationality', $user->nationality ?? '') == 'Iranian' ? 'selected' : '' }}>Iranian</option>
+                                            <option value="Iraqi" {{ old('nationality', $user->nationality ?? '') == 'Iraqi' ? 'selected' : '' }}>Iraqi</option>
+                                            <option value="Irish" {{ old('nationality', $user->nationality ?? '') == 'Irish' ? 'selected' : '' }}>Irish</option>
+                                            <option value="Israeli" {{ old('nationality', $user->nationality ?? '') == 'Israeli' ? 'selected' : '' }}>Israeli</option>
+                                            <option value="Italian" {{ old('nationality', $user->nationality ?? '') == 'Italian' ? 'selected' : '' }}>Italian</option>
+                                            <option value="Ivorian" {{ old('nationality', $user->nationality ?? '') == 'Ivorian' ? 'selected' : '' }}>Ivorian</option>
+                                            <option value="Jamaican" {{ old('nationality', $user->nationality ?? '') == 'Jamaican' ? 'selected' : '' }}>Jamaican</option>
+                                            <option value="Japanese" {{ old('nationality', $user->nationality ?? '') == 'Japanese' ? 'selected' : '' }}>Japanese</option>
+                                            <option value="Jordanian" {{ old('nationality', $user->nationality ?? '') == 'Jordanian' ? 'selected' : '' }}>Jordanian</option>
+                                            <option value="Kazakhstani" {{ old('nationality', $user->nationality ?? '') == 'Kazakhstani' ? 'selected' : '' }}>Kazakhstani</option>
+                                            <option value="Kenyan" {{ old('nationality', $user->nationality ?? '') == 'Kenyan' ? 'selected' : '' }}>Kenyan</option>
+                                            <option value="Kuwaiti" {{ old('nationality', $user->nationality ?? '') == 'Kuwaiti' ? 'selected' : '' }}>Kuwaiti</option>
+                                            <option value="Kyrgyzstani" {{ old('nationality', $user->nationality ?? '') == 'Kyrgyzstani' ? 'selected' : '' }}>Kyrgyzstani</option>
+                                            <option value="Laotian" {{ old('nationality', $user->nationality ?? '') == 'Laotian' ? 'selected' : '' }}>Laotian</option>
+                                            <option value="Latvian" {{ old('nationality', $user->nationality ?? '') == 'Latvian' ? 'selected' : '' }}>Latvian</option>
+                                            <option value="Lebanese" {{ old('nationality', $user->nationality ?? '') == 'Lebanese' ? 'selected' : '' }}>Lebanese</option>
+                                            <option value="Liberian" {{ old('nationality', $user->nationality ?? '') == 'Liberian' ? 'selected' : '' }}>Liberian</option>
+                                            <option value="Libyan" {{ old('nationality', $user->nationality ?? '') == 'Libyan' ? 'selected' : '' }}>Libyan</option>
+                                            <option value="Liechtensteiner" {{ old('nationality', $user->nationality ?? '') == 'Liechtensteiner' ? 'selected' : '' }}>Liechtensteiner</option>
+                                            <option value="Lithuanian" {{ old('nationality', $user->nationality ?? '') == 'Lithuanian' ? 'selected' : '' }}>Lithuanian</option>
+                                            <option value="Luxembourgish" {{ old('nationality', $user->nationality ?? '') == 'Luxembourgish' ? 'selected' : '' }}>Luxembourgish</option>
+                                            <option value="Macedonian" {{ old('nationality', $user->nationality ?? '') == 'Macedonian' ? 'selected' : '' }}>Macedonian</option>
+                                            <option value="Malagasy" {{ old('nationality', $user->nationality ?? '') == 'Malagasy' ? 'selected' : '' }}>Malagasy</option>
+                                            <option value="Malawian" {{ old('nationality', $user->nationality ?? '') == 'Malawian' ? 'selected' : '' }}>Malawian</option>
+                                            <option value="Malaysian" {{ old('nationality', $user->nationality ?? '') == 'Malaysian' ? 'selected' : '' }}>Malaysian</option>
+                                            <option value="Maldivian" {{ old('nationality', $user->nationality ?? '') == 'Maldivian' ? 'selected' : '' }}>Maldivian</option>
+                                            <option value="Malian" {{ old('nationality', $user->nationality ?? '') == 'Malian' ? 'selected' : '' }}>Malian</option>
+                                            <option value="Maltese" {{ old('nationality', $user->nationality ?? '') == 'Maltese' ? 'selected' : '' }}>Maltese</option>
+                                            <option value="Marshallese" {{ old('nationality', $user->nationality ?? '') == 'Marshallese' ? 'selected' : '' }}>Marshallese</option>
+                                            <option value="Mauritanian" {{ old('nationality', $user->nationality ?? '') == 'Mauritanian' ? 'selected' : '' }}>Mauritanian</option>
+                                            <option value="Mauritian" {{ old('nationality', $user->nationality ?? '') == 'Mauritian' ? 'selected' : '' }}>Mauritian</option>
+                                            <option value="Mexican" {{ old('nationality', $user->nationality ?? '') == 'Mexican' ? 'selected' : '' }}>Mexican</option>
+                                            <option value="Micronesian" {{ old('nationality', $user->nationality ?? '') == 'Micronesian' ? 'selected' : '' }}>Micronesian</option>
+                                            <option value="Moldovan" {{ old('nationality', $user->nationality ?? '') == 'Moldovan' ? 'selected' : '' }}>Moldovan</option>
+                                            <option value="Monacan" {{ old('nationality', $user->nationality ?? '') == 'Monacan' ? 'selected' : '' }}>Monacan</option>
+                                            <option value="Mongolian" {{ old('nationality', $user->nationality ?? '') == 'Mongolian' ? 'selected' : '' }}>Mongolian</option>
+                                            <option value="Montenegrin" {{ old('nationality', $user->nationality ?? '') == 'Montenegrin' ? 'selected' : '' }}>Montenegrin</option>
+                                            <option value="Moroccan" {{ old('nationality', $user->nationality ?? '') == 'Moroccan' ? 'selected' : '' }}>Moroccan</option>
+                                            <option value="Mozambican" {{ old('nationality', $user->nationality ?? '') == 'Mozambican' ? 'selected' : '' }}>Mozambican</option>
+                                            <option value="Myanmar" {{ old('nationality', $user->nationality ?? '') == 'Myanmar' ? 'selected' : '' }}>Myanmar</option>
+                                            <option value="Namibian" {{ old('nationality', $user->nationality ?? '') == 'Namibian' ? 'selected' : '' }}>Namibian</option>
+                                            <option value="Nauruan" {{ old('nationality', $user->nationality ?? '') == 'Nauruan' ? 'selected' : '' }}>Nauruan</option>
+                                            <option value="Nepalese" {{ old('nationality', $user->nationality ?? '') == 'Nepalese' ? 'selected' : '' }}>Nepalese</option>
+                                            <option value="New Zealand" {{ old('nationality', $user->nationality ?? '') == 'New Zealand' ? 'selected' : '' }}>New Zealand</option>
+                                            <option value="Nicaraguan" {{ old('nationality', $user->nationality ?? '') == 'Nicaraguan' ? 'selected' : '' }}>Nicaraguan</option>
+                                            <option value="Nigerian" {{ old('nationality', $user->nationality ?? '') == 'Nigerian' ? 'selected' : '' }}>Nigerian</option>
+                                            <option value="Nigerien" {{ old('nationality', $user->nationality ?? '') == 'Nigerien' ? 'selected' : '' }}>Nigerien</option>
+                                            <option value="North Korean" {{ old('nationality', $user->nationality ?? '') == 'North Korean' ? 'selected' : '' }}>North Korean</option>
+                                            <option value="Norwegian" {{ old('nationality', $user->nationality ?? '') == 'Norwegian' ? 'selected' : '' }}>Norwegian</option>
+                                            <option value="Omani" {{ old('nationality', $user->nationality ?? '') == 'Omani' ? 'selected' : '' }}>Omani</option>
+                                            <option value="Pakistani" {{ old('nationality', $user->nationality ?? '') == 'Pakistani' ? 'selected' : '' }}>Pakistani</option>
+                                            <option value="Palauan" {{ old('nationality', $user->nationality ?? '') == 'Palauan' ? 'selected' : '' }}>Palauan</option>
+                                            <option value="Panamanian" {{ old('nationality', $user->nationality ?? '') == 'Panamanian' ? 'selected' : '' }}>Panamanian</option>
+                                            <option value="Papua New Guinean" {{ old('nationality', $user->nationality ?? '') == 'Papua New Guinean' ? 'selected' : '' }}>Papua New Guinean</option>
+                                            <option value="Paraguayan" {{ old('nationality', $user->nationality ?? '') == 'Paraguayan' ? 'selected' : '' }}>Paraguayan</option>
+                                            <option value="Peruvian" {{ old('nationality', $user->nationality ?? '') == 'Peruvian' ? 'selected' : '' }}>Peruvian</option>
+                                            <option value="Polish" {{ old('nationality', $user->nationality ?? '') == 'Polish' ? 'selected' : '' }}>Polish</option>
+                                            <option value="Portuguese" {{ old('nationality', $user->nationality ?? '') == 'Portuguese' ? 'selected' : '' }}>Portuguese</option>
+                                            <option value="Qatari" {{ old('nationality', $user->nationality ?? '') == 'Qatari' ? 'selected' : '' }}>Qatari</option>
+                                            <option value="Romanian" {{ old('nationality', $user->nationality ?? '') == 'Romanian' ? 'selected' : '' }}>Romanian</option>
+                                            <option value="Russian" {{ old('nationality', $user->nationality ?? '') == 'Russian' ? 'selected' : '' }}>Russian</option>
+                                            <option value="Rwandan" {{ old('nationality', $user->nationality ?? '') == 'Rwandan' ? 'selected' : '' }}>Rwandan</option>
+                                            <option value="Saint Kitts and Nevis" {{ old('nationality', $user->nationality ?? '') == 'Saint Kitts and Nevis' ? 'selected' : '' }}>Saint Kitts and Nevis</option>
+                                            <option value="Saint Lucian" {{ old('nationality', $user->nationality ?? '') == 'Saint Lucian' ? 'selected' : '' }}>Saint Lucian</option>
+                                            <option value="Saint Vincent and the Grenadines" {{ old('nationality', $user->nationality ?? '') == 'Saint Vincent and the Grenadines' ? 'selected' : '' }}>Saint Vincent and the Grenadines</option>
+                                            <option value="Samoan" {{ old('nationality', $user->nationality ?? '') == 'Samoan' ? 'selected' : '' }}>Samoan</option>
+                                            <option value="San Marinese" {{ old('nationality', $user->nationality ?? '') == 'San Marinese' ? 'selected' : '' }}>San Marinese</option>
+                                            <option value="Sao Tomean" {{ old('nationality', $user->nationality ?? '') == 'Sao Tomean' ? 'selected' : '' }}>Sao Tomean</option>
+                                            <option value="Saudi Arabian" {{ old('nationality', $user->nationality ?? '') == 'Saudi Arabian' ? 'selected' : '' }}>Saudi Arabian</option>
+                                            <option value="Senegalese" {{ old('nationality', $user->nationality ?? '') == 'Senegalese' ? 'selected' : '' }}>Senegalese</option>
+                                            <option value="Serbian" {{ old('nationality', $user->nationality ?? '') == 'Serbian' ? 'selected' : '' }}>Serbian</option>
+                                            <option value="Seychellois" {{ old('nationality', $user->nationality ?? '') == 'Seychellois' ? 'selected' : '' }}>Seychellois</option>
+                                            <option value="Sierra Leonean" {{ old('nationality', $user->nationality ?? '') == 'Sierra Leonean' ? 'selected' : '' }}>Sierra Leonean</option>
+                                            <option value="Singaporean" {{ old('nationality', $user->nationality ?? '') == 'Singaporean' ? 'selected' : '' }}>Singaporean</option>
+                                            <option value="Slovak" {{ old('nationality', $user->nationality ?? '') == 'Slovak' ? 'selected' : '' }}>Slovak</option>
+                                            <option value="Slovenian" {{ old('nationality', $user->nationality ?? '') == 'Slovenian' ? 'selected' : '' }}>Slovenian</option>
+                                            <option value="Solomon Islander" {{ old('nationality', $user->nationality ?? '') == 'Solomon Islander' ? 'selected' : '' }}>Solomon Islander</option>
+                                            <option value="Somali" {{ old('nationality', $user->nationality ?? '') == 'Somali' ? 'selected' : '' }}>Somali</option>
+                                            <option value="South African" {{ old('nationality', $user->nationality ?? '') == 'South African' ? 'selected' : '' }}>South African</option>
+                                            <option value="South Korean" {{ old('nationality', $user->nationality ?? '') == 'South Korean' ? 'selected' : '' }}>South Korean</option>
+                                            <option value="South Sudanese" {{ old('nationality', $user->nationality ?? '') == 'South Sudanese' ? 'selected' : '' }}>South Sudanese</option>
+                                            <option value="Spanish" {{ old('nationality', $user->nationality ?? '') == 'Spanish' ? 'selected' : '' }}>Spanish</option>
+                                            <option value="Sri Lankan" {{ old('nationality', $user->nationality ?? '') == 'Sri Lankan' ? 'selected' : '' }}>Sri Lankan</option>
+                                            <option value="Sudanese" {{ old('nationality', $user->nationality ?? '') == 'Sudanese' ? 'selected' : '' }}>Sudanese</option>
+                                            <option value="Surinamese" {{ old('nationality', $user->nationality ?? '') == 'Surinamese' ? 'selected' : '' }}>Surinamese</option>
+                                            <option value="Swazi" {{ old('nationality', $user->nationality ?? '') == 'Swazi' ? 'selected' : '' }}>Swazi</option>
+                                            <option value="Swedish" {{ old('nationality', $user->nationality ?? '') == 'Swedish' ? 'selected' : '' }}>Swedish</option>
+                                            <option value="Swiss" {{ old('nationality', $user->nationality ?? '') == 'Swiss' ? 'selected' : '' }}>Swiss</option>
+                                            <option value="Syrian" {{ old('nationality', $user->nationality ?? '') == 'Syrian' ? 'selected' : '' }}>Syrian</option>
+                                            <option value="Taiwanese" {{ old('nationality', $user->nationality ?? '') == 'Taiwanese' ? 'selected' : '' }}>Taiwanese</option>
+                                            <option value="Tajikistani" {{ old('nationality', $user->nationality ?? '') == 'Tajikistani' ? 'selected' : '' }}>Tajikistani</option>
+                                            <option value="Tanzanian" {{ old('nationality', $user->nationality ?? '') == 'Tanzanian' ? 'selected' : '' }}>Tanzanian</option>
+                                            <option value="Thai" {{ old('nationality', $user->nationality ?? '') == 'Thai' ? 'selected' : '' }}>Thai</option>
+                                            <option value="Togolese" {{ old('nationality', $user->nationality ?? '') == 'Togolese' ? 'selected' : '' }}>Togolese</option>
+                                            <option value="Tongan" {{ old('nationality', $user->nationality ?? '') == 'Tongan' ? 'selected' : '' }}>Tongan</option>
+                                            <option value="Trinidadian" {{ old('nationality', $user->nationality ?? '') == 'Trinidadian' ? 'selected' : '' }}>Trinidadian</option>
+                                            <option value="Tunisian" {{ old('nationality', $user->nationality ?? '') == 'Tunisian' ? 'selected' : '' }}>Tunisian</option>
+                                            <option value="Turkish" {{ old('nationality', $user->nationality ?? '') == 'Turkish' ? 'selected' : '' }}>Turkish</option>
+                                            <option value="Turkmen" {{ old('nationality', $user->nationality ?? '') == 'Turkmen' ? 'selected' : '' }}>Turkmen</option>
+                                            <option value="Tuvaluan" {{ old('nationality', $user->nationality ?? '') == 'Tuvaluan' ? 'selected' : '' }}>Tuvaluan</option>
+                                            <option value="Ugandan" {{ old('nationality', $user->nationality ?? '') == 'Ugandan' ? 'selected' : '' }}>Ugandan</option>
+                                            <option value="Ukrainian" {{ old('nationality', $user->nationality ?? '') == 'Ukrainian' ? 'selected' : '' }}>Ukrainian</option>
+                                            <option value="Uruguayan" {{ old('nationality', $user->nationality ?? '') == 'Uruguayan' ? 'selected' : '' }}>Uruguayan</option>
+                                            <option value="Uzbekistani" {{ old('nationality', $user->nationality ?? '') == 'Uzbekistani' ? 'selected' : '' }}>Uzbekistani</option>
+                                            <option value="Vanuatuan" {{ old('nationality', $user->nationality ?? '') == 'Vanuatuan' ? 'selected' : '' }}>Vanuatuan</option>
+                                            <option value="Vatican" {{ old('nationality', $user->nationality ?? '') == 'Vatican' ? 'selected' : '' }}>Vatican</option>
+                                            <option value="Venezuelan" {{ old('nationality', $user->nationality ?? '') == 'Venezuelan' ? 'selected' : '' }}>Venezuelan</option>
+                                            <option value="Vietnamese" {{ old('nationality', $user->nationality ?? '') == 'Vietnamese' ? 'selected' : '' }}>Vietnamese</option>
+                                            <option value="Yemeni" {{ old('nationality', $user->nationality ?? '') == 'Yemeni' ? 'selected' : '' }}>Yemeni</option>
+                                            <option value="Zambian" {{ old('nationality', $user->nationality ?? '') == 'Zambian' ? 'selected' : '' }}>Zambian</option>
+                                            <option value="Zimbabwean" {{ old('nationality', $user->nationality ?? '') == 'Zimbabwean' ? 'selected' : '' }}>Zimbabwean</option>
+                                        </select>
+                                        @error('nationality')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="form-group">
                                         <label for="numGuests" class="form-label">
                                             <i class="fas fa-users"></i>
                                             Number of Guests
@@ -185,7 +383,6 @@
                                 </div>
                             </div>
 
-                            <input type="hidden" name="nationality" value="{{ old('nationality', $requestData['nationality'] ?? ($user ? $user->nationality : '')) }}">
                             <input type="hidden" name="contact_number" value="{{ old('contact_number', $requestData['contact_number'] ?? ($user ? $user->phone : '')) }}">
                             <input type="hidden" name="reservation_date" value="{{ old('reservation_date', $requestData['reservation_date'] ?? '') }}">
                             <input type="hidden" name="num_nights" value="{{ old('num_nights', $requestData['num_nights'] ?? 1) }}">
@@ -367,6 +564,7 @@
                                     <input type="text" class="form-control" id="boat_contact_number" name="boat_contact_number" disabled>
                                 </div>
                             </div>
+
 
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary" {{ isset($conflictingBooking) && $conflictingBooking ? 'disabled' : '' }}>
@@ -1339,9 +1537,55 @@
                     ageInput.placeholder = 'Age (7+)';
                     ageInput.className = 'form-control';
                     ageInput.style.maxWidth = '120px';
+                    const nationalitySelect = document.createElement('select');
+                    nationalitySelect.name = `guest_nationalities[]`;
+                    nationalitySelect.required = additional > 0;
+                    nationalitySelect.className = 'form-control';
+                    nationalitySelect.style.maxWidth = '150px';
+                    
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select nationality';
+                    nationalitySelect.appendChild(defaultOption);
+                    
+                    // Add all nationality options
+                    const nationalities = [
+                        'Afghan', 'Albanian', 'Algerian', 'American', 'Andorran', 'Angolan', 'Antiguan', 'Argentine', 'Armenian', 'Australian', 'Austrian', 'Azerbaijani',
+                        'Bahamian', 'Bahraini', 'Bangladeshi', 'Barbadian', 'Belarusian', 'Belgian', 'Belizean', 'Beninese', 'Bhutanese', 'Bolivian', 'Bosnian', 'Botswanan', 'Brazilian', 'British', 'Bruneian', 'Bulgarian', 'Burkinabé', 'Burundian',
+                        'Cambodian', 'Cameroonian', 'Canadian', 'Cape Verdean', 'Central African', 'Chadian', 'Chilean', 'Chinese', 'Colombian', 'Comoran', 'Congolese', 'Costa Rican', 'Croatian', 'Cuban', 'Cypriot', 'Czech',
+                        'Danish', 'Djiboutian', 'Dominican', 'Dutch',
+                        'Ecuadorian', 'Egyptian', 'Emirati', 'Equatorial Guinean', 'Eritrean', 'Estonian', 'Ethiopian',
+                        'Fijian', 'Filipino', 'Finnish', 'French',
+                        'Gabonese', 'Gambian', 'Georgian', 'German', 'Ghanaian', 'Greek', 'Grenadian', 'Guatemalan', 'Guinean', 'Guyanese',
+                        'Haitian', 'Honduran', 'Hungarian',
+                        'Icelandic', 'Indian', 'Indonesian', 'Iranian', 'Iraqi', 'Irish', 'Israeli', 'Italian', 'Ivorian',
+                        'Jamaican', 'Japanese', 'Jordanian',
+                        'Kazakhstani', 'Kenyan', 'Kuwaiti', 'Kyrgyzstani',
+                        'Laotian', 'Latvian', 'Lebanese', 'Liberian', 'Libyan', 'Liechtensteiner', 'Lithuanian', 'Luxembourgish',
+                        'Macedonian', 'Malagasy', 'Malawian', 'Malaysian', 'Maldivian', 'Malian', 'Maltese', 'Marshallese', 'Mauritanian', 'Mauritian', 'Mexican', 'Micronesian', 'Moldovan', 'Monacan', 'Mongolian', 'Montenegrin', 'Moroccan', 'Mozambican', 'Myanmar',
+                        'Namibian', 'Nauruan', 'Nepalese', 'New Zealand', 'Nicaraguan', 'Nigerian', 'Nigerien', 'North Korean', 'Norwegian',
+                        'Omani',
+                        'Pakistani', 'Palauan', 'Panamanian', 'Papua New Guinean', 'Paraguayan', 'Peruvian', 'Polish', 'Portuguese', 'Qatari',
+                        'Romanian', 'Russian', 'Rwandan',
+                        'Saint Kitts and Nevis', 'Saint Lucian', 'Saint Vincent and the Grenadines', 'Samoan', 'San Marinese', 'Sao Tomean', 'Saudi Arabian', 'Senegalese', 'Serbian', 'Seychellois', 'Sierra Leonean', 'Singaporean', 'Slovak', 'Slovenian', 'Solomon Islander', 'Somali', 'South African', 'South Korean', 'South Sudanese', 'Spanish', 'Sri Lankan', 'Sudanese', 'Surinamese', 'Swazi', 'Swedish', 'Swiss', 'Syrian',
+                        'Taiwanese', 'Tajikistani', 'Tanzanian', 'Thai', 'Togolese', 'Tongan', 'Trinidadian', 'Tunisian', 'Turkish', 'Turkmen', 'Tuvaluan',
+                        'Ugandan', 'Ukrainian', 'Uruguayan', 'Uzbekistani',
+                        'Vanuatuan', 'Vatican', 'Venezuelan', 'Vietnamese',
+                        'Yemeni',
+                        'Zambian', 'Zimbabwean'
+                    ];
+                    
+                    nationalities.forEach(nationality => {
+                        const option = document.createElement('option');
+                        option.value = nationality;
+                        option.textContent = nationality;
+                        nationalitySelect.appendChild(option);
+                    });
                     wrap.appendChild(span);
                     wrap.appendChild(nameInput);
                     wrap.appendChild(ageInput);
+                    wrap.appendChild(nationalitySelect);
                     guestInputs.appendChild(wrap);
                     // Wire senior detection on age input as they're created
                     ageInput.addEventListener('input', evaluateSeniors);
@@ -1515,6 +1759,7 @@
                         inp.type = 'file'; inp.accept = 'image/*';
                         inp.name = 'senior_id_images[]';
                         inp.className = 'form-control mb-2';
+                        inp.required = true;
                         seniorWrap.appendChild(inp);
                     }
                 }
@@ -1525,6 +1770,7 @@
                         inp.type = 'file'; inp.accept = 'image/*';
                         inp.name = 'pwd_id_images[]';
                         inp.className = 'form-control mb-2';
+                        inp.required = true;
                         pwdWrap.appendChild(inp);
                     }
                 }

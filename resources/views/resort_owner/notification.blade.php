@@ -332,50 +332,116 @@
                                     </strong></p>
                                 @endif
                                 <p class="mb-1">Number of Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
+                                @if($notification->booking->room)
+                                    <p class="mb-1">Room Capacity: <strong>{{ $notification->booking->room->max_guests }} guests</strong></p>
+                                @endif
+                                @if($notification->booking->num_senior_citizens > 0)
+                                    <p class="mb-1">Senior Citizens: <strong>{{ $notification->booking->num_senior_citizens }}</strong></p>
+                                @endif
+                                @if($notification->booking->num_pwds > 0)
+                                    <p class="mb-1">PWDs: <strong>{{ $notification->booking->num_pwds }}</strong></p>
+                                @endif
+                                
                                 @php
-                                    $roomPrice = $notification->booking->room ? $notification->booking->room->price_per_night : 0;
+                                    $roomPrice = $notification->booking->base_room_price ?? ($notification->booking->room ? $notification->booking->room->price_per_night : 0);
+                                    $extraPersonCharge = $notification->booking->extra_person_charge ?? 0;
+                                    $seniorDiscount = $notification->booking->senior_discount ?? 0;
+                                    $pwdDiscount = $notification->booking->pwd_discount ?? 0;
+                                    $finalRoomPrice = $notification->booking->final_total_price ?? $roomPrice;
+                                    
                                     $boatPrice = 0;
                                     if ($notification->booking->assignedBoat) {
                                         $boatPrice = $notification->booking->assignedBoat->boat_prices ?? 0;
                                     } elseif ($notification->booking->boat_price) {
                                         $boatPrice = $notification->booking->boat_price;
                                     }
-                                    $totalPrice = $roomPrice + $boatPrice;
+                                    $totalPrice = $finalRoomPrice + $boatPrice;
+                                    
+                                    // Calculate subtotal for discount calculation display
+                                    $subtotal = $roomPrice + $extraPersonCharge;
+                                    $pricePerPerson = $notification->booking->number_of_guests > 0 ? $subtotal / $notification->booking->number_of_guests : 0;
                                 @endphp
-                                <p class="mb-1">Room Price: <strong>₱{{ number_format($roomPrice, 2) }}</strong></p>
-                                <p class="mb-1">Boat Price: <strong>₱{{ number_format($boatPrice, 2) }}</strong></p>
-                                <p class="mb-1">Total Price: <strong>₱{{ number_format($totalPrice, 2) }}</strong></p>
+                                
+                                <hr class="my-2">
+                                <h6 class="text-primary">
+                                    <i class="fas fa-calculator me-1"></i>
+                                    Pricing Breakdown
+                                </h6>
+                                
+                                <div class="pricing-details">
+                                    <p class="mb-1">Room Base Price: <strong>₱{{ number_format($roomPrice, 2) }}</strong></p>
+                                    
+                                    @if($extraPersonCharge > 0)
+                                        <p class="mb-1 text-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Extra Person Charge: <strong>₱{{ number_format($extraPersonCharge, 2) }}</strong>
+                                            @if($notification->booking->room)
+                                                <small class="text-muted">
+                                                    ({{ $notification->booking->number_of_guests - $notification->booking->room->max_guests }} extra × ₱300)
+                                                </small>
+                                            @endif
+                                        </p>
+                                    @endif
+                                    
+                                    @if($seniorDiscount > 0)
+                                        <p class="mb-1 text-success">
+                                            <i class="fas fa-percentage me-1"></i>
+                                            Senior Discount (20%): <strong>-₱{{ number_format($seniorDiscount, 2) }}</strong>
+                                            @if($notification->booking->num_senior_citizens > 0)
+                                                <small class="text-muted">
+                                                    (₱{{ number_format($pricePerPerson, 2) }} × {{ $notification->booking->num_senior_citizens }} senior{{ $notification->booking->num_senior_citizens > 1 ? 's' : '' }})
+                                                </small>
+                                            @endif
+                                        </p>
+                                    @endif
+                                    
+                                    @if($pwdDiscount > 0)
+                                        <p class="mb-1 text-success">
+                                            <i class="fas fa-wheelchair me-1"></i>
+                                            PWD Discount (20%): <strong>-₱{{ number_format($pwdDiscount, 2) }}</strong>
+                                            @if($notification->booking->num_pwds > 0)
+                                                <small class="text-muted">
+                                                    (₱{{ number_format($pricePerPerson, 2) }} × {{ $notification->booking->num_pwds }} PWD{{ $notification->booking->num_pwds > 1 ? 's' : '' }})
+                                                </small>
+                                            @endif
+                                        </p>
+                                    @endif
+                                    
+                                    @if($boatPrice > 0)
+                                        <p class="mb-1">Boat Price: <strong>₱{{ number_format($boatPrice, 2) }}</strong></p>
+                                    @endif
+                                    
+                                    <hr class="my-2">
+                                    <p class="mb-1 h6 text-primary">
+                                        <i class="fas fa-money-bill-wave me-1"></i>
+                                        Total Revenue: <strong>₱{{ number_format($totalPrice, 2) }}</strong>
+                                    </p>
+                                </div>
 
                                 {{-- Uploaded Payment & ID (Step 1) --}}
                                     @if ($notification->booking->downpayment_receipt_path || $notification->booking->valid_id_image_path)
                                     <hr class="my-2">
                                     <h6>Uploaded Files:</h6>
                                     @if ($notification->booking->downpayment_receipt_path)
-                                        @php
-                                            $dpUrl = route('resort.owner.booking.file.view', ['booking' => $notification->booking->id, 'which' => 'downpayment']);
-                                            $dpDl  = route('resort.owner.booking.file.download', ['booking' => $notification->booking->id, 'which' => 'downpayment']);
-                                        @endphp
                                         <p class="mb-1">
                                             Downpayment Receipt:
                                             <button type="button" class="btn btn-outline-primary btn-sm view-image-btn ms-1"
                                                 data-title="Downpayment Receipt"
-                                                data-img-url="{{ $dpUrl }}" data-dl-url="{{ $dpDl }}">
+                                                data-img-url="/{{ $notification->booking->downpayment_receipt_path }}" 
+                                                data-dl-url="/{{ $notification->booking->downpayment_receipt_path }}">
                                                 View
                                             </button>
                                         </p>
                                     @endif
                                     @if ($notification->booking->valid_id_type || $notification->booking->valid_id_image_path)
-                                        @php
-                                            $idUrl = $notification->booking->valid_id_image_path ? route('resort.owner.booking.file.view', ['booking' => $notification->booking->id, 'which' => 'valid_id']) : null;
-                                            $idDl  = $notification->booking->valid_id_image_path ? route('resort.owner.booking.file.download', ['booking' => $notification->booking->id, 'which' => 'valid_id']) : null;
-                                        @endphp
                                         <p class="mb-1">
                                             Valid ID {{ $notification->booking->valid_id_type ? '(' . $notification->booking->valid_id_type . ')' : '' }}:
-                                            @if ($idUrl)
+                                            @if ($notification->booking->valid_id_image_path)
                                                 <button type="button" class="btn btn-outline-primary btn-sm view-image-btn ms-1"
                                                     data-title="Valid ID{{ $notification->booking->valid_id_type ? ' (' . $notification->booking->valid_id_type . ')' : '' }}"
                                                     data-id-number="{{ $notification->booking->valid_id_number ?? '' }}"
-                                                    data-img-url="{{ $idUrl }}" data-dl-url="{{ $idDl }}">
+                                                    data-img-url="/{{ $notification->booking->valid_id_image_path }}" 
+                                                    data-dl-url="/{{ $notification->booking->valid_id_image_path }}">
                                                     View
                                                 </button>
                                             @else

@@ -36,7 +36,7 @@ class DocumentationController extends Controller
             })->pluck('id')->filter()->values();
 
         $query = Booking::query()
-            ->with(['user', 'room.resort'])
+            ->with(['user', 'room.resort', 'assignedBoat'])
             ->where('status', 'approved')
             ->where(function ($q) use ($ownedResortNames, $ownedRoomIds) {
                 $q->where('resort_owner_id', Auth::id())
@@ -123,7 +123,7 @@ class DocumentationController extends Controller
             })->pluck('id')->filter()->values();
 
         $query = Booking::query()
-            ->with(['user', 'room.resort'])
+            ->with(['user', 'room.resort', 'assignedBoat'])
             ->where('status', 'approved')
             ->where(function ($q) use ($ownedResortNames, $ownedRoomIds) {
                 $q->where('resort_owner_id', Auth::id())
@@ -254,7 +254,7 @@ class DocumentationController extends Controller
             })->pluck('id')->filter()->values();
 
         $query = Booking::query()
-            ->with(['user', 'room.resort'])
+            ->with(['user', 'room.resort', 'assignedBoat'])
             ->where('status', 'approved')
             ->where(function ($q) use ($ownedResortNames, $ownedRoomIds) {
                 $q->where('resort_owner_id', Auth::id())

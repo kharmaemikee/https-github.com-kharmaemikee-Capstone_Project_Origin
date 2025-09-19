@@ -517,16 +517,40 @@
                     <div class="mb-2"><strong>Assigned Boat:</strong> <span id="docBoatName">N/A</span></div>
                     <div class="mb-2"><strong>Boat Plate Number:</strong> <span id="docBoatNumber">N/A</span></div>
                     
-                    <div class="mb-2"><strong>Downpayment Receipt:</strong> <button type="button" id="btnViewDownpaymentRO" class="btn btn-sm btn-outline-primary" style="display:none;">View</button></div>
-                    <div class="mb-2"><strong>Valid ID:</strong> <span id="docValidIdTypeRO">—</span> <button type="button" id="btnViewValidIdRO" class="btn btn-sm btn-outline-primary ms-2" style="display:none;">View</button></div>
+                    <div class="mb-2"><strong>Downpayment Receipt:</strong> <button type="button" id="btnViewDownpaymentRO" class="btn btn-sm btn-outline-primary view-image-btn" style="display:none;">View</button></div>
+                    <div class="mb-2"><strong>Valid ID:</strong> <span id="docValidIdTypeRO">—</span> <button type="button" id="btnViewValidIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn" style="display:none;">View</button></div>
                     <div class="mb-2" id="docValidIdNumberRowRO" style="display:none;"><strong>ID Number:</strong> <span id="docValidIdNumberRO">—</span></div>
-                        <div class="mb-2" id="docSeniorIdRowRO" style="display:none;"><strong>Senior ID:</strong> <button type="button" id="btnViewSeniorIdRO" class="btn btn-sm btn-outline-primary ms-2">View</button></div>
-                        <div class="mb-2" id="docPwdIdRowRO" style="display:none;"><strong>PWD ID:</strong> <button type="button" id="btnViewPwdIdRO" class="btn btn-sm btn-outline-primary ms-2">View</button></div>
+                        <div class="mb-2" id="docSeniorIdRowRO" style="display:none;"><strong>Senior ID:</strong> <button type="button" id="btnViewSeniorIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn">View</button></div>
+                        <div class="mb-2" id="docPwdIdRowRO" style="display:none;"><strong>PWD ID:</strong> <button type="button" id="btnViewPwdIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn">View</button></div>
                     <div class="mb-2"><strong>Extended:</strong> <span id="docExtended">No</span></div>
                     <div class="mb-2"><strong>Extension Details:</strong> <span id="docExtension">—</span></div>
                 </div>
                 <div class="modal-footer ro-doc-modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Image Preview Modal --}}
+    <div class="modal fade" id="imageViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageViewModalTitle">View Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="imageViewModalImg" src="" alt="Preview" class="img-fluid" style="max-height:70vh;">
+                    <div id="imageViewIdNumberWrap" class="mt-3" style="display:none;">
+                        <strong>ID Number:</strong> <span id="imageViewIdNumber"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a id="imageViewDownloadBtn" href="#" class="btn btn-primary" download>
+                        <i class="fas fa-download me-1"></i>Download
+                    </a>
                 </div>
             </div>
         </div>
@@ -562,8 +586,28 @@
                     const downBtn = document.getElementById('btnViewDownpaymentRO');
                     const idBtn = document.getElementById('btnViewValidIdRO');
                     const idTypeSpan = document.getElementById('docValidIdTypeRO');
-                    if (downBtn) { if (down) { downBtn.style.display='inline-block'; downBtn.onclick = ()=> window.open('/storage/' + down, '_blank'); } else { downBtn.style.display='none'; } }
-                    if (idBtn) { idTypeSpan.textContent = idType || '—'; if (idPath) { idBtn.style.display='inline-block'; idBtn.onclick = ()=> window.open('/storage/' + idPath, '_blank'); } else { idBtn.style.display='none'; } }
+                    if (downBtn) { 
+                        if (down) { 
+                            downBtn.style.display='inline-block'; 
+                            downBtn.setAttribute('data-img-url', '/' + down);
+                            downBtn.setAttribute('data-dl-url', '/' + down);
+                            downBtn.setAttribute('data-title', 'Downpayment Receipt');
+                        } else { 
+                            downBtn.style.display='none'; 
+                        } 
+                    }
+                    if (idBtn) { 
+                        idTypeSpan.textContent = idType || '—'; 
+                        if (idPath) { 
+                            idBtn.style.display='inline-block'; 
+                            idBtn.setAttribute('data-img-url', '/' + idPath);
+                            idBtn.setAttribute('data-dl-url', '/' + idPath);
+                            idBtn.setAttribute('data-title', 'Valid ID' + (idType ? ' (' + idType + ')' : ''));
+                            idBtn.setAttribute('data-id-number', idNum || '');
+                        } else { 
+                            idBtn.style.display='none'; 
+                        } 
+                    }
                     const idNumRow = document.getElementById('docValidIdNumberRowRO');
                     const idNumSpan = document.getElementById('docValidIdNumberRO');
                     if (idNumRow && idNumSpan) {
@@ -573,14 +617,26 @@
                     const seniorRow = document.getElementById('docSeniorIdRowRO');
                     const seniorBtn = document.getElementById('btnViewSeniorIdRO');
                     if (seniorRow && seniorBtn) {
-                        if (seniorId) { seniorRow.style.display='block'; seniorBtn.onclick = ()=> window.open('/storage/' + seniorId, '_blank'); }
-                        else { seniorRow.style.display='none'; }
+                        if (seniorId) { 
+                            seniorRow.style.display='block'; 
+                            seniorBtn.setAttribute('data-img-url', '/' + seniorId);
+                            seniorBtn.setAttribute('data-dl-url', '/' + seniorId);
+                            seniorBtn.setAttribute('data-title', 'Senior ID');
+                        } else { 
+                            seniorRow.style.display='none'; 
+                        }
                     }
                     const pwdRow = document.getElementById('docPwdIdRowRO');
                     const pwdBtn = document.getElementById('btnViewPwdIdRO');
                     if (pwdRow && pwdBtn) {
-                        if (pwdId) { pwdRow.style.display='block'; pwdBtn.onclick = ()=> window.open('/storage/' + pwdId, '_blank'); }
-                        else { pwdRow.style.display='none'; }
+                        if (pwdId) { 
+                            pwdRow.style.display='block'; 
+                            pwdBtn.setAttribute('data-img-url', '/' + pwdId);
+                            pwdBtn.setAttribute('data-dl-url', '/' + pwdId);
+                            pwdBtn.setAttribute('data-title', 'PWD ID');
+                        } else { 
+                            pwdRow.style.display='none'; 
+                        }
                     }
                     setText('docExtended', this.getAttribute('data-extended') || 'No');
                     setText('docExtension', this.getAttribute('data-extension') || '—');
@@ -591,6 +647,37 @@
                     setText('docSeniors', this.getAttribute('data-seniors') || '—');
                     setText('docPwds', this.getAttribute('data-pwds') || '—');
                 });
+            });
+
+            // Image view modal handlers
+            const imageModalEl = document.getElementById('imageViewModal');
+            const imageModal = new bootstrap.Modal(imageModalEl);
+            document.addEventListener('click', function(e){
+                const btn = e.target.closest('.view-image-btn');
+                if (!btn) return;
+                const url = btn.getAttribute('data-img-url');
+                const title = btn.getAttribute('data-title') || 'View Image';
+                const idNumber = btn.getAttribute('data-id-number') || '';
+                const imgEl = document.getElementById('imageViewModalImg');
+                const titleEl = document.getElementById('imageViewModalTitle');
+                const downloadBtn = document.getElementById('imageViewDownloadBtn');
+                const idNumEl = document.getElementById('imageViewIdNumber');
+                const idWrapEl = document.getElementById('imageViewIdNumberWrap');
+                
+                if (imgEl && titleEl && downloadBtn) {
+                    imgEl.src = url;
+                    titleEl.textContent = title;
+                    downloadBtn.href = url;
+                    
+                    if (idNumber && idNumber.trim() !== '') {
+                        idNumEl.textContent = idNumber;
+                        idWrapEl.style.display = 'block';
+                    } else {
+                        idNumEl.textContent = '';
+                        idWrapEl.style.display = 'none';
+                    }
+                    imageModal.show();
+                }
             });
         });
     </script>

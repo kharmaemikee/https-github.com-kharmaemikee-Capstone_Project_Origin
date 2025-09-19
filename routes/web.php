@@ -351,7 +351,8 @@ Route::get('/resort_owner/dashboard', function (Request $request) {
             }
 
             foreach ($revenueBookings as $booking) {
-                $roomPrice = $booking->room ? $booking->room->price_per_night : 0;
+                // Use final_total_price if available, otherwise fall back to room price
+                $roomPrice = $booking->final_total_price ?? ($booking->room ? $booking->room->price_per_night : 0);
                 $totalRevenue += $roomPrice;
             }
 
@@ -363,7 +364,8 @@ Route::get('/resort_owner/dashboard', function (Request $request) {
                     $roomName = $room ? ($room->room_name ?? ('Room #' . $roomId)) : ('Room #' . $roomId);
                     $bookingsCount = $bookings->count();
                     $revenue = $bookings->reduce(function ($carry, $b) {
-                        $price = $b->room ? ($b->room->price_per_night ?? 0) : 0;
+                        // Use final_total_price if available, otherwise fall back to room price
+                        $price = $b->final_total_price ?? ($b->room ? ($b->room->price_per_night ?? 0) : 0);
                         return $carry + $price;
                     }, 0);
                     return [
@@ -1085,6 +1087,30 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
         $totalForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->count();
         $totalFilipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->count();
         
+        // Add guest nationality counts (from bookings) - count individual guests from guest_name field
+        $allBookings = \App\Models\Booking::whereNotNull('guest_name')
+            ->where('guest_name', '!=', '')
+            ->get();
+        
+        $foreignGuests = 0;
+        $filipinoGuests = 0;
+        
+        foreach ($allBookings as $booking) {
+            // Parse guest names to extract individual nationalities
+            $guestNames = explode(';', $booking->guest_name);
+            foreach ($guestNames as $guestName) {
+                // Extract nationality from format: "Name (Age) - Nationality"
+                if (preg_match('/\s-\s([^-]+)$/', trim($guestName), $matches)) {
+                    $nationality = trim($matches[1]);
+                    if (strtolower($nationality) === 'filipino') {
+                        $filipinoGuests++;
+                    } else {
+                        $foreignGuests++;
+                    }
+                }
+            }
+        }
+        
         // Add tour type statistics for bar graph
         $dayTourCount = \App\Models\Booking::where('tour_type', 'day_tour')->where('status', '!=', 'rejected')->count();
         $overnightCount = \App\Models\Booking::where('tour_type', 'overnight')->where('status', '!=', 'rejected')->count();
@@ -1093,6 +1119,8 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
         return view('admin.admin', compact(
             'totalForeigners', 
             'totalFilipinos', 
+            'foreignGuests',
+            'filipinoGuests',
             'dayTourCount', 
             'overnightCount'
         ));

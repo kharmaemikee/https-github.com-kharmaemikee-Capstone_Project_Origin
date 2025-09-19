@@ -52,6 +52,11 @@ class Booking extends Model
         'boat_captain_crew',
         'boat_contact_number',
         'name_of_resort',
+        'base_room_price',
+        'extra_person_charge',
+        'senior_discount',
+        'pwd_discount',
+        'final_total_price',
     ];
 
     protected $casts = [
@@ -61,6 +66,11 @@ class Booking extends Model
         'overnight_departure_time' => 'datetime',
         'overnight_date_time_of_pickup' => 'datetime',
         'is_extended' => 'boolean',
+        'base_room_price' => 'decimal:2',
+        'extra_person_charge' => 'decimal:2',
+        'senior_discount' => 'decimal:2',
+        'pwd_discount' => 'decimal:2',
+        'final_total_price' => 'decimal:2',
     ];
 
     /**

@@ -52,7 +52,7 @@ class ExploreController extends Controller
         // We still filter by admin_status to ensure only admin-approved rooms are considered.
         $resort->load(['rooms' => function ($query) {
             // Show all non-archived rooms; admin approval not required anymore
-            $query->where('archived', false);
+            $query->where('archived', false)->with('images');
         }]);
 
         // If the user is authenticated and is a 'tourist', render the tourist-specific view.

@@ -211,9 +211,13 @@
                                 </div>
                                 <div class="stats-card-body">
                                     <div class="stats-number" id="foreignersCount">{{ $totalForeigners ?? 0 }}</div>
+                                    <div class="stats-subtitle mb-2">
+                                        <small class="text-muted">Registered Users</small>
+                                    </div>
+                                    <div class="stats-number" style="font-size: 1.5rem; color: #17a2b8;">{{ $foreignGuests ?? 0 }}</div>
                                     <div class="stats-trend">
-                                        <i class="fas fa-globe-americas me-1"></i>
-                                        <span>Global reach</span>
+                                        <i class="fas fa-users me-1"></i>
+                                        <span>Guest Visitors</span>
                                     </div>
                                 </div>
                             </div>
@@ -235,9 +239,13 @@
                                 </div>
                                 <div class="stats-card-body">
                                     <div class="stats-number" id="filipinoCount">{{ $totalFilipinos ?? 0 }}</div>
+                                    <div class="stats-subtitle mb-2">
+                                        <small class="text-muted">Registered Users</small>
+                                    </div>
+                                    <div class="stats-number" style="font-size: 1.5rem; color: #28a745;">{{ $filipinoGuests ?? 0 }}</div>
                                     <div class="stats-trend">
-                                        <i class="fas fa-home me-1"></i>
-                                        <span>Local support</span>
+                                        <i class="fas fa-users me-1"></i>
+                                        <span>Guest Visitors</span>
                                     </div>
                                 </div>
                             </div>

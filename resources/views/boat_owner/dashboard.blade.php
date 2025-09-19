@@ -200,15 +200,13 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="stats-card">
+                        <div class="stats-card clickable-card" data-bs-toggle="modal" data-bs-target="#boatRevenueBreakdownModal" style="cursor: pointer;">
                             <div class="stats-icon bg-warning">
                                 <i class="fas fa-peso-sign"></i>
                             </div>
                             <div class="stats-content">
                                 <h3 class="stats-number mb-1">₱{{ number_format($totalRevenue ?? 0) }}</h3>
-                                <button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#boatRevenueBreakdownModal">
-                                    <span class="stats-label">Total Revenue {{ $revenueFilterLabel ? '(' . $revenueFilterLabel . ')' : '' }}</span>
-                                </button>
+                                <span class="stats-label">Total Revenue {{ $revenueFilterLabel ? '(' . $revenueFilterLabel . ')' : '' }}</span>
                             </div>
                         </div>
                     </div>

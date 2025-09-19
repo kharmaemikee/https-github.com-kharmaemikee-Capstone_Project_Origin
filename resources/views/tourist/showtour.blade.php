@@ -205,6 +205,16 @@
                                         @endif
 
                                         <div class="accommodation-actions">
+                                            {{-- View Images Button --}}
+                                            @if($room->images && $room->images->count() > 0)
+                                                <button type="button" class="btn btn-outline-info accommodation-btn mb-2 view-room-images-btn"
+                                                        data-room-id="{{ $room->id }}"
+                                                        data-room-name="{{ $room->room_name }}"
+                                                        data-room-images="{{ $room->images->pluck('image_path')->toJson() }}">
+                                                    <i class="fas fa-images me-2"></i>View Images
+                                                </button>
+                                            @endif
+                                            
                                             @if ($room->status === 'open' && ($resort->status === 'open' || $resort->status === 'rehab'))
                                                 <a href="#" class="btn btn-primary accommodation-btn"
                                                    data-bs-toggle="modal" data-bs-target="#termsAndConditionsModal"
@@ -354,8 +364,83 @@
         </div>
     </div>
 
+    {{-- Room Images Modal --}}
+    <div class="modal fade" id="roomImagesModal" tabindex="-1" aria-labelledby="roomImagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roomImagesModalLabel">Room Images</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="room-images-container">
+                                <div class="image-navigation">
+                                    <button type="button" class="btn btn-outline-primary" id="prevImageBtn" disabled>
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </button>
+                                    <span class="image-counter">
+                                        <span id="currentImageIndex">1</span> of <span id="totalImages">1</span>
+                                    </span>
+                                    <button type="button" class="btn btn-outline-primary" id="nextImageBtn" disabled>
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div class="image-display">
+                                    <img id="roomImageDisplay" src="" alt="Room Image" class="img-fluid rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
         /* ===== MODERN RESORT DETAILS PAGE STYLES ===== */
+        
+        /* Room Images Modal Styles */
+        .room-images-container {
+            text-align: center;
+        }
+        
+        .image-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 1rem;
+        }
+        
+        .image-counter {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+        
+        .image-display {
+            max-height: 70vh;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-display img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+        }
+        
+        .view-room-images-btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
         
         /* Sidebar Navigation */
         .nav-link.text-white:hover,
@@ -1265,6 +1350,70 @@
                     window.location.href = `{{ url('tourist/fillup') }}/${selectedRoomId}`;
                 }
             });
+
+            // Room Images Modal functionality
+            const roomImagesModal = new bootstrap.Modal(document.getElementById('roomImagesModal'));
+            let currentImageIndex = 0;
+            let roomImages = [];
+
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.view-room-images-btn')) {
+                    const btn = e.target.closest('.view-room-images-btn');
+                    const roomName = btn.getAttribute('data-room-name');
+                    const imagesJson = btn.getAttribute('data-room-images');
+                    
+                    try {
+                        roomImages = JSON.parse(imagesJson);
+                        currentImageIndex = 0;
+                        
+                        if (roomImages.length > 0) {
+                            document.getElementById('roomImagesModalLabel').textContent = `${roomName} - Room Images`;
+                            updateImageDisplay();
+                            updateNavigationButtons();
+                            roomImagesModal.show();
+                        }
+                    } catch (error) {
+                        console.error('Error parsing room images:', error);
+                    }
+                }
+            });
+
+            document.getElementById('prevImageBtn').addEventListener('click', function() {
+                if (currentImageIndex > 0) {
+                    currentImageIndex--;
+                    updateImageDisplay();
+                    updateNavigationButtons();
+                }
+            });
+
+            document.getElementById('nextImageBtn').addEventListener('click', function() {
+                if (currentImageIndex < roomImages.length - 1) {
+                    currentImageIndex++;
+                    updateImageDisplay();
+                    updateNavigationButtons();
+                }
+            });
+
+            function updateImageDisplay() {
+                if (roomImages.length > 0) {
+                    const imagePath = roomImages[currentImageIndex];
+                    const img = document.getElementById('roomImageDisplay');
+                    img.src = '/' + imagePath;
+                    img.alt = `Room Image ${currentImageIndex + 1}`;
+                }
+            }
+
+            function updateNavigationButtons() {
+                const prevBtn = document.getElementById('prevImageBtn');
+                const nextBtn = document.getElementById('nextImageBtn');
+                const currentIndex = document.getElementById('currentImageIndex');
+                const totalImages = document.getElementById('totalImages');
+
+                prevBtn.disabled = currentImageIndex === 0;
+                nextBtn.disabled = currentImageIndex === roomImages.length - 1;
+                currentIndex.textContent = currentImageIndex + 1;
+                totalImages.textContent = roomImages.length;
+            }
         });
     </script>
 

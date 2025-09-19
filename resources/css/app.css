@@ -1,0 +1,214 @@
+/* Pricing breakdown styles */
+.total-item.discount {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.price-item.discount {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.total-item.discount .total-value,
+.price-item.discount .price-value {
+    color: #28a745;
+}
+
+/* Ensure proper spacing for pricing breakdown */
+.total-breakdown .total-item,
+.price-breakdown .price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.total-breakdown .total-item.total-final,
+.price-breakdown .price-item.total {
+    border-top: 1px solid #dee2e6;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+/* Booking details section styles */
+.booking-details-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.75rem 0;
+    border-left: 4px solid #007bff;
+}
+
+.booking-details-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    color: #007bff;
+    font-weight: 600;
+}
+
+.booking-details-header i {
+    margin-right: 0.5rem;
+    font-size: 1.1em;
+}
+
+.booking-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.booking-details-grid .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.booking-details-grid .info-label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.booking-details-grid .info-value {
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Pricing breakdown in notifications */
+.pricing-breakdown {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.pricing-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    color: #495057;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.pricing-header i {
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+.pricing-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pricing-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.pricing-item:last-child {
+    border-bottom: none;
+}
+
+.pricing-item.extra-charge {
+    background: #fff3cd;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ffeaa7;
+}
+
+.pricing-item.discount {
+    background: #d4edda;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.pricing-item.total {
+    background: #e3f2fd;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 2px solid #2196f3;
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-top: 0.5rem;
+}
+
+.pricing-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.pricing-value {
+    font-weight: 600;
+    color: #212529;
+}
+
+.pricing-item.discount .pricing-label,
+.pricing-item.discount .pricing-value {
+    color: #155724;
+}
+
+.pricing-item.extra-charge .pricing-label,
+.pricing-item.extra-charge .pricing-value {
+    color: #856404;
+}
+
+.pricing-item.total .pricing-label,
+.pricing-item.total .pricing-value {
+    color: #1976d2;
+}
+
+/* Clickable card styles */
+.clickable-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.clickable-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.clickable-card:hover .stats-icon {
+    transform: scale(1.1);
+}
+
+.clickable-card:hover .stats-number {
+    color: #007bff;
+}
+
+.clickable-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.clickable-card:hover::before {
+    left: 100%;
+}
+
+/* Ensure the card content is clickable */
+.clickable-card * {
+    pointer-events: none;
+}
+
+.clickable-card {
+    pointer-events: auto;
+}

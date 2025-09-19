@@ -284,14 +284,23 @@
 
                                     {{-- Total Price --}}
                                     @php
-                                        $roomPrice = $booking->room ? $booking->room->price_per_night : 0;
+                                        $roomPrice = $booking->base_room_price ?? ($booking->room ? $booking->room->price_per_night : 0);
+                                        $extraPersonCharge = $booking->extra_person_charge ?? 0;
+                                        $seniorDiscount = $booking->senior_discount ?? 0;
+                                        $pwdDiscount = $booking->pwd_discount ?? 0;
+                                        $finalRoomPrice = $booking->final_total_price ?? $roomPrice;
+                                        
                                         $boatPrice = 0;
                                         if ($booking->assignedBoat) {
                                             $boatPrice = $booking->assignedBoat->boat_prices ?? 0;
                                         } elseif ($booking->boat_price) {
                                             $boatPrice = $booking->boat_price;
                                         }
-                                        $totalPrice = $roomPrice + $boatPrice;
+                                        $totalPrice = $finalRoomPrice + $boatPrice;
+                                        
+                                        // Calculate subtotal for discount calculation display
+                                        $subtotal = $roomPrice + $extraPersonCharge;
+                                        $pricePerPerson = $booking->number_of_guests > 0 ? $subtotal / $booking->number_of_guests : 0;
                                     @endphp
                                     
                                     @if($totalPrice > 0)
@@ -303,8 +312,36 @@
                                             <div class="total-breakdown">
                                                 @if($roomPrice > 0)
                                                     <div class="total-item">
-                                                        <span class="total-label">Room</span>
+                                                        <span class="total-label">Room Base Price</span>
                                                         <span class="total-value">₱{{ number_format($roomPrice, 2) }}</span>
+                                                    </div>
+                                                @endif
+                                                @if($extraPersonCharge > 0)
+                                                    <div class="total-item">
+                                                        <span class="total-label">Extra Person Charge</span>
+                                                        <span class="total-value">₱{{ number_format($extraPersonCharge, 2) }}</span>
+                                                    </div>
+                                                @endif
+                                                @if($seniorDiscount > 0)
+                                                    <div class="total-item discount">
+                                                        <span class="total-label">
+                                                            Senior Discount (20%)
+                                                            @if($booking->num_senior_citizens > 0)
+                                                                (₱{{ number_format($pricePerPerson, 2) }} × {{ $booking->num_senior_citizens }} senior{{ $booking->num_senior_citizens > 1 ? 's' : '' }})
+                                                            @endif
+                                                        </span>
+                                                        <span class="total-value">-₱{{ number_format($seniorDiscount, 2) }}</span>
+                                                    </div>
+                                                @endif
+                                                @if($pwdDiscount > 0)
+                                                    <div class="total-item discount">
+                                                        <span class="total-label">
+                                                            PWD Discount (20%)
+                                                            @if($booking->num_pwds > 0)
+                                                                (₱{{ number_format($pricePerPerson, 2) }} × {{ $booking->num_pwds }} PWD{{ $booking->num_pwds > 1 ? 's' : '' }})
+                                                            @endif
+                                                        </span>
+                                                        <span class="total-value">-₱{{ number_format($pwdDiscount, 2) }}</span>
                                                     </div>
                                                 @endif
                                                 @if($boatPrice > 0)

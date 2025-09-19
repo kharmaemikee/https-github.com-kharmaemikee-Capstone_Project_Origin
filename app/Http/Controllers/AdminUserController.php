@@ -295,16 +295,54 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Show a list of all foreigners (nationality is not 'filipino').
+     * Show a list of all foreign users and guests.
      */
     public function showForeigners()
     {
         if (Auth::user()?->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
-        // Correct logic: Select users where nationality is not 'filipino' (case-insensitive)
-        $foreigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->orderBy('created_at', 'desc')->get();
-        return view('admin.foreign', compact('foreigners'));
+        
+        // Get registered foreign users
+        $registeredForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])
+            ->whereNotNull('nationality')
+            ->where('nationality', '!=', '')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get foreign guests from bookings - parse individual guest nationalities
+        $allBookings = \App\Models\Booking::whereNotNull('guest_name')
+            ->where('guest_name', '!=', '')
+            ->select('guest_name', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $guestForeigners = collect();
+        $guestFilipinos = collect();
+        
+        foreach ($allBookings as $booking) {
+            // Parse guest names to extract individual guests with their nationalities
+            $guestNames = explode(';', $booking->guest_name);
+            foreach ($guestNames as $guestName) {
+                // Extract nationality from format: "Name (Age) - Nationality"
+                if (preg_match('/\s-\s([^-]+)$/', trim($guestName), $matches)) {
+                    $nationality = trim($matches[1]);
+                    $guestData = (object)[
+                        'guest_name' => trim($guestName),
+                        'guest_nationality' => $nationality,
+                        'created_at' => $booking->created_at
+                    ];
+                    
+                    if (strtolower($nationality) !== 'filipino') {
+                        $guestForeigners->push($guestData);
+                    } else {
+                        $guestFilipinos->push($guestData);
+                    }
+                }
+            }
+        }
+        
+        return view('admin.foreign', compact('registeredForeigners', 'guestForeigners', 'guestFilipinos'));
     }
 
     /**

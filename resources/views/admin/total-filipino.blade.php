@@ -53,7 +53,7 @@
                                 <img src="{{ asset('images/users.png') }}" alt="Users Icon" class="nav-icon-img">
                             </div>
                             <span class="nav-text">Users</span>
-                        <span class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}">&#9660;</span>
+                            <img src="{{ asset('image/arrow-down.png') }}" alt="Toggle" class="ms-auto collapse-icon {{ request()->routeIs('admin.users*') ? 'rotated' : '' }}" style="width: 14px; height: 14px;">
                     </button>
                     <div class="collapse {{ request()->routeIs('admin.users*') ? 'show' : '' }}" id="usersCollapse">
                         <ul class="nav flex-column ms-3 mt-1">

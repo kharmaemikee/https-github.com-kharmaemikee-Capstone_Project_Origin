@@ -10,6 +10,7 @@ use App\Models\TouristNotification;
 use App\Models\BoatOwnerNotification;
 use App\Models\Setting;
 use App\Models\Resort; // <--- ADDED: Import the Resort model
+use App\Services\PricingCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -140,35 +141,49 @@ class BookingController extends Controller
             'reservation_date' => 'required|date|after_or_equal:' . Carbon::today()->format('Y-m-d'),
             'num_nights' => 'required|integer|min:1',
             'num_guests' => 'required|integer|min:1',
-            'downpayment_receipt' => 'nullable|image|max:5120',
-            'valid_id_type' => 'nullable|string|in:National I.D,Passport,License,Other Valid I.D',
-            'valid_id_image' => 'nullable|image|max:5120',
-            'valid_id_number' => 'nullable|string|max:255',
-            'senior_id_images' => 'nullable',
-            'senior_id_images.*' => 'image|max:5120',
-            'pwd_id_images' => 'nullable',
-            'pwd_id_images.*' => 'image|max:5120',
+            'downpayment_receipt' => 'required|image|max:5120',
+            'valid_id_type' => 'required|string|in:National I.D,Passport,License,Other Valid I.D',
+            'valid_id_image' => 'required|image|max:5120',
+            'valid_id_number' => 'required|string|max:255',
+            'senior_id_images' => 'nullable|required_if:num_senior_citizens,>0',
+            'senior_id_images.*' => 'required|image|max:5120',
+            'pwd_id_images' => 'nullable|required_if:num_pwds,>0',
+            'pwd_id_images.*' => 'required|image|max:5120',
         ]);
 
-        // Store uploads to public disk and save paths in session for step 2
+        // Store uploads to public/images directory
         $dpPath = null; $idPath = null; $seniorId = null; $pwdId = null;
         if ($request->hasFile('downpayment_receipt')) {
-            $dpPath = $request->file('downpayment_receipt')->store('bookings/downpayments', 'public');
+            $file = $request->file('downpayment_receipt');
+            $filename = 'dp_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images'), $filename);
+            $dpPath = 'images/' . $filename;
         }
         if ($request->hasFile('valid_id_image')) {
-            $idPath = $request->file('valid_id_image')->store('bookings/valid_ids', 'public');
+            $file = $request->file('valid_id_image');
+            $filename = 'id_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images'), $filename);
+            $idPath = 'images/' . $filename;
         }
         $seniorPaths = [];
         if ($request->hasFile('senior_id_images')) {
             foreach ($request->file('senior_id_images') as $img) {
-                if ($img) { $seniorPaths[] = $img->store('bookings/senior_ids', 'public'); }
+                if ($img) { 
+                    $filename = 'senior_' . time() . '_' . uniqid() . '.' . $img->getClientOriginalExtension();
+                    $img->move(public_path('images'), $filename);
+                    $seniorPaths[] = 'images/' . $filename;
+                }
             }
             $seniorId = $seniorPaths[0] ?? null;
         }
         $pwdPaths = [];
         if ($request->hasFile('pwd_id_images')) {
             foreach ($request->file('pwd_id_images') as $img) {
-                if ($img) { $pwdPaths[] = $img->store('bookings/pwd_ids', 'public'); }
+                if ($img) { 
+                    $filename = 'pwd_' . time() . '_' . uniqid() . '.' . $img->getClientOriginalExtension();
+                    $img->move(public_path('images'), $filename);
+                    $pwdPaths[] = 'images/' . $filename;
+                }
             }
             $pwdId = $pwdPaths[0] ?? null;
         }
@@ -302,14 +317,12 @@ class BookingController extends Controller
             'num_senior_citizens' => 'nullable|integer|min:0',
             'num_pwds' => 'nullable|integer|min:0',
             'special_requests' => 'nullable|string|max:1000',
-            'downpayment_receipt' => 'nullable|image|max:5120',
-            'valid_id_type' => 'nullable|string|in:National I.D,Passport,License,Other Valid I.D',
-            'valid_id_image' => 'nullable|image|max:5120',
-            'valid_id_number' => 'nullable|string|max:255',
             'guest_names' => 'array',
             'guest_names.*' => 'string|max:255',
             'guest_ages' => 'array',
             'guest_ages.*' => 'integer|min:7',
+            'guest_nationalities' => 'array',
+            'guest_nationalities.*' => 'string|max:255',
         ], [
             'contact_number.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
@@ -372,6 +385,7 @@ class BookingController extends Controller
             }
             $additionalGuests = $validatedData['guest_names'] ?? [];
             $additionalAges = $validatedData['guest_ages'] ?? [];
+            $additionalNationalities = $validatedData['guest_nationalities'] ?? [];
             foreach ($additionalGuests as $idx => $g) {
                 $g = trim($g);
                 if ($g !== '') {
@@ -379,12 +393,21 @@ class BookingController extends Controller
                     if (isset($additionalAges[$idx]) && (int)$additionalAges[$idx] > 0) {
                         $ageSuffix = ' (' . (int)$additionalAges[$idx] . ')';
                     }
-                    $allGuestNames[] = $g . $ageSuffix;
+                    $nationalitySuffix = '';
+                    if (isset($additionalNationalities[$idx]) && trim($additionalNationalities[$idx]) !== '') {
+                        $nationalitySuffix = ' - ' . trim($additionalNationalities[$idx]);
+                    }
+                    $allGuestNames[] = $g . $ageSuffix . $nationalitySuffix;
                 }
             }
-            // Append age to primary guest in display
+            // Append age and nationality to primary guest in display
             if (!empty($allGuestNames)) {
-                $allGuestNames[0] = $allGuestNames[0] . ' (' . (int)$validatedData['age'] . ')';
+                $primaryAge = ' (' . (int)$validatedData['age'] . ')';
+                $primaryNationality = '';
+                if (!empty($validatedData['nationality'])) {
+                    $primaryNationality = ' - ' . $validatedData['nationality'];
+                }
+                $allGuestNames[0] = $allGuestNames[0] . $primaryAge . $primaryNationality;
             }
             $guestNamesConcat = implode('; ', $allGuestNames);
 
@@ -404,9 +427,9 @@ class BookingController extends Controller
                 'number_of_guests' => $validatedData['num_guests'],
                 'special_requests' => $validatedData['special_requests'] ?? null,
                 'downpayment_receipt_path' => null,
-                'valid_id_type' => $validatedData['valid_id_type'] ?? null,
+                'valid_id_type' => session('booking_valid_id_type') ?: null,
                 'valid_id_image_path' => null,
-                'valid_id_number' => $validatedData['valid_id_number'] ?? (session('booking_valid_id_number') ?: null),
+                'valid_id_number' => session('booking_valid_id_number') ?: null,
                 'status' => 'pending', // Initial status
                 'tour_type' => $validatedData['tour_type'],
                 'day_tour_departure_time' => $validatedData['day_tour_departure_time'] ?? null,
@@ -421,21 +444,22 @@ class BookingController extends Controller
                 'name_of_resort' => $room->resort->resort_name,
             ]);
 
+            // Calculate and update pricing
+            $pricingService = new PricingCalculationService();
+            $pricingService->updateBookingPricing($booking);
+
             // Handle file uploads
             if ($request->hasFile('downpayment_receipt')) {
-                $path = $request->file('downpayment_receipt')->store('bookings/downpayments', 'public');
-                $booking->downpayment_receipt_path = $path;
+                $file = $request->file('downpayment_receipt');
+                $filename = 'dp_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images'), $filename);
+                $booking->downpayment_receipt_path = 'images/' . $filename;
             } else {
                 $sess = session('booking_dp_path');
                 if ($sess) { $booking->downpayment_receipt_path = $sess; }
             }
-            if ($request->hasFile('valid_id_image')) {
-                $path = $request->file('valid_id_image')->store('bookings/valid_ids', 'public');
-                $booking->valid_id_image_path = $path;
-            } else {
-                $sess = session('booking_valid_id_path');
-                if ($sess) { $booking->valid_id_image_path = $sess; }
-            }
+            $sess = session('booking_valid_id_path');
+            if ($sess) { $booking->valid_id_image_path = $sess; }
             if (!empty($seniorPaths)) {
                 $booking->senior_id_image_path = $seniorPaths[0] ?? null;
                 $booking->senior_id_image_paths = json_encode($seniorPaths);
@@ -444,9 +468,6 @@ class BookingController extends Controller
                 $booking->pwd_id_image_path = $pwdPaths[0] ?? null;
                 $booking->pwd_id_image_paths = json_encode($pwdPaths);
             } else if (session('booking_pwd_id_paths')) { $booking->pwd_id_image_paths = session('booking_pwd_id_paths'); }
-            if (!$booking->valid_id_type && session('booking_valid_id_type')) {
-                $booking->valid_id_type = session('booking_valid_id_type');
-            }
             if ($booking->isDirty(['downpayment_receipt_path','valid_id_image_path','valid_id_type'])) {
                 $booking->save();
             }
@@ -657,7 +678,7 @@ class BookingController extends Controller
      */
     public function viewBookingFile(Booking $booking, string $which)
     {
-        if (!Auth::check() || Auth::user()->role !== 'resort_owner' || Auth::id() !== $booking->resort_owner_id) {
+        if (!Auth::check() || Auth::user()->role !== 'resort_owner') {
             abort(403, 'Unauthorized');
         }
 
@@ -694,7 +715,7 @@ class BookingController extends Controller
      */
     public function downloadBookingFile(Booking $booking, string $which)
     {
-        if (!Auth::check() || Auth::user()->role !== 'resort_owner' || Auth::id() !== $booking->resort_owner_id) {
+        if (!Auth::check() || Auth::user()->role !== 'resort_owner') {
             abort(403, 'Unauthorized');
         }
 
@@ -1215,8 +1236,6 @@ class BookingController extends Controller
             'num_pwds' => 'nullable|integer|min:0',
             'special_requests' => 'nullable|string|max:1000',
             'downpayment_receipt' => 'nullable|image|max:5120',
-            'valid_id_type' => 'nullable|string|in:National I.D,Passport,License,Other Valid I.D',
-            'valid_id_image' => 'nullable|image|max:5120',
         ], [
             'contact_number.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
@@ -1248,7 +1267,6 @@ class BookingController extends Controller
                 'number_of_nights' => $numberOfNights,
                 'number_of_guests' => $validatedData['num_guests'],
                 'special_requests' => $validatedData['special_requests'] ?? null,
-                'valid_id_type' => $validatedData['valid_id_type'] ?? null,
                 'tour_type' => $validatedData['tour_type'],
                 // Set to null if not applicable based on tour_type
                 'day_tour_departure_time' => ($validatedData['tour_type'] === 'day_tour') ? ($validatedData['day_tour_departure_time'] ?? null) : null,
@@ -1261,6 +1279,10 @@ class BookingController extends Controller
             ];
 
             $booking->update($updatedBookingData);
+
+            // Recalculate pricing after update
+            $pricingService = new PricingCalculationService();
+            $pricingService->updateBookingPricing($booking);
 
             // --- Create Notification for Resort Owner about the update ---
             $resortOwnerId = $booking->resort_owner_id; // Get the resort owner ID from the booking
@@ -1404,12 +1426,10 @@ class BookingController extends Controller
             // File uploads update
             $dirty = false;
             if ($request->hasFile('downpayment_receipt')) {
-                $path = $request->file('downpayment_receipt')->store('bookings/downpayments', 'public');
-                $booking->downpayment_receipt_path = $path; $dirty = true;
-            }
-            if ($request->hasFile('valid_id_image')) {
-                $path = $request->file('valid_id_image')->store('bookings/valid_ids', 'public');
-                $booking->valid_id_image_path = $path; $dirty = true;
+                $file = $request->file('downpayment_receipt');
+                $filename = 'dp_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images'), $filename);
+                $booking->downpayment_receipt_path = 'images/' . $filename; $dirty = true;
             }
             if ($dirty) { $booking->save(); }
 

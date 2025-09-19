@@ -160,6 +160,141 @@
                                     @endunless
                             </div>
 
+                                {{-- Booking Details with Pricing --}}
+                            @if ($notification->booking)
+                                <div class="booking-details-section">
+                                    <div class="booking-details-header">
+                                        <i class="fas fa-info-circle"></i>
+                                        <h6>Booking Details</h6>
+                                    </div>
+                                    <div class="booking-details-grid">
+                                        @if($notification->booking->room)
+                                            <div class="info-item">
+                                                <span class="info-label">Room:</span>
+                                                <span class="info-value">{{ $notification->booking->room->room_name }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Max Capacity:</span>
+                                                <span class="info-value">{{ $notification->booking->room->max_guests }} guests</span>
+                                            </div>
+                                        @endif
+                                        <div class="info-item">
+                                            <span class="info-label">Number of Guests:</span>
+                                            <span class="info-value">{{ $notification->booking->number_of_guests }}</span>
+                                        </div>
+                                        @if($notification->booking->num_senior_citizens > 0)
+                                            <div class="info-item">
+                                                <span class="info-label">Senior Citizens:</span>
+                                                <span class="info-value">{{ $notification->booking->num_senior_citizens }}</span>
+                                            </div>
+                                        @endif
+                                        @if($notification->booking->num_pwds > 0)
+                                            <div class="info-item">
+                                                <span class="info-label">PWDs:</span>
+                                                <span class="info-value">{{ $notification->booking->num_pwds }}</span>
+                                            </div>
+                                        @endif
+                                        <div class="info-item">
+                                            <span class="info-label">Check-in Date:</span>
+                                            <span class="info-value">
+                                                @php
+                                                    try { echo \Carbon\Carbon::parse($notification->booking->check_in_date)->format('M d, Y'); }
+                                                    catch(\Exception $e) { echo $notification->booking->check_in_date; }
+                                                @endphp
+                                            </span>
+                                        </div>
+                                        @if ($notification->booking->tour_type === 'overnight' && $notification->booking->check_out_date)
+                                            <div class="info-item">
+                                                <span class="info-label">Check-out Date:</span>
+                                                <span class="info-value">
+                                                    @php
+                                                        try { echo \Carbon\Carbon::parse($notification->booking->check_out_date)->format('M d, Y'); }
+                                                        catch(\Exception $e) { echo $notification->booking->check_out_date; }
+                                                    @endphp
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    {{-- Pricing Breakdown --}}
+                                    @php
+                                        $roomPrice = $notification->booking->base_room_price ?? ($notification->booking->room ? $notification->booking->room->price_per_night : 0);
+                                        $extraPersonCharge = $notification->booking->extra_person_charge ?? 0;
+                                        $seniorDiscount = $notification->booking->senior_discount ?? 0;
+                                        $pwdDiscount = $notification->booking->pwd_discount ?? 0;
+                                        $finalRoomPrice = $notification->booking->final_total_price ?? $roomPrice;
+                                        
+                                        $boatPrice = 0;
+                                        if ($notification->booking->assignedBoat) {
+                                            $boatPrice = $notification->booking->assignedBoat->boat_prices ?? 0;
+                                        } elseif ($notification->booking->boat_price) {
+                                            $boatPrice = $notification->booking->boat_price;
+                                        }
+                                        $totalPrice = $finalRoomPrice + $boatPrice;
+                                        
+                                        // Calculate subtotal for discount calculation display
+                                        $subtotal = $roomPrice + $extraPersonCharge;
+                                        $pricePerPerson = $notification->booking->number_of_guests > 0 ? $subtotal / $notification->booking->number_of_guests : 0;
+                                    @endphp
+                                    
+                                    <div class="pricing-breakdown">
+                                        <div class="pricing-header">
+                                            <i class="fas fa-calculator"></i>
+                                            <h6>Pricing Breakdown</h6>
+                                        </div>
+                                        <div class="pricing-details">
+                                            <div class="pricing-item">
+                                                <span class="pricing-label">Room Base Price</span>
+                                                <span class="pricing-value">₱{{ number_format($roomPrice, 2) }}</span>
+                                            </div>
+                                            @if($extraPersonCharge > 0)
+                                                <div class="pricing-item extra-charge">
+                                                    <span class="pricing-label">
+                                                        Extra Person Charge 
+                                                        @if($notification->booking->room)
+                                                            ({{ $notification->booking->number_of_guests - $notification->booking->room->max_guests }} extra × ₱300)
+                                                        @endif
+                                                    </span>
+                                                    <span class="pricing-value">₱{{ number_format($extraPersonCharge, 2) }}</span>
+                                                </div>
+                                            @endif
+                                            @if($seniorDiscount > 0)
+                                                <div class="pricing-item discount">
+                                                    <span class="pricing-label">
+                                                        Senior Discount (20%)
+                                                        @if($notification->booking->num_senior_citizens > 0)
+                                                            (₱{{ number_format($pricePerPerson, 2) }} × {{ $notification->booking->num_senior_citizens }} senior{{ $notification->booking->num_senior_citizens > 1 ? 's' : '' }})
+                                                        @endif
+                                                    </span>
+                                                    <span class="pricing-value">-₱{{ number_format($seniorDiscount, 2) }}</span>
+                                                </div>
+                                            @endif
+                                            @if($pwdDiscount > 0)
+                                                <div class="pricing-item discount">
+                                                    <span class="pricing-label">
+                                                        PWD Discount (20%)
+                                                        @if($notification->booking->num_pwds > 0)
+                                                            (₱{{ number_format($pricePerPerson, 2) }} × {{ $notification->booking->num_pwds }} PWD{{ $notification->booking->num_pwds > 1 ? 's' : '' }})
+                                                        @endif
+                                                    </span>
+                                                    <span class="pricing-value">-₱{{ number_format($pwdDiscount, 2) }}</span>
+                                                </div>
+                                            @endif
+                                            @if($boatPrice > 0)
+                                                <div class="pricing-item">
+                                                    <span class="pricing-label">Boat Price</span>
+                                                    <span class="pricing-value">₱{{ number_format($boatPrice, 2) }}</span>
+                                                </div>
+                                            @endif
+                                            <div class="pricing-item total">
+                                                <span class="pricing-label">Total Amount</span>
+                                                <span class="pricing-value">₱{{ number_format($totalPrice, 2) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                                 {{-- Boat Assignment Information --}}
                             @if ($notification->booking)
                                 @php
@@ -747,6 +882,10 @@
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .empty-icon {
@@ -760,6 +899,7 @@
             margin: 0 auto 2rem;
             color: #6c757d;
             font-size: 3rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .empty-title {
@@ -773,6 +913,7 @@
             font-size: 1.1rem;
             color: #6c757d;
             margin-bottom: 0;
+            line-height: 1.5;
         }
 
         /* Notifications Header */
@@ -815,29 +956,37 @@
 
         /* Notifications List */
         .notifications-list {
-            padding: 0;
+            padding: 1.5rem;
         }
 
         .notification-card {
             background: white;
-            border-bottom: 1px solid #e9ecef;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             transition: all 0.3s ease;
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .notification-card:last-child {
-            border-bottom: none;
+            margin-bottom: 0;
         }
 
         .notification-card.unread {
             background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
             border-left: 4px solid #007bff;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);
         }
 
         .notification-card:hover {
-            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
-            transform: translateX(5px);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+        }
+
+        .notification-card.unread:hover {
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
         }
 
         .notification-header {
@@ -845,6 +994,8 @@
             align-items: flex-start;
             gap: 1rem;
             padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+            border-bottom: 1px solid rgba(0, 123, 255, 0.1);
         }
 
         .notification-icon {
@@ -858,6 +1009,7 @@
             color: white;
             font-size: 1.2rem;
             flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .notification-content {
@@ -875,15 +1027,31 @@
             font-size: 0.9rem;
             color: #6c757d;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification-time::before {
+            content: "🕒";
+            font-size: 0.8rem;
         }
 
         .unread-indicator {
             width: 12px;
             height: 12px;
-            background: #007bff;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             border-radius: 50%;
             flex-shrink: 0;
             margin-top: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* Boat Info Section */
@@ -946,6 +1114,193 @@
         }
 
         /* Notification Actions */
+        /* Booking Details Section */
+        .booking-details-section {
+            margin: 1rem 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-radius: 12px;
+            border-left: 4px solid #007bff;
+            box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1);
+        }
+
+        .booking-details-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #007bff;
+        }
+
+        .booking-details-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .booking-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .booking-details-grid .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background: rgba(0, 123, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .booking-details-grid .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .booking-details-grid .info-value {
+            font-size: 0.95rem;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        /* Pricing Breakdown Section */
+        .pricing-breakdown {
+            margin: 1rem 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+            border-radius: 12px;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 2px 10px rgba(255, 152, 0, 0.1);
+        }
+
+        .pricing-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #ff9800;
+        }
+
+        .pricing-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .pricing-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .pricing-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 152, 0, 0.1);
+        }
+
+        .pricing-item.extra-charge {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .pricing-item.discount {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: rgba(40, 167, 69, 0.3);
+        }
+
+        .pricing-item.total {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+        }
+
+        .pricing-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .pricing-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .pricing-item.total .pricing-label,
+        .pricing-item.total .pricing-value {
+            color: white;
+        }
+
+        /* Boat Info Section */
+        .boat-info-section {
+            margin: 1rem 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.1);
+        }
+
+        .boat-info-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #28a745;
+        }
+
+        .boat-info-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .boat-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .boat-info-grid .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background: rgba(40, 167, 69, 0.05);
+            border-radius: 8px;
+        }
+
+        .boat-info-grid .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .boat-info-grid .info-value {
+            font-size: 0.95rem;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .boat-info-note {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
         .notification-actions {
             padding: 1rem 1.5rem;
             background: #f8f9fa;
@@ -958,6 +1313,12 @@
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.3s ease;
+            border: none;
+            padding: 0.5rem 1rem;
+            min-height: 44px; /* Minimum touch target size */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn:hover {
@@ -965,8 +1326,53 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
+        .btn-outline-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: 1px solid #007bff;
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: 1px solid #dc3545;
+        }
+
+        .btn-outline-danger:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            color: white;
+        }
+
         /* Responsive Design */
-        @media (max-width: 768px) {
+        
+        /* Large Desktop (1200px and up) */
+        @media (min-width: 1200px) {
+            .notifications-section {
+                max-width: 1200px;
+                margin: 2rem auto;
+            }
+            
+            .booking-details-grid,
+            .boat-info-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Desktop (992px to 1199px) */
+        @media (max-width: 1199px) and (min-width: 992px) {
+            .booking-details-grid,
+            .boat-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Tablet (768px to 991px) */
+        @media (max-width: 991px) and (min-width: 768px) {
             .page-header {
                 padding: 2rem 1.5rem;
                 margin-bottom: 2rem;
@@ -997,8 +1403,9 @@
                 gap: 0.75rem;
             }
 
+            .booking-details-grid,
             .boat-info-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .notification-actions {
@@ -1007,7 +1414,399 @@
 
             .notification-actions .btn {
                 width: 100%;
+                margin-bottom: 0.5rem;
             }
+
+            .notification-actions .btn:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        /* Mobile Landscape (576px to 767px) */
+        @media (max-width: 767px) and (min-width: 576px) {
+            .page-header {
+                padding: 1.5rem 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .page-title {
+                font-size: 2.2rem;
+            }
+
+            .page-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .notifications-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1.5rem;
+            }
+
+            .unread-info {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .notifications-list {
+                padding: 1rem;
+            }
+
+            .notification-card {
+                margin-bottom: 1rem;
+            }
+
+            .notification-header {
+                padding: 1rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .notification-icon {
+                align-self: center;
+            }
+
+            .booking-details-section,
+            .pricing-breakdown,
+            .boat-info-section {
+                margin: 0.75rem 1rem;
+                padding: 1rem;
+            }
+
+            .booking-details-grid,
+            .boat-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-details {
+                gap: 0.25rem;
+            }
+
+            .pricing-item {
+                padding: 0.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .pricing-label,
+            .pricing-value {
+                font-size: 0.85rem;
+            }
+
+            .notification-actions {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .notification-actions .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .notification-actions .btn:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        /* Mobile Portrait (up to 575px) */
+        @media (max-width: 575px) {
+            .page-header {
+                padding: 1rem 0.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .notifications-header {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .unread-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .unread-badge {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .notifications-list {
+                padding: 0.75rem;
+            }
+
+            .notification-card {
+                margin-bottom: 0.75rem;
+            }
+
+            .notification-header {
+                padding: 0.75rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .notification-icon {
+                align-self: center;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .notification-title {
+                font-size: 1rem;
+            }
+
+            .notification-time {
+                font-size: 0.8rem;
+            }
+
+            .booking-details-section,
+            .pricing-breakdown,
+            .boat-info-section {
+                margin: 0.5rem 0.75rem;
+                padding: 0.75rem;
+            }
+
+            .booking-details-header h6,
+            .pricing-header h6,
+            .boat-info-header h6 {
+                font-size: 0.9rem;
+            }
+
+            .booking-details-grid,
+            .boat-info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .booking-details-grid .info-item,
+            .boat-info-grid .info-item {
+                padding: 0.4rem;
+            }
+
+            .booking-details-grid .info-label,
+            .boat-info-grid .info-label {
+                font-size: 0.8rem;
+            }
+
+            .booking-details-grid .info-value,
+            .boat-info-grid .info-value {
+                font-size: 0.85rem;
+            }
+
+            .pricing-details {
+                gap: 0.25rem;
+            }
+
+            .pricing-item {
+                padding: 0.4rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .pricing-label,
+            .pricing-value {
+                font-size: 0.8rem;
+            }
+
+            .boat-info-note {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
+
+            .notification-actions {
+                flex-direction: column;
+                padding: 0.75rem;
+            }
+
+            .notification-actions .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .notification-actions .btn:last-child {
+                margin-bottom: 0;
+            }
+
+            .empty-state {
+                padding: 2rem 1rem;
+            }
+
+            .empty-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .empty-title {
+                font-size: 1.5rem;
+            }
+
+            .empty-description {
+                font-size: 1rem;
+            }
+        }
+
+        /* Extra Small Devices (up to 375px) */
+        @media (max-width: 375px) {
+            .page-header {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .page-title {
+                font-size: 1.6rem;
+            }
+
+            .notifications-header {
+                padding: 0.75rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .notifications-list {
+                padding: 0.5rem;
+            }
+
+            .notification-header {
+                padding: 0.5rem;
+            }
+
+            .booking-details-section,
+            .pricing-breakdown,
+            .boat-info-section {
+                margin: 0.4rem 0.5rem;
+                padding: 0.5rem;
+            }
+
+            .notification-actions {
+                padding: 0.5rem;
+            }
+
+            .empty-state {
+                padding: 1.5rem 0.75rem;
+            }
+
+            .empty-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .empty-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Landscape Orientation Adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .page-header {
+                padding: 1rem 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .notifications-header {
+                padding: 1rem;
+            }
+
+            .notification-header {
+                padding: 0.75rem;
+            }
+
+            .booking-details-section,
+            .pricing-breakdown,
+            .boat-info-section {
+                margin: 0.5rem 1rem;
+                padding: 0.75rem;
+            }
+        }
+
+        /* Responsive Utilities */
+        .d-none-mobile {
+            display: block;
+        }
+
+        .d-block-mobile {
+            display: none;
+        }
+
+        @media (max-width: 767px) {
+            .d-none-mobile {
+                display: none;
+            }
+
+            .d-block-mobile {
+                display: block;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        .notification-card {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Improved text selection */
+        .notification-content,
+        .booking-details-section,
+        .pricing-breakdown,
+        .boat-info-section {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Better focus states for accessibility */
+        .btn:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+        }
+
+        .notification-card:focus-within {
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
         }
 
         /* Custom styles for status badges */
@@ -1082,6 +1881,56 @@
             .swal2-content-responsive {
                 font-size: 12px !important;
             }
+
+            /* Improve mobile scrolling */
+            .notifications-section {
+                overflow-x: hidden;
+            }
+
+            /* Better mobile text wrapping */
+            .notification-title,
+            .pricing-label,
+            .booking-details-grid .info-value,
+            .boat-info-grid .info-value {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+
+            /* Mobile-friendly form elements */
+            .form-select,
+            .form-control {
+                min-height: 44px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .notification-icon,
+            .empty-icon {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .notification-actions,
+            .btn {
+                display: none !important;
+            }
+
+            .notification-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+
+            .notifications-section {
+                box-shadow: none;
+                background: white;
+            }
+        }
 
             .swal2-confirm-responsive,
             .swal2-cancel-responsive {
