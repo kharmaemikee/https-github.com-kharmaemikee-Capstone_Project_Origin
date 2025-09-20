@@ -289,7 +289,6 @@
 
                             {{-- Display booking details for all relevant notification types --}}
                             @if ($notification->booking)
-                                <p class="mb-1">Booking ID: <strong>{{ $notification->booking->id }}</strong></p>
                                 <hr class="my-2">
                                 <h6>Tourist Information:</h6>
                                 <p class="mb-1">Name: <strong>{{ $notification->booking->user->first_name ?? 'N/A' }} {{ $notification->booking->user->middle_name ?? '' }} {{ $notification->booking->user->last_name ?? 'N/A' }}</strong></p>
@@ -305,7 +304,99 @@
                                 <p class="mb-1">Room Price: <strong>₱{{ number_format($notification->booking->room->price_per_night ?? 0, 2) }}</strong></p>
                                 <hr class="my-2">
                                 <h6>Guest Information:</h6>
-                                <p class="mb-1">Guest Names: <strong>{{ $notification->booking->guest_name ?? 'N/A' }}</strong></p>
+                                @php
+                                    // Parse guest information from the concatenated string
+                                    $allGuestNames = explode(';', $notification->booking->guest_name ?? '');
+                                    
+                                    // Get the booker's full name to exclude from guest list
+                                    $bookerName = trim(($notification->booking->user->first_name ?? '') . ' ' . ($notification->booking->user->middle_name ?? '') . ' ' . ($notification->booking->user->last_name ?? ''));
+                                    $bookerName = preg_replace('/\s+/', ' ', $bookerName); // Clean up multiple spaces
+                                    
+                                    // Process all guest information first
+                                    $processedGuests = [];
+                                    
+                                    foreach ($allGuestNames as $index => $guestInfo) {
+                                        $guestInfo = trim($guestInfo);
+                                        if (empty($guestInfo)) continue;
+                                        
+                                        $age = null;
+                                        $nationality = null;
+                                        $cleanName = $guestInfo;
+                                        
+                                        // Look for age pattern (number in parentheses) - must come before nationality
+                                        if (preg_match('/\((\d+)\)/', $guestInfo, $ageMatches)) {
+                                            $age = $ageMatches[1];
+                                            $cleanName = preg_replace('/\s*\(\d+\)/', '', $cleanName);
+                                        }
+                                        
+                                        // Look for nationality pattern (after dash) - must come after age removal
+                                        if (preg_match('/\s*-\s*(.+)$/', $cleanName, $nationalityMatches)) {
+                                            $nationality = trim($nationalityMatches[1]);
+                                            $cleanName = preg_replace('/\s*-\s*.+$/', '', $cleanName);
+                                        }
+                                        
+                                        // For the primary guest (index 0), also check user nationality as fallback
+                                        if ($index === 0 && empty($nationality)) {
+                                            $userNationality = $notification->booking->user->nationality ?? null;
+                                            if (!empty($userNationality)) {
+                                                $nationality = $userNationality;
+                                            }
+                                        }
+                                        
+                                        $cleanName = trim($cleanName);
+                                        
+                                        // Skip if this is the booker's name (case-insensitive comparison)
+                                        if (strcasecmp($cleanName, $bookerName) === 0) {
+                                            continue;
+                                        }
+                                        
+                                        // Add to processed guests array
+                                        $processedGuests[] = [
+                                            'name' => $cleanName,
+                                            'age' => $age,
+                                            'nationality' => $nationality
+                                        ];
+                                    }
+                                    
+                                    // Extract arrays for display
+                                    $guestNames = array_column($processedGuests, 'name');
+                                    $guestAges = array_column($processedGuests, 'age');
+                                    $guestNationalities = array_column($processedGuests, 'nationality');
+                                @endphp
+                                
+                                
+                                <div class="guest-info-table">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Guest Name</th>
+                                                <th>Age</th>
+                                                <th>Nationality</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($guestNames as $index => $name)
+                                                @if(!empty(trim($name)))
+                                                    <tr>
+                                                        <td class="fw-bold">{{ $index + 1 }}</td>
+                                                        <td class="fw-semibold">{{ $name }}</td>
+                                                        <td>
+                                                            <span class="badge bg-info">
+                                                                {{ $guestAges[$index] ?? 'N/A' }}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-secondary">
+                                                                {{ $guestNationalities[$index] ?? 'N/A' }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <hr class="my-2">
                                 <h6>Booking Details:</h6>
                                 <p class="mb-1">Booking Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
@@ -340,6 +431,48 @@
                                 @endif
                                 @if($notification->booking->num_pwds > 0)
                                     <p class="mb-1">PWDs: <strong>{{ $notification->booking->num_pwds }}</strong></p>
+                                @endif
+                                
+                                {{-- Departure and Pick-up Times --}}
+                                <hr class="my-2">
+                                <h6>Schedule Information:</h6>
+                                @if($notification->booking->tour_type === 'overnight' && $notification->booking->overnight_date_time_of_pickup)
+                                    <p class="mb-1">Departure Time (Overnight): <strong>
+                                        @php
+                                            try {
+                                                $departureTime = \Carbon\Carbon::parse($notification->booking->overnight_date_time_of_pickup)->format('M d, Y g:i A');
+                                            } catch (\Exception $e) {
+                                                $departureTime = $notification->booking->overnight_date_time_of_pickup;
+                                            }
+                                        @endphp
+                                        {{ $departureTime }}
+                                    </strong></p>
+                                @endif
+                                
+                                @if($notification->booking->tour_type === 'day_tour' && $notification->booking->day_tour_departure_time)
+                                    <p class="mb-1">Departure Time (Day Tour): <strong>
+                                        @php
+                                            try {
+                                                $dayTourTime = \Carbon\Carbon::parse($notification->booking->check_in_date . ' ' . $notification->booking->day_tour_departure_time)->format('M d, Y g:i A');
+                                            } catch (\Exception $e) {
+                                                $dayTourTime = $notification->booking->day_tour_departure_time;
+                                            }
+                                        @endphp
+                                        {{ $dayTourTime }}
+                                    </strong></p>
+                                @endif
+                                
+                                @if($notification->booking->day_tour_time_of_pickup)
+                                    <p class="mb-1">Pick-up Time (When Leaving Resort/Rooms): <strong>
+                                        @php
+                                            try {
+                                                $pickupTime = \Carbon\Carbon::parse($notification->booking->check_in_date . ' ' . $notification->booking->day_tour_time_of_pickup)->format('M d, Y g:i A');
+                                            } catch (\Exception $e) {
+                                                $pickupTime = $notification->booking->day_tour_time_of_pickup;
+                                            }
+                                        @endphp
+                                        {{ $pickupTime }}
+                                    </strong></p>
                                 @endif
                                 
                                 @php
@@ -1546,24 +1679,44 @@
 
         /* Simple Notifications Design */
         .page-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
             margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
         .page-title {
-            color: #2c3e50;
-            font-size: 2rem;
-            font-weight: 700;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 800;
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .page-subtitle {
-            color: #6c757d;
-            font-size: 1rem;
-            margin: 0.5rem 0 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin: 0.75rem 0 0 0;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
         }
 
         .empty-state {
@@ -1595,86 +1748,242 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
         .unread-count {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .count-badge {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
-            font-size: 0.875rem;
-            font-weight: 600;
-            padding: 0.375rem 0.75rem;
-            border-radius: 20px;
-            min-width: 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.75rem 1.25rem;
+            border-radius: 25px;
+            min-width: 32px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            animation: pulse 2s infinite;
         }
 
         .count-text {
-            color: #6c757d;
-            font-weight: 500;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .notifications-list {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
+        }
+
+        /* Button Enhancements */
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #e53e3e 100%);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Guest Information Table Styling */
+        .guest-info-table {
+            margin: 1rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .guest-info-table .table {
+            margin-bottom: 0;
+            border: none;
+        }
+
+        .guest-info-table .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .guest-info-table .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .guest-info-table .table tbody tr:hover {
+            background-color: #f8f9ff;
+            transform: scale(1.01);
+        }
+
+        .guest-info-table .table tbody td {
+            padding: 1rem;
+            border: none;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .guest-info-table .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .guest-info-table .badge {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .guest-info-table .badge.bg-info {
+            background: linear-gradient(135deg, #17a2b8, #138496) !important;
+        }
+
+        .guest-info-table .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
         }
 
         .notification-item {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
         }
 
         .notification-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: rgba(0, 123, 255, 0.2);
         }
 
         .notification-item.unread {
-            border-left: 4px solid #007bff;
+            border-left: 5px solid #007bff;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #007bff, #0056b3);
         }
 
         .notification-item.read {
-            opacity: 0.7;
+            opacity: 0.8;
+            background: #f8f9fa;
         }
 
         .notification-content {
-            padding: 1.5rem;
+            padding: 2rem;
+            position: relative;
         }
 
         .notification-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f3f4;
         }
 
         .notification-title {
-            color: #2c3e50;
-            font-size: 1.125rem;
-            font-weight: 600;
+            color: #1a202c;
+            font-size: 1.25rem;
+            font-weight: 700;
             margin: 0;
             line-height: 1.4;
+            letter-spacing: -0.025em;
         }
 
         .notification-time {
-            color: #6c757d;
+            color: #718096;
             font-size: 0.875rem;
             white-space: nowrap;
             margin-left: 1rem;
+            background: #f7fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
         }
 
         .notification-actions {
@@ -1682,9 +1991,59 @@
             justify-content: flex-end;
             align-items: center;
             gap: 0.75rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e9ecef;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f1f3f4;
+        }
+
+        /* Section Headers */
+        .notification-content h6 {
+            color: #2d3748;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem 0;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .notification-content h6:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Information paragraphs */
+        .notification-content p {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .notification-content p:last-child {
+            border-bottom: none;
+        }
+
+        .notification-content strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* Status badges enhancement */
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .pagination-wrapper {

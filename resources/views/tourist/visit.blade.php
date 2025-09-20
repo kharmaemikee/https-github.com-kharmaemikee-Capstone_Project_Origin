@@ -269,6 +269,16 @@
                                             </h6>
                                             <div class="tour-details">
                                                 <div class="tour-item">
+                                                    <i class="fas fa-plane-departure"></i>
+                                                    <span class="tour-label">Departure</span>
+                                                    <span class="tour-value">
+                                                        @php
+                                                            try { echo \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A'); }
+                                                            catch(\Exception $e) { echo $booking->overnight_departure_time; }
+                                                        @endphp
+                                                    </span>
+                                                </div>
+                                                <div class="tour-item">
                                                     <i class="fas fa-car"></i>
                                                     <span class="tour-label">Pickup</span>
                                                     <span class="tour-value">

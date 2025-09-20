@@ -56,20 +56,28 @@
             margin-left: 20px;
         }
         
-        .detail-row {
-            display: flex;
-            margin-bottom: 8px;
-            align-items: flex-start;
+        .booking-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
         
-        .detail-label {
+        .booking-details-table th,
+        .booking-details-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .booking-details-table th {
+            background: #f0f0f0;
             font-weight: bold;
-            min-width: 150px;
-            margin-right: 10px;
+            width: 20%;
         }
         
-        .detail-value {
-            flex: 1;
+        .booking-details-table td {
+            background: white;
+            width: 30%;
         }
         
         .guest-table-section {
@@ -134,114 +142,6 @@
     @forelse($bookings as $booking)
         <div class="booking-container">
             
-            <div class="booking-details">
-               
-                
-                <div class="detail-row">
-                    <span class="detail-label">Address:</span>
-                    <span class="detail-value">{{ $booking->guest_address ?? '—' }}</span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Contact:</span>
-                    <span class="detail-value">{{ $booking->phone_number ?? '—' }}</span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Tour Type:</span>
-                    <span class="detail-value">{{ ucfirst($booking->tour_type ?? '—') }}</span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Departure Time:</span>
-                    <span class="detail-value">
-                        @if($booking->tour_type === 'day_tour' && $booking->day_tour_departure_time)
-                            @php
-                                try { 
-                                    $departureTime = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i'); 
-                                } catch (\Exception $e) { 
-                                    $departureTime = $booking->day_tour_departure_time; 
-                                }
-                            @endphp
-                            {{ $departureTime }}
-                        @elseif($booking->tour_type === 'overnight')
-                            @if($booking->overnight_departure_time)
-                                @php
-                                    try { 
-                                        $departureTime = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('g:i A'); 
-                                    } catch (\Exception $e) { 
-                                        $departureTime = $booking->overnight_departure_time; 
-                                    }
-                                @endphp
-                                {{ $departureTime }}
-                            @elseif($booking->check_in_date)
-                                @php
-                                    $checkInDate = \Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d');
-                                @endphp
-                                {{ $checkInDate }} (Check-in Date)
-                            @else
-                                —
-                            @endif
-                        @else
-                            —
-                        @endif
-                    </span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Pick-up Time:</span>
-                    <span class="detail-value">
-                        @if($booking->tour_type === 'day_tour' && $booking->day_tour_time_of_pickup)
-                            @php
-                                try { 
-                                    $pickupTime = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i'); 
-                                } catch (\Exception $e) { 
-                                    $pickupTime = $booking->day_tour_time_of_pickup; 
-                                }
-                            @endphp
-                            {{ $pickupTime }}
-                        @elseif($booking->tour_type === 'overnight' && $booking->overnight_date_time_of_pickup)
-                            @php
-                                try { 
-                                    $pickupTime = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('g:i A'); 
-                                } catch (\Exception $e) { 
-                                    $pickupTime = $booking->overnight_date_time_of_pickup; 
-                                }
-                            @endphp
-                            {{ $pickupTime }}
-                        @else
-                            —
-                        @endif
-                    </span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Check-in:</span>
-                    <span class="detail-value">{{ $booking->check_in_date ? \Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d') : '—' }}</span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Check-out:</span>
-                    <span class="detail-value">{{ $booking->check_out_date ? \Carbon\Carbon::parse($booking->check_out_date)->format('Y-m-d') : '—' }}</span>
-                </div>
-                
-                
-                <div class="detail-row">
-                    <span class="detail-label">Valid ID Type:</span>
-                    <span class="detail-value">{{ $booking->valid_id_type ?? '—' }}</span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Valid ID Number:</span>
-                    <span class="detail-value">{{ $booking->valid_id_number ?? '—' }}</span>
-                </div>
-                
-                <div class="detail-row">
-                    <span class="detail-label">Boat Name:</span>
-                    <span class="detail-value">{{ optional($booking->assignedBoat)->boat_name ?? '—' }}</span>
-                </div>
-            </div>
-            
             {{-- Guest Information Table --}}
             <div class="guest-table-section">
                 <h3>Guest Information</h3>
@@ -301,6 +201,106 @@
                     </tbody>
                 </table>
             </div>
+            
+            {{-- Booking Details Table --}}
+            <div class="booking-details">
+                <h3>Booking Details</h3>
+                <table class="booking-details-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Address:</strong></td>
+                            <td>{{ $booking->guest_address ?? '—' }}</td>
+                            <td><strong>Check-in:</strong></td>
+                            <td>{{ $booking->check_in_date ? \Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Contact:</strong></td>
+                            <td>{{ $booking->phone_number ?? '—' }}</td>
+                            <td><strong>Check-out:</strong></td>
+                            <td>{{ $booking->check_out_date ? \Carbon\Carbon::parse($booking->check_out_date)->format('Y-m-d') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tour Type:</strong></td>
+                            <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
+                            <td><strong>Valid ID Type:</strong></td>
+                            <td>{{ $booking->valid_id_type ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Departure Time:</strong></td>
+                            <td>
+                                @if($booking->tour_type === 'day_tour' && $booking->day_tour_departure_time)
+                                    @php
+                                        try { 
+                                            $departureTime = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i'); 
+                                        } catch (\Exception $e) { 
+                                            $departureTime = $booking->day_tour_departure_time; 
+                                        }
+                                    @endphp
+                                    {{ $departureTime }}
+                                @elseif($booking->tour_type === 'overnight')
+                                    @if($booking->overnight_departure_time)
+                                        @php
+                                            try { 
+                                                $departureTime = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('g:i A'); 
+                                            } catch (\Exception $e) { 
+                                                $departureTime = $booking->overnight_departure_time; 
+                                            }
+                                        @endphp
+                                        {{ $departureTime }}
+                                    @elseif($booking->check_in_date)
+                                        @php
+                                            $checkInDate = \Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d');
+                                        @endphp
+                                        {{ $checkInDate }} (Check-in Date)
+                                    @else
+                                        —
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td><strong>Valid ID Number:</strong></td>
+                            <td>{{ $booking->valid_id_number ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pick-up Time:</strong></td>
+                            <td>
+                                @if($booking->tour_type === 'day_tour' && $booking->day_tour_time_of_pickup)
+                                    @php
+                                        try { 
+                                            $pickupTime = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i'); 
+                                        } catch (\Exception $e) { 
+                                            $pickupTime = $booking->day_tour_time_of_pickup; 
+                                        }
+                                    @endphp
+                                    {{ $pickupTime }}
+                                @elseif($booking->tour_type === 'overnight' && $booking->overnight_date_time_of_pickup)
+                                    @php
+                                        try { 
+                                            $pickupTime = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('g:i A'); 
+                                        } catch (\Exception $e) { 
+                                            $pickupTime = $booking->overnight_date_time_of_pickup; 
+                                        }
+                                    @endphp
+                                    {{ $pickupTime }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td><strong>Boat Name:</strong></td>
+                            <td>{{ optional($booking->assignedBoat)->boat_name ?? '—' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     @empty
         <div class="empty-state">
@@ -314,10 +314,12 @@
         <div style="margin-top: 20px;">
             <div style="border-top: 1px solid #000; width: 200px; margin: 0 auto; padding-top: 5px;">
                 @if(isset($bookings) && $bookings->count() > 0)
-                    {{ optional($bookings->first()->room->resort)->name ?? 'Resort Name' }}
+                    {{ optional($bookings->first()->room->resort)->resort_name ?? 'Resort Name' }}
                 @else
                     Resort Name
                 @endif
+                <br>
+                <small style="font-size: 8px; color: #666;">Owner: {{ $ownerName ?? 'Resort Owner' }}</small>
             </div>
         </div>
     </div>

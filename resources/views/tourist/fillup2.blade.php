@@ -1723,6 +1723,24 @@
                 syncOvernightDeparture();
             }
 
+            // Ensure departure time is synced before form submission
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // Sync overnight departure time before submission
+                    if (overnightDepartureTime && overnightDepartureTime.value) {
+                        syncOvernightDeparture();
+                    }
+                    
+                    // Ensure day tour departure time is properly formatted
+                    const dayTourDepartureTime = document.getElementById('day_tour_departure_time');
+                    if (dayTourDepartureTime && dayTourDepartureTime.value) {
+                        // Day tour departure time is already in H:i format, no conversion needed
+                        console.log('Day tour departure time:', dayTourDepartureTime.value);
+                    }
+                });
+            }
+
             // Senior citizen auto-detection for Overnight
             function evaluateSeniors() {
                 const tourType = (document.getElementById('tour_type')?.value) || '';

@@ -180,8 +180,8 @@ class DocumentationController extends Controller
         $callback = function () use ($query) {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, [
-                'Resort', 'Room',
-                'Guest Name', 'Age', 'Gender', 'Address', 'Nationality', 'Phone', 'Username',
+                'Resort Name', 'Room Name', 'Boat Name',
+                'Guest Name', 'Age', 'Nationality', 'Address', 'Phone', 'Username',
                 'Tour Type', 'Departure Time', 'Pickup Time', 'Seniors', 'PWDs',
                 'Check-in', 'Check-out', 'Nights', 'Guests', 'Status', 'Valid ID Type', 'Valid ID Number', 'Created At'
             ]);
@@ -190,45 +190,79 @@ class DocumentationController extends Controller
                 foreach ($rows as $booking) {
                     $resortName = optional(optional($booking->room)->resort)->resort_name ?? $booking->name_of_resort ?? '';
                     $roomName = optional($booking->room)->room_name ?? '';
+                    $boatName = optional($booking->assignedBoat)->boat_name ?? '';
                     $username = optional($booking->user)->username ?? '';
-                    fputcsv($handle, [
-                        $resortName,
-                        $roomName,
-                        $booking->guest_name ?? (optional($booking->user)->first_name . ' ' . optional($booking->user)->last_name),
-                        $booking->guest_age,
-                        $booking->guest_gender,
-                        $booking->guest_address,
-                        $booking->guest_nationality,
-                        $booking->phone_number,
-                        $username,
-                        $booking->tour_type,
-                        (function($booking){
-                            try {
-                                if ($booking->tour_type === 'day_tour') {
-                                    return $booking->day_tour_departure_time ? \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i') : 'N/A';
-                                }
-                                return $booking->overnight_departure_time ? \Carbon\Carbon::parse($booking->overnight_departure_time)->format('H:i') : 'N/A';
-                            } catch (\Exception $e) { return 'N/A'; }
-                        })($booking),
-                        (function($booking){
-                            try {
-                                if ($booking->tour_type === 'day_tour') {
-                                    return $booking->day_tour_time_of_pickup ? \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') : 'N/A';
-                                }
-                                return $booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('H:i') : 'N/A';
-                            } catch (\Exception $e) { return 'N/A'; }
-                        })($booking),
-                        $booking->num_senior_citizens,
-                        $booking->num_pwds,
-                        optional($booking->check_in_date)->format('Y-m-d'),
-                        optional($booking->check_out_date)->format('Y-m-d'),
-                        $booking->number_of_nights,
-                        $booking->number_of_guests,
-                        $booking->status,
-                        $booking->valid_id_type,
-                        $booking->valid_id_number,
-                        optional($booking->created_at)->format('Y-m-d H:i:s'),
-                    ]);
+                    
+                    // Parse guest information similar to PDF
+                    $guestNames = explode(';', $booking->guest_name ?? '');
+                    $guestAges = explode(';', $booking->guest_age ?? '');
+                    $guestNationalities = explode(';', $booking->guest_nationality ?? '');
+                    
+                    // Process each guest
+                    for ($i = 0; $i < count($guestNames); $i++) {
+                        if (trim($guestNames[$i] ?? '') !== '') {
+                            $guestName = trim($guestNames[$i] ?? '');
+                            $guestAge = trim($guestAges[$i] ?? '');
+                            $guestNationality = trim($guestNationalities[$i] ?? '');
+                            
+                            // Extract name, age, and nationality from the guest name if it contains them
+                            // Format: "Name (Age) - Nationality"
+                            if (preg_match('/^(.+?)\s*\((\d+)\)\s*-\s*(.+)$/', $guestName, $matches)) {
+                                $cleanName = trim($matches[1]);
+                                $extractedAge = trim($matches[2]);
+                                $extractedNationality = trim($matches[3]);
+                                
+                                // Use extracted values if available, otherwise use separate fields
+                                $finalName = $cleanName;
+                                $finalAge = $extractedAge ?: $guestAge;
+                                $finalNationality = $extractedNationality ?: $guestNationality;
+                            } else {
+                                // If no pattern match, use the name as-is and separate fields
+                                $finalName = $guestName;
+                                $finalAge = $guestAge;
+                                $finalNationality = $guestNationality;
+                            }
+                            
+                            fputcsv($handle, [
+                                $resortName,
+                                $roomName,
+                                $boatName,
+                                $finalName,
+                                $finalAge ?: 'N/A',
+                                $finalNationality ?: 'N/A',
+                                $booking->guest_address,
+                                $booking->phone_number,
+                                $username,
+                                $booking->tour_type,
+                                (function($booking){
+                                    try {
+                                        if ($booking->tour_type === 'day_tour') {
+                                            return $booking->day_tour_departure_time ? \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('H:i') : 'N/A';
+                                        }
+                                        return $booking->overnight_departure_time ? \Carbon\Carbon::parse($booking->overnight_departure_time)->format('g:i A') : 'N/A';
+                                    } catch (\Exception $e) { return 'N/A'; }
+                                })($booking),
+                                (function($booking){
+                                    try {
+                                        if ($booking->tour_type === 'day_tour') {
+                                            return $booking->day_tour_time_of_pickup ? \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('H:i') : 'N/A';
+                                        }
+                                        return $booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('g:i A') : 'N/A';
+                                    } catch (\Exception $e) { return 'N/A'; }
+                                })($booking),
+                                $booking->num_senior_citizens,
+                                $booking->num_pwds,
+                                optional($booking->check_in_date)->format('Y-m-d'),
+                                optional($booking->check_out_date)->format('Y-m-d'),
+                                $booking->number_of_nights,
+                                $booking->number_of_guests,
+                                $booking->status,
+                                $booking->valid_id_type,
+                                $booking->valid_id_number,
+                                optional($booking->created_at)->format('Y-m-d H:i:s'),
+                            ]);
+                        }
+                    }
                 }
             });
 

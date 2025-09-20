@@ -314,6 +314,7 @@ class AdminDocumentationController extends Controller
             'bookings' => $bookings,
             'filters' => $filters,
             'generatedAt' => now(),
+            'adminName' => Auth::user()->username,
         ];
 
         $filename = 'admin-tourist-bookings-' . Carbon::now()->format('Y-m-d-H-i-s') . '.pdf';

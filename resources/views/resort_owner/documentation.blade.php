@@ -244,9 +244,18 @@
                                                     $overnightDep = null;
                                                     try {
                                                         if (!empty($booking->overnight_departure_time)) {
-                                                            $overnightDep = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A');
+                                                            // Handle both datetime format (2024-01-15T14:30) and time format (14:30)
+                                                            if (strpos($booking->overnight_departure_time, 'T') !== false) {
+                                                                // Datetime format: extract time part
+                                                                $overnightDep = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A');
+                                                            } else {
+                                                                // Time format: parse directly
+                                                                $overnightDep = \Carbon\Carbon::createFromFormat('H:i', $booking->overnight_departure_time)->format('h:i A');
+                                                            }
                                                         }
-                                                    } catch (\Exception $e) { $overnightDep = $booking->overnight_departure_time ?? null; }
+                                                    } catch (\Exception $e) { 
+                                                        $overnightDep = $booking->overnight_departure_time ?? null; 
+                                                    }
                                                     @endphp
                                                 {{ $overnightDep ?? '—' }}
                                             </td>
@@ -255,9 +264,21 @@
                                                     $dayDep = null;
                                                     try {
                                                         if (!empty($booking->day_tour_departure_time)) {
-                                                            $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
+                                                            // Handle both datetime format (2025-09-20 08:00:00) and time format (08:00)
+                                                            if (strpos($booking->day_tour_departure_time, ' ') !== false) {
+                                                                // Datetime format: extract time part
+                                                                $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
+                                                            } elseif (strpos($booking->day_tour_departure_time, 'T') !== false) {
+                                                                // ISO datetime format: extract time part
+                                                                $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
+                                                            } else {
+                                                                // Time format: parse directly
+                                                                $dayDep = \Carbon\Carbon::createFromFormat('H:i', $booking->day_tour_departure_time)->format('h:i A');
+                                                            }
                                                         }
-                                                    } catch (\Exception $e) { $dayDep = $booking->day_tour_departure_time ?? null; }
+                                                    } catch (\Exception $e) { 
+                                                        $dayDep = $booking->day_tour_departure_time ?? null; 
+                                                    }
                                                     @endphp
                                                 {{ $dayDep ?? '—' }}
                                             </td>
@@ -296,10 +317,6 @@
                                                         data-valid-id-number="{{ $booking->valid_id_number ?? '' }}"
                                                         data-senior-id="{{ $booking->senior_id_image_path ?? '' }}"
                                                         data-pwd-id="{{ $booking->pwd_id_image_path ?? '' }}"
-                                                        data-guest-count="{{ $booking->number_of_guests ?? '' }}"
-                                                        data-overnight-departure="{{ !empty($booking->overnight_departure_time) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A'); } catch (\Exception $e) { return $booking->overnight_departure_time; } })() : '—' }}"
-                                                        data-daytour-departure="{{ !empty($booking->day_tour_departure_time) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A'); } catch (\Exception $e) { return $booking->day_tour_departure_time; } })() : '—' }}"
-                                                        data-pickup="{{ ($booking->tour_type === 'overnight') ? (!empty($booking->overnight_date_time_of_pickup) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('M d, Y h:i A'); } catch (\Exception $e) { return $booking->overnight_date_time_of_pickup; } })() : '—') : (!empty($booking->day_tour_time_of_pickup) ? (function() use($booking){ try { return \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { return $booking->day_tour_time_of_pickup; } })() : '—') }}"
                                                         data-extended="{{ ($booking->is_extended ?? false) ? 'Yes' : 'No' }}"
                                                         data-extension="{{ ($booking->is_extended ?? false) ? ('+' . ($booking->extension_value ?? '') . ' ' . ($booking->extension_type ?? '')) : '' }}"
                                                         data-check-in="{{ !empty($booking->check_in_date) ? (\Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d')) : '' }}"
@@ -483,50 +500,176 @@
 
     <!-- Modal for row details -->
     <div class="modal fade" id="docViewModal" tabindex="-1" aria-labelledby="docViewModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header ro-doc-modal-header">
-                    <div class="d-flex flex-column">
-                        <h5 class="modal-title m-0 d-flex align-items-center gap-2" id="docViewModalLabel">
-                            <i class="fas fa-file-alt"></i>
-                            Booking Details
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modern-modal">
+                <div class="modal-header modern-modal-header">
+                    <div class="modal-title-section">
+                        <h5 class="modal-title" id="docViewModalLabel">
+                            <i class="fas fa-user-circle me-2"></i>Booking Details
                         </h5>
-                        <small class="text-white-75">Quick view of the selected record</small>
+                        <p class="modal-subtitle">Complete guest information and booking data</p>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close modern-close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-2"><strong>Name of Guests:</strong> <span id="docGuestName">N/A</span></div>
-                    <div class="mb-2"><strong>Age:</strong> <span id="docGuestAge">N/A</span></div>
-                    <div class="mb-2"><strong>Gender:</strong> <span id="docGuestGender">N/A</span></div>
-                    <div class="mb-2"><strong>Nationality:</strong> <span id="docGuestNationality">N/A</span></div>
-                    <div class="mb-2"><strong>Phone:</strong> <span id="docPhone">N/A</span></div>
-                    <div class="mb-2"><strong>Address:</strong> <span id="docGuestAddress">N/A</span></div>
-                    <div class="mb-2"><strong>Guests (Count):</strong> <span id="docGuestCount">N/A</span></div>
-                    <hr>
-                    <div class="row g-2">
-                        <div class="col-6"><strong>Departure Time — Overnight:</strong> <span id="docOvernightDepartureRO">—</span></div>
-                        <div class="col-6"><strong>Departure Time — Day tour:</strong> <span id="docDayTourDepartureRO">—</span></div>
-                        <div class="col-6"><strong>Pick-up (leaving):</strong> <span id="docPickupRO">—</span></div>
-                        <div class="col-6"><strong>Check-in Date:</strong> <span id="docCheckIn">—</span></div>
-                        <div class="col-6"><strong>Check-out Date:</strong> <span id="docCheckOut">—</span></div>
-                        <div class="col-6"><strong>Seniors:</strong> <span id="docSeniors">—</span></div>
-                        <div class="col-6"><strong>PWDs:</strong> <span id="docPwds">—</span></div>
+                <div class="modal-body modern-modal-body">
+                    <div class="row g-3">
+                        <!-- Guest Information Table -->
+                        <div class="col-12">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-users me-2"></i>Guest Information
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Guest Name</th>
+                                                <th>Age</th>
+                                                <th>Nationality</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="docGuestTableBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">No guest information available</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-phone me-2"></i>Contact Information
+                                </h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Phone:</span>
+                                        <span class="info-value" id="docPhone">N/A</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Address:</span>
+                                        <span class="info-value" id="docGuestAddress">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Information -->
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-calendar-alt me-2"></i>Booking Information
+                                </h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Check-in:</span>
+                                        <span class="info-value" id="docCheckIn">—</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Check-out:</span>
+                                        <span class="info-value" id="docCheckOut">—</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Seniors:</span>
+                                        <span class="info-value" id="docSeniors">—</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">PWDs:</span>
+                                        <span class="info-value" id="docPwds">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Boat Information -->
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-ship me-2"></i>Boat Information
+                                </h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Boat Name:</span>
+                                        <span class="info-value" id="docBoatName">N/A</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Plate Number:</span>
+                                        <span class="info-value" id="docBoatNumber">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Extension Information -->
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-clock me-2"></i>Extension Information
+                                </h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Extended:</span>
+                                        <span class="info-value" id="docExtended">No</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Extension Details:</span>
+                                        <span class="info-value" id="docExtension">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Documents -->
+                        <div class="col-12">
+                            <div class="info-card">
+                                <h6 class="info-card-title">
+                                    <i class="fas fa-file-alt me-2"></i>Documents
+                                </h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Downpayment Receipt:</span>
+                                        <span class="info-value">
+                                            <button type="button" id="btnViewDownpaymentRO" class="btn btn-sm btn-outline-primary view-image-btn" style="display:none;">View</button>
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Valid ID:</span>
+                                        <span class="info-value">
+                                            <span id="docValidIdTypeRO">—</span>
+                                            <button type="button" id="btnViewValidIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn" style="display:none;">View</button>
+                                        </span>
+                                    </div>
+                                    <div class="info-item" id="docValidIdNumberRowRO" style="display:none;">
+                                        <span class="info-label">ID Number:</span>
+                                        <span class="info-value" id="docValidIdNumberRO">—</span>
+                                    </div>
+                                    <div class="info-item" id="docSeniorIdRowRO" style="display:none;">
+                                        <span class="info-label">Senior ID:</span>
+                                        <span class="info-value">
+                                            <button type="button" id="btnViewSeniorIdRO" class="btn btn-sm btn-outline-primary view-image-btn">View</button>
+                                        </span>
+                                    </div>
+                                    <div class="info-item" id="docPwdIdRowRO" style="display:none;">
+                                        <span class="info-label">PWD ID:</span>
+                                        <span class="info-value">
+                                            <button type="button" id="btnViewPwdIdRO" class="btn btn-sm btn-outline-primary view-image-btn">View</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
-                    <div class="mb-2"><strong>Assigned Boat:</strong> <span id="docBoatName">N/A</span></div>
-                    <div class="mb-2"><strong>Boat Plate Number:</strong> <span id="docBoatNumber">N/A</span></div>
-                    
-                    <div class="mb-2"><strong>Downpayment Receipt:</strong> <button type="button" id="btnViewDownpaymentRO" class="btn btn-sm btn-outline-primary view-image-btn" style="display:none;">View</button></div>
-                    <div class="mb-2"><strong>Valid ID:</strong> <span id="docValidIdTypeRO">—</span> <button type="button" id="btnViewValidIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn" style="display:none;">View</button></div>
-                    <div class="mb-2" id="docValidIdNumberRowRO" style="display:none;"><strong>ID Number:</strong> <span id="docValidIdNumberRO">—</span></div>
-                        <div class="mb-2" id="docSeniorIdRowRO" style="display:none;"><strong>Senior ID:</strong> <button type="button" id="btnViewSeniorIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn">View</button></div>
-                        <div class="mb-2" id="docPwdIdRowRO" style="display:none;"><strong>PWD ID:</strong> <button type="button" id="btnViewPwdIdRO" class="btn btn-sm btn-outline-primary ms-2 view-image-btn">View</button></div>
-                    <div class="mb-2"><strong>Extended:</strong> <span id="docExtended">No</span></div>
-                    <div class="mb-2"><strong>Extension Details:</strong> <span id="docExtension">—</span></div>
                 </div>
-                <div class="modal-footer ro-doc-modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer modern-modal-footer">
+                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -562,18 +705,78 @@
             document.querySelectorAll('.viewDocBtn').forEach(function(btn){
                 btn.addEventListener('click', function(){
                     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 'N/A'; };
-                    setText('docGuestName', this.getAttribute('data-guest-name'));
-                    setText('docGuestAge', this.getAttribute('data-guest-age'));
-                    setText('docGuestGender', this.getAttribute('data-guest-gender'));
-                    setText('docGuestNationality', this.getAttribute('data-guest-nationality'));
+                    
+                    // Parse guest information and populate table
+                    const guestName = this.getAttribute('data-guest-name') || '';
+                    const guestAge = this.getAttribute('data-guest-age') || '';
+                    const guestGender = this.getAttribute('data-guest-gender') || '';
+                    const guestNationality = this.getAttribute('data-guest-nationality') || '';
+                    
+                    // Parse guest names (format: "Name1 (Age1) - Nationality1; Name2 (Age2) - Nationality2")
+                    const guestTableBody = document.getElementById('docGuestTableBody');
+                    if (guestTableBody) {
+                        guestTableBody.innerHTML = '';
+                        
+                        if (guestName && guestName.trim() !== '') {
+                            const guestNames = guestName.split(';').map(name => name.trim()).filter(name => name !== '');
+                            
+                            if (guestNames.length > 0) {
+                                guestNames.forEach((guestInfo, index) => {
+                                    let name = guestInfo;
+                                    let age = '';
+                                    let nationality = '';
+                                    
+                                    // Extract age from parentheses
+                                    const ageMatch = guestInfo.match(/\((\d+)\)/);
+                                    if (ageMatch) {
+                                        age = ageMatch[1];
+                                        name = name.replace(/\(\d+\)/, '').trim();
+                                    }
+                                    
+                                    // Extract nationality from after dash
+                                    const nationalityMatch = guestInfo.match(/\s*-\s*(.+)$/);
+                                    if (nationalityMatch) {
+                                        nationality = nationalityMatch[1].trim();
+                                        name = name.replace(/\s*-\s*.+$/, '').trim();
+                                    }
+                                    
+                                    // If no age/nationality found in name, use the single values for first guest
+                                    if (index === 0) {
+                                        if (!age && guestAge) age = guestAge;
+                                        if (!nationality && guestNationality) nationality = guestNationality;
+                                    }
+                                    
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="fw-bold">${index + 1}</td>
+                            <td class="fw-semibold">${name || 'N/A'}</td>
+                            <td><span class="badge bg-info">${age || 'N/A'}</span></td>
+                            <td><span class="badge bg-warning text-dark">${nationality || 'N/A'}</span></td>
+                        `;
+                                    guestTableBody.appendChild(row);
+                                });
+                            } else {
+                                // Fallback: show single guest info
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td class="fw-bold">1</td>
+                                    <td class="fw-semibold">${guestName || 'N/A'}</td>
+                                    <td><span class="badge bg-info">${guestAge || 'N/A'}</span></td>
+                                    <td><span class="badge bg-warning text-dark">${guestNationality || 'N/A'}</span></td>
+                                `;
+                                guestTableBody.appendChild(row);
+                            }
+                        } else {
+                            // No guest information
+                            const row = document.createElement('tr');
+                            row.innerHTML = '<td colspan="4" class="text-center text-muted">No guest information available</td>';
+                            guestTableBody.appendChild(row);
+                        }
+                    }
+                    
                     setText('docPhone', this.getAttribute('data-phone'));
                     setText('docGuestAddress', this.getAttribute('data-guest-address'));
-                    setText('docGuestCount', this.getAttribute('data-guest-count'));
                     const down = this.getAttribute('data-downpayment') || '';
-                    // New timing fields
-                    setText('docOvernightDepartureRO', this.getAttribute('data-overnight-departure') || '—');
-                    setText('docDayTourDepartureRO', this.getAttribute('data-daytour-departure') || '—');
-                    setText('docPickupRO', this.getAttribute('data-pickup') || '—');
                     // Boat details
                     setText('docBoatName', this.getAttribute('data-boat-name'));
                     setText('docBoatNumber', this.getAttribute('data-boat-number'));
@@ -934,6 +1137,32 @@
             background: #f8f9fa;
             border-top: none;
         }
+        
+        /* Guest information table styling */
+        #docGuestTableBody .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        #docGuestTableBody tr:hover {
+            background-color: #f8f9fa !important;
+        }
+        
+        #docGuestTableBody td {
+            vertical-align: middle;
+            padding: 0.75rem 0.5rem;
+        }
+        
+        #docGuestTableBody .fw-semibold {
+            color: #495057;
+        }
+        
+        .modal-body h6 {
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
@@ -1083,9 +1312,156 @@
                 padding: 0.75rem;
             }
             
-            .modern-mobile-sidebar {
-                width: 90vw !important;
-            }
+        .modern-mobile-sidebar {
+            width: 90vw !important;
         }
+    }
+    
+    /* Modern Modal Styling */
+    .modern-modal {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modern-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+        padding: 1.5rem;
+        border-bottom: none;
+    }
+    
+    .modal-title-section {
+        flex: 1;
+    }
+    
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .modal-subtitle {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        margin: 0.25rem 0 0 0;
+    }
+    
+    .modern-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 1;
+        transition: all 0.2s ease;
+    }
+    
+    .modern-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+    
+    .modern-modal-body {
+        padding: 1.5rem;
+        background: #f8f9fa;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.25rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+        height: 100%;
+    }
+    
+    .info-card-title {
+        color: #495057;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 120px;
+        margin-right: 1rem;
+    }
+    
+    .info-value {
+        color: #6c757d;
+        text-align: right;
+        flex: 1;
+        word-break: break-word;
+    }
+    
+    .modern-modal-footer {
+        background: white;
+        border-top: 1px solid #e9ecef;
+        border-radius: 0 0 12px 12px;
+        padding: 1rem 1.5rem;
+    }
+    
+    .btn-modern {
+        border-radius: 6px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-modern:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Guest information table styling */
+    #docGuestTableBody .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    #docGuestTableBody tr:hover {
+        background-color: #f8f9fa !important;
+    }
+    
+    #docGuestTableBody td {
+        vertical-align: middle;
+        padding: 0.75rem 0.5rem;
+    }
+    
+    #docGuestTableBody .fw-semibold {
+        color: #495057;
+    }
     </style>
 </x-app-layout>

@@ -638,39 +638,40 @@
                 </div>
                 <div class="modal-body modern-modal-body">
                     <div class="row g-3">
-                        <!-- Guest Name full-width for cleaner look -->
+                        <!-- Guest Information Table -->
                         <div class="col-12">
                             <div class="info-card">
                                 <h6 class="info-card-title">
-                                    <i class="fas fa-id-card me-2"></i>Guest Name
+                                    <i class="fas fa-users me-2"></i>Guest Information
                                 </h6>
-                                <div class="info-item">
-                                    <span class="info-value" id="docGuestName">N/A</span>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Guest Name</th>
+                                                <th>Age</th>
+                                                <th>Nationality</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adminGuestTableBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">No guest information available</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        
+                        <!-- Address Section -->
+                        <div class="col-12">
                             <div class="info-card">
                                 <h6 class="info-card-title">
-                                    <i class="fas fa-user me-2"></i>Guest Information
+                                    <i class="fas fa-map-marker-alt me-2"></i>Address
                                 </h6>
-                                <div class="info-grid">
-                                    <div class="info-item">
-                                        <span class="info-label">Age:</span>
-                                        <span class="info-value" id="docGuestAge">N/A</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Gender:</span>
-                                        <span class="info-value" id="docGuestGender">N/A</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Nationality:</span>
-                                        <span class="info-value" id="docGuestNationality">N/A</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Phone:</span>
-                                        <span class="info-value" id="docPhone">N/A</span>
-                                    </div>
+                                <div class="info-item">
+                                    <span class="info-value" id="docGuestAddress">N/A</span>
                                 </div>
                             </div>
                         </div>
@@ -731,16 +732,6 @@
                                         <span class="info-label">ID Number:</span>
                                         <span class="info-value" id="docValidIdNumber">—</span>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="info-card">
-                                <h6 class="info-card-title">
-                                    <i class="fas fa-map-marker-alt me-2"></i>Address
-                                </h6>
-                                <div class="info-item">
-                                    <span class="info-value" id="docGuestAddress">N/A</span>
                                 </div>
                             </div>
                         </div>
@@ -2075,6 +2066,32 @@
             border-top-right-radius: 0.25rem;
             border-bottom-right-radius: 0.25rem;
         }
+        
+        /* Guest information table styling */
+        #adminGuestTableBody .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        #adminGuestTableBody tr:hover {
+            background-color: #f8f9fa !important;
+        }
+        
+        #adminGuestTableBody td {
+            vertical-align: middle;
+            padding: 0.75rem 0.5rem;
+        }
+        
+        #adminGuestTableBody .fw-semibold {
+            color: #495057;
+        }
+        
+        .info-card h6 {
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -2211,11 +2228,62 @@
                     const pwdId = this.getAttribute('data-pwd-id') || '';
 
                     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-                    setText('docGuestName', guestName);
-                    setText('docGuestAge', guestAge);
-                    setText('docGuestGender', guestGender);
+                    
+                    // Parse guest information and populate table
+                    const guestTableBody = document.getElementById('adminGuestTableBody');
+                    if (guestTableBody) {
+                        guestTableBody.innerHTML = '';
+                        
+                        if (guestName && guestName.trim() !== '') {
+                            const guestNames = guestName.split(';').map(name => name.trim()).filter(name => name !== '');
+                            const guestAges = guestAge.split(';').map(age => age.trim());
+                            const guestGenders = guestGender.split(';').map(gender => gender.trim());
+                            const guestNationalities = guestNationality.split(';').map(nationality => nationality.trim());
+                            
+                            if (guestNames.length > 0) {
+                                guestNames.forEach((guestInfo, index) => {
+                                    let name = guestInfo;
+                                    let age = guestAges[index] || '';
+                                    let nationality = guestNationalities[index] || '';
+                                    
+                                    // Extract name, age, and nationality from the guest name if it contains them
+                                    // Format: "Name (Age) - Nationality"
+                                    const nameMatch = guestInfo.match(/^(.+?)\s*\((\d+)\)\s*-\s*(.+)$/);
+                                    if (nameMatch) {
+                                        name = nameMatch[1].trim();
+                                        age = nameMatch[2].trim();
+                                        nationality = nameMatch[3].trim();
+                                    }
+                                    
+                                    const row = document.createElement('tr');
+                                    row.innerHTML = `
+                                        <td class="fw-bold">${index + 1}</td>
+                                        <td class="fw-semibold">${name || 'N/A'}</td>
+                                        <td><span class="badge bg-info">${age || 'N/A'}</span></td>
+                                        <td><span class="badge bg-warning text-dark">${nationality || 'N/A'}</span></td>
+                                    `;
+                                    guestTableBody.appendChild(row);
+                                });
+                            } else {
+                                // Fallback: show single guest info
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td class="fw-bold">1</td>
+                                    <td class="fw-semibold">${guestName || 'N/A'}</td>
+                                    <td><span class="badge bg-info">${guestAge || 'N/A'}</span></td>
+                                    <td><span class="badge bg-warning text-dark">${guestNationality || 'N/A'}</span></td>
+                                `;
+                                guestTableBody.appendChild(row);
+                            }
+                        } else {
+                            // No guest information
+                            const row = document.createElement('tr');
+                            row.innerHTML = '<td colspan="4" class="text-center text-muted">No guest information available</td>';
+                            guestTableBody.appendChild(row);
+                        }
+                    }
+                    
                     setText('docGuestAddress', guestAddress);
-                    setText('docGuestNationality', guestNationality);
                     setText('docPhone', phone);
                     setText('docOvernightDeparture', overnightDeparture);
                     setText('docDayTourDeparture', dayTourDeparture);
@@ -2244,60 +2312,140 @@
                         const modal = new bootstrap.Modal(m);
                         modal.show();
                     };
-                    const imageBase = "{{ asset('image') }}";
+                    const imageBase = "{{ asset('images') }}";
                     const storageBase = "{{ asset('storage') }}";
+                    console.log('Image Base URL:', imageBase);
+                    console.log('Storage Base URL:', storageBase);
 
                     const resolveUrlWithFallback = (rawPath) => {
+                        console.log('Resolving URL for path:', rawPath);
                         if (!rawPath) return '';
                         if (rawPath.startsWith('http')) return rawPath;
-                        const cleanStorage = rawPath.replace(/^\/+/, '');
-                        const cleanImage = rawPath.replace(/^image\//i, '');
-                        // If path includes bookings/ (stored via public disk), prefer storage first
-                        if (/^bookings\//i.test(cleanStorage)) {
-                            return {
-                                primary: storageBase + '/' + cleanStorage,
-                                fallback: imageBase + '/' + cleanImage
+                        
+                        // Clean the path by removing leading slashes
+                        const cleanPath = rawPath.replace(/^\/+/, '');
+                        console.log('Cleaned path:', cleanPath);
+                        
+                        // If path already starts with 'images/', use it directly (this is the correct path)
+                        if (cleanPath.startsWith('images/')) {
+                            const result = {
+                                primary: imageBase + '/' + cleanPath.replace('images/', ''),
+                                fallback: storageBase + '/' + cleanPath
                             };
+                            console.log('Using images/ path:', result);
+                            return result;
                         }
-                        // Otherwise prefer public/image first
-                        return {
-                            primary: imageBase + '/' + cleanImage,
-                            fallback: storageBase + '/' + cleanStorage
+                        
+                        // If path already starts with 'image/', use it directly
+                        if (cleanPath.startsWith('image/')) {
+                            const result = {
+                                primary: imageBase + '/' + cleanPath,
+                                fallback: storageBase + '/' + cleanPath
+                            };
+                            console.log('Using image/ path:', result);
+                            return result;
+                        }
+                        
+                        // If path includes bookings/ (stored via public disk), prefer storage first
+                        if (/^bookings\//i.test(cleanPath)) {
+                            const result = {
+                                primary: storageBase + '/' + cleanPath,
+                                fallback: imageBase + '/images/' + cleanPath
+                            };
+                            console.log('Using bookings/ path:', result);
+                            return result;
+                        }
+                        
+                        // For other paths, try both locations (images/ is the correct directory)
+                        const result = {
+                            primary: imageBase + '/images/' + cleanPath,
+                            fallback: storageBase + '/' + cleanPath
                         };
+                        console.log('Using default path resolution:', result);
+                        return result;
                     };
 
                     if (downBtn) {
                         if (downpayment) {
                             downBtn.style.display = 'inline-block';
-                            const { primary, fallback } = resolveUrlWithFallback(downpayment);
-                            downBtn.onclick = ()=> {
-                                const m = document.getElementById('imageViewModalAdmin');
-                                const img = document.getElementById('imageViewModalAdminImg');
-                                const ttl = document.getElementById('imageViewModalAdminTitle');
-                                if (!m || !img || !ttl) return;
-                                ttl.textContent = 'Downpayment Receipt';
-                                img.onerror = function(){ img.onerror = null; img.src = fallback; };
-                                img.src = primary || fallback;
-                                new bootstrap.Modal(m).show();
-                            };
+                            const urlResult = resolveUrlWithFallback(downpayment);
+                            if (urlResult && typeof urlResult === 'object') {
+                                const { primary, fallback } = urlResult;
+                                downBtn.onclick = ()=> {
+                                    const m = document.getElementById('imageViewModalAdmin');
+                                    const img = document.getElementById('imageViewModalAdminImg');
+                                    const ttl = document.getElementById('imageViewModalAdminTitle');
+                                    if (!m || !img || !ttl) return;
+                                    ttl.textContent = 'Downpayment Receipt';
+                                    img.onerror = function(){ img.onerror = null; img.src = fallback; };
+                                    img.src = primary || fallback;
+                                    new bootstrap.Modal(m).show();
+                                };
+                            } else {
+                                // Fallback for direct URL
+                                downBtn.onclick = ()=> {
+                                    const m = document.getElementById('imageViewModalAdmin');
+                                    const img = document.getElementById('imageViewModalAdminImg');
+                                    const ttl = document.getElementById('imageViewModalAdminTitle');
+                                    if (!m || !img || !ttl) return;
+                                    ttl.textContent = 'Downpayment Receipt';
+                                    img.src = urlResult || downpayment;
+                                    new bootstrap.Modal(m).show();
+                                };
+                            }
                         } else { downBtn.style.display = 'none'; }
                     }
                     if (idBtn) {
                         idTypeSpan.textContent = validIdType || '—';
+                        console.log('Valid ID Path:', validIdPath); // Debug log
                         if (validIdPath) {
                             idBtn.style.display = 'inline-block';
-                            const { primary, fallback } = resolveUrlWithFallback(validIdPath);
-                            idBtn.onclick = ()=> {
-                                const m = document.getElementById('imageViewModalAdmin');
-                                const img = document.getElementById('imageViewModalAdminImg');
-                                const ttl = document.getElementById('imageViewModalAdminTitle');
-                                if (!m || !img || !ttl) return;
-                                ttl.textContent = 'Valid ID';
-                                img.onerror = function(){ img.onerror = null; img.src = fallback; };
-                                img.src = primary || fallback;
-                                new bootstrap.Modal(m).show();
-                            };
-                        } else { idBtn.style.display = 'none'; }
+                            const urlResult = resolveUrlWithFallback(validIdPath);
+                            console.log('URL Result:', urlResult); // Debug log
+                            if (urlResult && typeof urlResult === 'object') {
+                                const { primary, fallback } = urlResult;
+                                console.log('Primary URL:', primary, 'Fallback URL:', fallback); // Debug log
+                                idBtn.onclick = ()=> {
+                                    console.log('Valid ID button clicked'); // Debug log
+                                    const m = document.getElementById('imageViewModalAdmin');
+                                    const img = document.getElementById('imageViewModalAdminImg');
+                                    const ttl = document.getElementById('imageViewModalAdminTitle');
+                                    if (!m || !img || !ttl) {
+                                        console.error('Modal elements not found'); // Debug log
+                                        return;
+                                    }
+                                    ttl.textContent = 'Valid ID';
+                                    img.onerror = function(){ 
+                                        console.log('Primary image failed, trying fallback'); // Debug log
+                                        img.onerror = null; 
+                                        img.src = fallback; 
+                                    };
+                                    img.src = primary || fallback;
+                                    new bootstrap.Modal(m).show();
+                                };
+                            } else {
+                                // Fallback for direct URL
+                                console.log('Using direct URL fallback:', urlResult || validIdPath); // Debug log
+                                idBtn.onclick = ()=> {
+                                    console.log('Valid ID button clicked (direct URL)'); // Debug log
+                                    const m = document.getElementById('imageViewModalAdmin');
+                                    const img = document.getElementById('imageViewModalAdminImg');
+                                    const ttl = document.getElementById('imageViewModalAdminTitle');
+                                    if (!m || !img || !ttl) {
+                                        console.error('Modal elements not found'); // Debug log
+                                        return;
+                                    }
+                                    ttl.textContent = 'Valid ID';
+                                    img.src = urlResult || validIdPath;
+                                    new bootstrap.Modal(m).show();
+                                };
+                            }
+                        } else { 
+                            console.log('No valid ID path, hiding button'); // Debug log
+                            idBtn.style.display = 'none'; 
+                        }
+                    } else {
+                        console.error('Valid ID button not found'); // Debug log
                     }
                     if (idNumRow && idNumSpan) {
                         if (validIdNumber && validIdNumber.trim() !== '') { idNumRow.style.display = 'block'; idNumSpan.textContent = validIdNumber; } else { idNumRow.style.display = 'none'; idNumSpan.textContent = '—'; }

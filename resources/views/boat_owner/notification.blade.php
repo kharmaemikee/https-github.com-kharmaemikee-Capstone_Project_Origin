@@ -243,7 +243,6 @@
                                         @endif
 
                                         @if ($notification->booking)
-                                            <p class="mb-1">Booking ID: <strong>{{ $notification->booking->id }}</strong></p>
                                             @if ($notification->booking->resort)
                                                 <p class="mb-1">Resort: <strong>{{ $notification->booking->resort->resort_name }}</strong></p>
                                             @endif
@@ -255,7 +254,97 @@
                                             @if ($notification->booking->room)
                                                 <p class="mb-1">Room: <strong>{{ $notification->booking->room->room_name }}</strong></p>
                                             @endif
-                                            <p class="mb-1">Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
+                                            <p class="mb-1">Number of Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
+                                            
+                                            {{-- Guest Information Table --}}
+                                            @if($notification->booking->guest_name)
+                                                <hr class="my-2">
+                                                <h6>Guest Information:</h6>
+                                                @php
+                                                    // Parse guest information from the concatenated string
+                                                    $guestNames = explode(';', $notification->booking->guest_name ?? '');
+                                                    $guestAges = [];
+                                                    $guestNationalities = [];
+                                                    
+                                                    // Also check separate nationality field
+                                                    $separateNationalities = explode(';', $notification->booking->guest_nationality ?? '');
+                                                    
+                                                    // Extract ages and nationalities from the guest names
+                                                    foreach ($guestNames as $index => $guestInfo) {
+                                                        $guestInfo = trim($guestInfo);
+                                                        if (empty($guestInfo)) continue;
+                                                        
+                                                        // Look for age pattern (number in parentheses)
+                                                        if (preg_match('/\((\d+)\)/', $guestInfo, $ageMatches)) {
+                                                            $guestAges[$index] = $ageMatches[1];
+                                                            $guestInfo = preg_replace('/\s*\(\d+\)/', '', $guestInfo);
+                                                        }
+                                                        
+                                                        // Look for nationality pattern (after dash)
+                                                        if (preg_match('/\s*-\s*(.+)$/', $guestInfo, $nationalityMatches)) {
+                                                            $guestNationalities[$index] = trim($nationalityMatches[1]);
+                                                            $guestInfo = preg_replace('/\s*-\s*.+$/', '', $guestInfo);
+                                                        }
+                                                        
+                                                        // If no nationality found in name, check separate nationality field
+                                                        if (!isset($guestNationalities[$index]) && isset($separateNationalities[$index])) {
+                                                            $nationality = trim($separateNationalities[$index]);
+                                                            if (!empty($nationality)) {
+                                                                $guestNationalities[$index] = $nationality;
+                                                            }
+                                                        }
+                                                        
+                                                        // For the primary guest (index 0), also check user nationality as fallback
+                                                        if ($index === 0 && !isset($guestNationalities[$index])) {
+                                                            $userNationality = $notification->booking->user->nationality ?? null;
+                                                            if (!empty($userNationality)) {
+                                                                $guestNationalities[$index] = $userNationality;
+                                                            }
+                                                        }
+                                                        
+                                                        $guestNames[$index] = trim($guestInfo);
+                                                    }
+                                                @endphp
+                                                
+                                                <div class="guest-info-table">
+                                                    <table class="table table-striped table-hover">
+                                                        <thead class="table-dark">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Guest Name</th>
+                                                                <th>Age</th>
+                                                                <th>Nationality</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($guestNames as $index => $name)
+                                                                @if(!empty(trim($name)))
+                                                                    <tr>
+                                                                        <td class="fw-bold">{{ $index + 1 }}</td>
+                                                                        <td class="fw-semibold">{{ $name }}</td>
+                                                                        <td>
+                                                                            <span class="badge bg-info">
+                                                                                {{ $guestAges[$index] ?? 'N/A' }}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            @if(isset($guestNationalities[$index]) && !empty($guestNationalities[$index]))
+                                                                                <span class="badge bg-secondary">
+                                                                                    {{ $guestNationalities[$index] }}
+                                                                                </span>
+                                                                            @else
+                                                                                <span class="badge bg-warning text-dark">
+                                                                                    <i class="fas fa-question-circle me-1"></i>Not Specified
+                                                                                </span>
+                                                                            @endif
+                                                                        </td>
+                                                                    </tr>
+                                                                @endif
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            @endif
                                             <p class="mb-1">Check-in: <strong>
                                                 @php
                                                     try {
@@ -409,18 +498,35 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-        /* Modern Sidebar Styles */
+        /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
             min-width: 280px;
-            background: #2c3e50;
-            border-right: 1px solid #34495e;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             position: relative;
+            overflow: hidden;
         }
 
+        .modern-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            pointer-events: none;
+        }
+
+        /* Sidebar Header */
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #34495e;
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-brand {
@@ -432,12 +538,14 @@
         .brand-icon {
             width: 50px;
             height: 50px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .brand-icon-img {
@@ -452,21 +560,28 @@
 
         .brand-title {
             color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.25rem;
+            font-weight: 700;
             margin: 0;
-            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .brand-subtitle {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.85rem;
             margin: 0;
-            line-height: 1.2;
+            font-weight: 400;
         }
 
+        /* Sidebar Navigation */
         .sidebar-nav {
-            padding: 1rem 0;
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
         }
 
         .sidebar-nav .nav-item {
@@ -536,24 +651,40 @@
             width: 20px;
             height: 20px;
             filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .nav-text {
             font-weight: 500;
             font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
         }
 
         .nav-badge {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
             border-radius: 12px;
-            margin-left: auto;
             font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
 
         .notification-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
             animation: pulse 2s infinite;
         }
 
@@ -590,9 +721,10 @@
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             width: 85vw !important;
-            max-width: 350px;
         }
 
         .mobile-sidebar-brand {
@@ -654,30 +786,51 @@
 
         /* Main Content */
         .main-content {
-            background: #f8f9fa;
+            padding: 2rem;
+            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
         }
 
         /* Simple Notifications Design */
         .page-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
             margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
         .page-title {
-            color: #2c3e50;
-            font-size: 2rem;
-            font-weight: 700;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 800;
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .page-subtitle {
-            color: #6c757d;
-            font-size: 1rem;
-            margin: 0.5rem 0 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin: 0.75rem 0 0 0;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
         }
 
         .empty-state {
@@ -709,86 +862,125 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
         .unread-count {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .count-badge {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
-            font-size: 0.875rem;
-            font-weight: 600;
-            padding: 0.375rem 0.75rem;
-            border-radius: 20px;
-            min-width: 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.75rem 1.25rem;
+            border-radius: 25px;
+            min-width: 32px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            animation: pulse 2s infinite;
         }
 
         .count-text {
-            color: #6c757d;
-            font-weight: 500;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .notifications-list {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .notification-item {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
         }
 
         .notification-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: rgba(0, 123, 255, 0.2);
         }
 
         .notification-item.unread {
-            border-left: 4px solid #007bff;
+            border-left: 5px solid #007bff;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #007bff, #0056b3);
         }
 
         .notification-item.read {
-            opacity: 0.7;
+            opacity: 0.8;
+            background: #f8f9fa;
         }
 
         .notification-content {
-            padding: 1.5rem;
+            padding: 2rem;
+            position: relative;
         }
 
         .notification-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f3f4;
         }
 
         .notification-title {
-            color: #2c3e50;
-            font-size: 1.125rem;
-            font-weight: 600;
+            color: #1a202c;
+            font-size: 1.25rem;
+            font-weight: 700;
             margin: 0;
             line-height: 1.4;
+            letter-spacing: -0.025em;
         }
 
         .notification-time {
-            color: #6c757d;
+            color: #718096;
             font-size: 0.875rem;
             white-space: nowrap;
             margin-left: 1rem;
+            background: #f7fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
         }
 
         .notification-actions {
@@ -796,9 +988,161 @@
             justify-content: flex-end;
             align-items: center;
             gap: 0.75rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e9ecef;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f1f3f4;
+        }
+
+        /* Button Enhancements */
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #e53e3e 100%);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Guest Information Table Styling */
+        .guest-info-table {
+            margin: 1rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .guest-info-table .table {
+            margin-bottom: 0;
+            border: none;
+        }
+
+        .guest-info-table .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .guest-info-table .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .guest-info-table .table tbody tr:hover {
+            background-color: #f8f9ff;
+            transform: scale(1.01);
+        }
+
+        .guest-info-table .table tbody td {
+            padding: 1rem;
+            border: none;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .guest-info-table .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .guest-info-table .badge {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .guest-info-table .badge.bg-info {
+            background: linear-gradient(135deg, #17a2b8, #138496) !important;
+        }
+
+        .guest-info-table .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+        }
+
+        /* Section Headers */
+        .notification-content h6 {
+            color: #2d3748;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem 0;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .notification-content h6:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Information paragraphs */
+        .notification-content p {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .notification-content p:last-child {
+            border-bottom: none;
+        }
+
+        .notification-content strong {
+            color: #2d3748;
+            font-weight: 600;
         }
 
         .pagination-wrapper {
