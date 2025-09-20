@@ -18,6 +18,18 @@
     <div class="modern-background">
         <div class="bg-gradient-1"></div>
         <div class="bg-gradient-2"></div>
+        
+        {{-- Debug Section - Remove this after testing --}}
+        <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc; position: relative; z-index: 1000;">
+            <h4>Debug - User Resubmitted Status (First 3 users):</h4>
+            @foreach($users->take(3) as $debugUser)
+                <p>User {{ $debugUser->id }} ({{ $debugUser->username }}): 
+                    BIR: {{ $debugUser->bir_resubmitted ? 'true' : 'false' }} (raw: {{ $debugUser->bir_resubmitted }}), 
+                    DTI: {{ $debugUser->dti_resubmitted ? 'true' : 'false' }} (raw: {{ $debugUser->dti_resubmitted }}),
+                    Business: {{ $debugUser->business_permit_resubmitted ? 'true' : 'false' }} (raw: {{ $debugUser->business_permit_resubmitted }})
+                </p>
+            @endforeach
+        </div>
         <div class="bg-gradient-3"></div>
     </div>
     
@@ -338,20 +350,20 @@
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->bir_permit_path)
-                                                        @if($user->bir_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->bir_permit_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="bir_permit">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->bir_permit_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="bir_permit"
+                                                                data-resubmitted="{{ $user->bir_resubmitted ? 'true' : 'false' }}"
+                                                                data-debug-bir-resubmitted="{{ $user->bir_resubmitted }}">
+                                                            @if($user->bir_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -362,26 +374,25 @@
                                             {{-- DTI Permit --}}
                                             <div class="document-item permitCell" data-type="dti_permit">
                                                 <div class="document-label">DTI</div>
-                                                <div class="document-status">
+                                                <div class="document-status"></div>
                                                     @if ($user->dti_approved)
                                                         <span class="status-badge approved">
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->dti_permit_path)
-                                                        @if($user->dti_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->dti_permit_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="dti_permit">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->dti_permit_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="dti_permit"
+                                                                data-resubmitted="{{ $user->dti_resubmitted ? 'true' : 'false' }}">
+                                                            @if($user->dti_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -398,20 +409,19 @@
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->business_permit_path)
-                                                        @if($user->business_permit_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->business_permit_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="business_permit">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->business_permit_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="business_permit"
+                                                                data-resubmitted="{{ $user->business_permit_resubmitted ? 'true' : 'false' }}">
+                                                            @if($user->business_permit_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -430,20 +440,19 @@
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->lgu_resolution_path)
-                                                        @if($user->lgu_resolution_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->lgu_resolution_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="lgu_resolution">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->lgu_resolution_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="lgu_resolution"
+                                                                data-resubmitted="{{ $user->lgu_resolution_resubmitted ? 'true' : 'false' }}">
+                                                            @if($user->lgu_resolution_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -461,20 +470,19 @@
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->marina_cpc_path)
-                                                        @if($user->marina_cpc_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->marina_cpc_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="marina_cpc">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->marina_cpc_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="marina_cpc"
+                                                                data-resubmitted="{{ $user->marina_cpc_resubmitted ? 'true' : 'false' }}">
+                                                            @if($user->marina_cpc_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -492,20 +500,19 @@
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->boat_association_path)
-                                                        @if($user->boat_association_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->boat_association_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="boat_association">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->boat_association_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="boat_association"
+                                                                data-resubmitted="{{ $user->boat_association_resubmitted ? 'true' : 'false' }}">
+                                                            @if($user->boat_association_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -525,20 +532,19 @@
                                                             <i class="fas fa-check"></i>
                                                         </span>
                                                     @elseif($user->tourism_registration_path)
-                                                        @if($user->tourism_registration_resubmitted)
-                                                            <span class="status-badge resubmit">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                            </span>
-                                                        @else
-                                                            <button class="btn btn-sm btn-outline-primary viewPermitBtn"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#viewPermitModal"
-                                                                    data-image-url="{{ asset($user->tourism_registration_path) }}"
-                                                                    data-user-id="{{ $user->id }}"
-                                                                    data-document-type="tourism_registration">
+                                                        <button class="btn btn-sm btn-outline-primary viewPermitBtn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewPermitModal"
+                                                                data-image-url="{{ asset($user->tourism_registration_path) }}"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-document-type="tourism_registration"
+                                                                data-resubmitted="{{ $user->tourism_registration_resubmitted ? 'true' : 'false' }}">
+                                                            @if($user->tourism_registration_resubmitted)
+                                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                            @else
                                                                 <i class="fas fa-eye"></i>
-                                                            </button>
-                                                        @endif
+                                                            @endif
+                                                        </button>
                                                     @else
                                                         <span class="status-badge not-uploaded">
                                                             <i class="fas fa-times"></i>
@@ -1094,7 +1100,8 @@
                     const userRole = userRow?.dataset?.role || '';
                     
                     // Show approve button only if THIS SPECIFIC permit is not yet approved
-                    const currentPermitCell = parentCell.querySelector(`[data-type="${currentDocumentType}"]`);
+                    // Find the specific permit cell div within the documents cell
+                    const currentPermitCell = parentCell.querySelector(`div.permitCell[data-type="${currentDocumentType}"]`);
                     const isThisPermitApproved = currentPermitCell && currentPermitCell.querySelector('.status-badge.approved');
                     const isTourist = userRole === 'tourist';
                     const isOwnerImage = currentDocumentType === 'owner_image';
@@ -1105,7 +1112,31 @@
                     const resubmitBtn = document.getElementById('requestResubmitButton');
                     
                     if (approveBtn) {
-                        const isResubmitPending = currentPermitCell && currentPermitCell.dataset && currentPermitCell.dataset.resubmitPending === 'true';
+                        // Check if this specific permit has been resubmitted (not yet uploaded new version)
+                        // Look for the data-resubmitted attribute in the view button
+                        const viewButton = currentPermitCell && currentPermitCell.querySelector('.viewPermitBtn');
+                        const isResubmitPending = viewButton && viewButton.getAttribute('data-resubmitted') === 'true';
+                        
+                        // Debug logging
+                        console.log('Debug - Modal Open Logic:');
+                        console.log('  currentDocumentType:', currentDocumentType);
+                        console.log('  parentCell:', parentCell);
+                        console.log('  currentPermitCell:', currentPermitCell);
+                        console.log('  viewButton:', viewButton);
+                        console.log('  data-resubmitted:', viewButton ? viewButton.getAttribute('data-resubmitted') : 'N/A');
+                        console.log('  data-debug-bir-resubmitted:', viewButton ? viewButton.getAttribute('data-debug-bir-resubmitted') : 'N/A');
+                        console.log('  isResubmitPending:', isResubmitPending);
+                        
+                        // Special debug for DTI
+                        if (currentDocumentType === 'dti_permit') {
+                            console.log('DTI DEBUG - Modal Opening:');
+                            console.log('  DTI currentDocumentType:', currentDocumentType);
+                            console.log('  DTI viewButton found:', !!viewButton);
+                            console.log('  DTI data-resubmitted:', viewButton ? viewButton.getAttribute('data-resubmitted') : 'N/A');
+                            console.log('  DTI isResubmitPending:', isResubmitPending);
+                            console.log('  DTI approveBtn will be disabled:', !!isResubmitPending);
+                        }
+                        
                         approveBtn.disabled = !!isResubmitPending || isTourist || isOwnerImage || isThisPermitApproved;
                         approveBtn.title = isResubmitPending ? 'Disabled: awaiting new upload after resubmission request for this permit' : 
                                           isThisPermitApproved ? 'This permit is already approved' :
@@ -1160,7 +1191,7 @@
                 .then(data => {
                     if (data.success) {
                         const row = document.getElementById('userRow' + currentUserId);
-                        const permitCell = row.querySelector(`td.permitCell[data-type="${currentDocumentType}"]`);
+                        const permitCell = row.querySelector(`div.permitCell[data-type="${currentDocumentType}"]`);
                         
                         // Replace the clicked View button with a check icon/badge
                         if (currentViewButtonEl) {
@@ -1330,9 +1361,35 @@
                     
                     // Mark only this permit cell as resubmit-pending and disable Approve for this doc only
                     const row = document.getElementById('userRow' + currentUserId);
-                    const permitCell = row ? row.querySelector(`td.permitCell[data-type="${currentDocumentType}"]`) : null;
+                    const permitCell = row ? row.querySelector(`div.permitCell[data-type="${currentDocumentType}"]`) : null;
                     if (permitCell) {
                         permitCell.dataset.resubmitPending = 'true';
+                        
+                        // Update the view button to show warning icon and set data-resubmitted to true
+                        const viewButton = permitCell.querySelector('.viewPermitBtn');
+                        if (viewButton) {
+                            viewButton.setAttribute('data-resubmitted', 'true');
+                            const icon = viewButton.querySelector('i');
+                            if (icon) {
+                                icon.className = 'fas fa-exclamation-triangle text-warning';
+                            }
+                            
+                            // Debug logging
+                            console.log('Debug - Resubmission Request:');
+                            console.log('  permitCell:', permitCell);
+                            console.log('  viewButton:', viewButton);
+                            console.log('  data-resubmitted set to:', viewButton.getAttribute('data-resubmitted'));
+                            console.log('  icon updated to:', icon ? icon.className : 'N/A');
+                            
+                            // Special debug for DTI
+                            if (currentDocumentType === 'dti_permit') {
+                                console.log('DTI DEBUG - Resubmission Request:');
+                                console.log('  DTI permitCell found:', !!permitCell);
+                                console.log('  DTI viewButton found:', !!viewButton);
+                                console.log('  DTI data-resubmitted set to:', viewButton ? viewButton.getAttribute('data-resubmitted') : 'N/A');
+                                console.log('  DTI icon updated to:', icon ? icon.className : 'N/A');
+                            }
+                        }
                         
                         // Update the status badge in the admin table to show "Resubmit"
                         const statusBadge = permitCell.querySelector('.badge');
@@ -1363,7 +1420,14 @@
                     btn.innerHTML = originalHtml;
                 })
                 .catch(err => {
-                    console.error(err);
+                    console.error('Resubmission Error:', err);
+                    console.error('Error details:', {
+                        message: err.message,
+                        currentDocumentType: currentDocumentType,
+                        currentUserId: currentUserId,
+                        reason: reason
+                    });
+                    
                     let e = document.getElementById('approveError');
                     if (!e) {
                         e = document.createElement('div');
@@ -1371,7 +1435,7 @@
                         e.className = 'text-danger small mt-2';
                         document.querySelector('#viewPermitModal .modal-footer').prepend(e);
                     }
-                    e.textContent = 'Failed to send resubmission request. Please try again.';
+                    e.textContent = `Failed to send resubmission request for ${currentDocumentType}. Error: ${err.message}`;
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
                 });
@@ -1503,6 +1567,48 @@
             // Add event listener for window resize
             window.addEventListener('resize', hideOffcanvasOnDesktop);
         }
+        
+        // Function to check for document updates and refresh UI
+        function checkForDocumentUpdates() {
+            // This function can be called periodically or when needed
+            // to refresh the UI when users upload new documents
+            const resubmittedButtons = document.querySelectorAll('.viewPermitBtn[data-resubmitted="true"]');
+            resubmittedButtons.forEach(button => {
+                const userId = button.getAttribute('data-user-id');
+                const documentType = button.getAttribute('data-document-type');
+                
+                // Check if the document has been updated by making an AJAX request
+                fetch(`/admin/check-document-status/${userId}/${documentType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.resubmitted === false) {
+                            // Document has been updated, reset the UI
+                            button.setAttribute('data-resubmitted', 'false');
+                            const icon = button.querySelector('i');
+                            if (icon) {
+                                icon.className = 'fas fa-eye';
+                            }
+                            
+                            // Re-enable approve button if this is the current document being viewed
+                            const currentDocumentType = document.querySelector('#viewPermitModal').dataset.currentDocumentType;
+                            if (currentDocumentType === documentType) {
+                                const approveBtn = document.getElementById('approvePermitButton');
+                                if (approveBtn) {
+                                    approveBtn.disabled = false;
+                                    approveBtn.title = '';
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error checking document status:', error);
+                    });
+            });
+        }
+        
+        // Check for document updates every 30 seconds
+        setInterval(checkForDocumentUpdates, 30000);
+        
         // --- End JavaScript ---
     </script>
     
@@ -2250,8 +2356,20 @@
         }
         
         .status-badge.resubmit {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(245, 158, 11, 0.2);
             color: #d97706;
+            border: 2px solid #f59e0b;
+            font-weight: 600;
+            animation: pulse-warning 2s infinite;
+            min-width: 80px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        @keyframes pulse-warning {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
         
         .status-badge.not-uploaded {

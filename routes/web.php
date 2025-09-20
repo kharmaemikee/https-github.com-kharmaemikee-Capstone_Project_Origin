@@ -1153,6 +1153,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
     Route::post('/users/{id}/approve', [AdminUserController::class, 'approve'])->name('admin.users.approve');
     Route::post('/users/{id}/approve-permit', [AdminUserController::class, 'approvePermit'])->name('admin.users.approve_permit');
     Route::post('/users/{id}/request-resubmit-permit', [AdminUserController::class, 'requestPermitResubmit'])->name('admin.users.request_resubmit_permit');
+    Route::get('/check-document-status/{userId}/{documentType}', [AdminUserController::class, 'checkDocumentStatus'])->name('admin.check_document_status');
     // (Resubmit removed)
 
     // Admin Documentation Page

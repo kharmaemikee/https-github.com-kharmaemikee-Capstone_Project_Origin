@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use App\Models\ResortOwnerNotification;
@@ -231,9 +233,64 @@ class AdminUserController extends Controller
 
         $message = 'Please resubmit your ' . ($documentLabelMap[$validated['document_type']] ?? 'document') . ' because the previous file was not accepted. Reason: ' . $validated['reason'];
 
-        // Set the resubmit flag for the specific document type
-        $resubmitField = $validated['document_type'] . '_resubmitted';
-        $user->update([$resubmitField => true]);
+        // Map document types to their corresponding database field names
+        $fieldMapping = [
+            'bir_permit' => 'bir_resubmitted',
+            'dti_permit' => 'dti_resubmitted',
+            'business_permit' => 'business_permit_resubmitted',
+            'lgu_resolution' => 'lgu_resolution_resubmitted',
+            'marina_cpc' => 'marina_cpc_resubmitted',
+            'boat_association' => 'boat_association_resubmitted',
+            'tourism_registration' => 'tourism_registration_resubmitted',
+        ];
+        
+        $resubmitField = $fieldMapping[$validated['document_type']] ?? null;
+        
+        if (!$resubmitField) {
+            Log::error("DTI ERROR - No field mapping found for document type: {$validated['document_type']}");
+            return response()->json([
+                'success' => false,
+                'message' => "Invalid document type: {$validated['document_type']}",
+            ], 400);
+        }
+        
+        // Debug: Log the field name being used
+        Log::info("DTI DEBUG - Document type: {$validated['document_type']}, Resubmit field: {$resubmitField}");
+        Log::info("DTI DEBUG - Fillable fields: " . implode(', ', $user->getFillable()));
+        Log::info("DTI DEBUG - Field in fillable: " . (in_array($resubmitField, $user->getFillable()) ? 'YES' : 'NO'));
+        
+        // Check if the field is in the fillable array
+        if (!in_array($resubmitField, $user->getFillable())) {
+            Log::error("DTI ERROR - Field {$resubmitField} is not fillable on User model");
+            return response()->json([
+                'success' => false,
+                'message' => "Field {$resubmitField} is not fillable on User model",
+            ], 400);
+        }
+        
+        // Use a database transaction to ensure the update is committed
+        \DB::transaction(function () use ($user, $resubmitField) {
+            $user->$resubmitField = true;
+            $user->save();
+        });
+        
+        // Refresh the user model to get the updated data
+        $user->refresh();
+        
+        // Debug: Log the update
+        Log::info("Resubmission request for user {$user->id}, field: {$resubmitField}, value: true");
+        Log::info("User {$user->id} {$resubmitField} after update: " . ($user->$resubmitField ? 'true' : 'false'));
+        
+        // Additional verification: Direct database query
+        $directValue = DB::table('users')->where('id', $user->id)->value($resubmitField);
+        Log::info("Direct DB query for user {$user->id} {$resubmitField}: " . ($directValue ? 'true' : 'false'));
+        
+        // Special debug for DTI
+        if ($validated['document_type'] === 'dti_permit') {
+            Log::info("DTI DEBUG - Field: {$resubmitField}, User model value: " . ($user->$resubmitField ? 'true' : 'false'));
+            Log::info("DTI DEBUG - Direct DB value: " . ($directValue ? 'true' : 'false'));
+            Log::info("DTI DEBUG - User ID: {$user->id}, Username: {$user->username}");
+        }
 
         if ($user->role === 'resort_owner') {
             ResortOwnerNotification::create([
@@ -356,5 +413,24 @@ class AdminUserController extends Controller
         // Correct logic: Select users where nationality is 'filipino' (case-insensitive)
         $filipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->orderBy('created_at', 'desc')->get();
         return view('admin.total-filipino', compact('filipinos'));
+    }
+
+    /**
+     * Check document status for a specific user and document type.
+     */
+    public function checkDocumentStatus($userId, $documentType)
+    {
+        if (Auth::user()?->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $user = User::findOrFail($userId);
+        $resubmitField = $documentType . '_resubmitted';
+        
+        return response()->json([
+            'resubmitted' => $user->$resubmitField ?? false,
+            'document_type' => $documentType,
+            'user_id' => $userId
+        ]);
     }
 }
