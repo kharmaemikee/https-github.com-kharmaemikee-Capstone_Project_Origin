@@ -403,16 +403,51 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Show a list of all Filipinos (nationality is 'filipino').
+     * Show a list of all Filipinos (nationality is 'filipino') and Filipino guest visitors.
      */
     public function showFilipinos()
     {
         if (Auth::user()?->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
-        // Correct logic: Select users where nationality is 'filipino' (case-insensitive)
-        $filipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->orderBy('created_at', 'desc')->get();
-        return view('admin.total-filipino', compact('filipinos'));
+        
+        // Get registered Filipino users
+        $filipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])
+            ->whereNotNull('nationality')
+            ->where('nationality', '!=', '')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get Filipino guests from bookings - parse individual guest nationalities
+        $allBookings = \App\Models\Booking::whereNotNull('guest_name')
+            ->where('guest_name', '!=', '')
+            ->select('guest_name', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $guestFilipinos = collect();
+        
+        foreach ($allBookings as $booking) {
+            // Parse guest names to extract individual guests with their nationalities
+            $guestNames = explode(';', $booking->guest_name);
+            foreach ($guestNames as $guestName) {
+                // Extract nationality from format: "Name (Age) - Nationality"
+                if (preg_match('/\s-\s([^-]+)$/', trim($guestName), $matches)) {
+                    $nationality = trim($matches[1]);
+                    
+                    if (strtolower($nationality) === 'filipino') {
+                        $guestData = (object)[
+                            'guest_name' => trim($guestName),
+                            'guest_nationality' => $nationality,
+                            'created_at' => $booking->created_at
+                        ];
+                        $guestFilipinos->push($guestData);
+                    }
+                }
+            }
+        }
+        
+        return view('admin.total-filipino', compact('filipinos', 'guestFilipinos'));
     }
 
     /**

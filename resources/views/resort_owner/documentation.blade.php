@@ -1,8 +1,5 @@
 <x-app-layout>
-    <!-- Fixed background layer -->
-    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100vw 100vh; background-position: 0 0; z-index: -1; margin: 0; padding: 0;"></div>
-    
-    <div class="d-flex flex-column flex-md-row" style="min-height: 100vh; width: 100%; position: relative; z-index: 1; background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+    <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100% 100%;">
 
         {{-- Desktop Sidebar --}}
         <div class="modern-sidebar d-none d-md-block">
@@ -76,7 +73,7 @@
                     </li>
                     
                     <li class="nav-item">
-                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link active" aria-current="page">
+                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
                             <div class="nav-icon">
                                 <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
                             </div>
@@ -88,158 +85,281 @@
         </div>
 
         {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                {{-- Icon added here for Resort Owner in mobile sidebar using <img> --}}
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Resorts Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Resorts Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
                 <ul class="nav flex-column">
                    
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.dashboard') }}" class="nav-link {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
+                        
+                        <li class="nav-item">
                         @if(auth()->user()->canAccessMainFeatures())
-                            <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
-                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Resort Management
+                                <a href="{{ route('resort.owner.information') }}" class="nav-link {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                    </div>
+                                    <span class="nav-text">Resort Management</span>
                             </a>
                         @else
-                            <span class="nav-link text-white-50 rounded p-2 d-flex align-items-center disabled-link" 
+                                <span class="nav-link disabled-link" 
                                   data-bs-toggle="tooltip" 
                                   data-bs-placement="right" 
                                   title="Upload your permits first to unlock this feature">
-                                <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
-                                Resort Information
-                                <span class="badge bg-warning ms-2">Locked</span>
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" class="nav-icon-img disabled">
+                                    </div>
+                                    <span class="nav-text">Resort Management</span>
+                                    <span class="nav-badge">Locked</span>
                             </span>
                         @endif
                     </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.verified') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
-                            <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Account Management
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.verified') }}" class="nav-link {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Account Management</span>
                         </a>
                     </li>
-                    {{-- Notifications (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notifications
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.notification') }}" class="nav-link {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Notifications</span>
                             @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
                             @endif
                         </a>
                     </li>
-                    {{-- Documentation (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Documentation
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
                         </a>
                     </li>
                 </ul>
+                </div>
             </div>
         </div>
 
-        {{-- Main Content Area: Bookings with search, filters, and export --}}
-        <div class="flex-grow-1 p-4">
-            <div class="container py-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        @php
-                            $items = ($bookings instanceof \Illuminate\Pagination\AbstractPaginator)
-                                ? $bookings->items()
-                                : (is_iterable($bookings) ? $bookings : []);
-                            $firstBooking = is_array($items) ? ($items[0] ?? null) : (collect($items)->first() ?? null);
-                            $headerResortName = null;
-                            try { $headerResortName = optional(optional(optional($firstBooking)->room)->resort)->resort_name; } catch (\Throwable $e) {}
-                            if (!$headerResortName && $firstBooking && property_exists($firstBooking, 'name_of_resort')) {
-                                $headerResortName = $firstBooking->name_of_resort;
-                            }
-                        @endphp
-                        <h3 class="mb-4">{{ $headerResortName ?? 'Resort Documentation' }}</h3>
+        {{-- Main Content Area --}}
+        <div class="main-content flex-grow-1">
+            {{-- Page Header --}}
+            <div class="page-header">
+                <div class="page-title-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Resort Documentation
+                    </h1>
+                    <p class="page-subtitle">View and manage booking documentation for your resort</p>
+                </div>
+            </div>
 
-                        <form method="GET" action="{{ route('resort.owner.documentation') }}" class="row g-3 align-items-end mb-4">
+            {{-- Content Container --}}
+            <div class="content-container">
+                @php
+                    $items = ($bookings instanceof \Illuminate\Pagination\AbstractPaginator)
+                        ? $bookings->items()
+                        : (is_iterable($bookings) ? $bookings : []);
+                    $firstBooking = is_array($items) ? ($items[0] ?? null) : (collect($items)->first() ?? null);
+                    $headerResortName = null;
+                    try { $headerResortName = optional(optional(optional($firstBooking)->room)->resort)->resort_name; } catch (\Throwable $e) {}
+                    if (!$headerResortName && $firstBooking && property_exists($firstBooking, 'name_of_resort')) {
+                        $headerResortName = $firstBooking->name_of_resort;
+                    }
+                @endphp
+
+                {{-- Search and Filter Section --}}
+                <div class="search-filter-card">
+                    <div class="search-filter-header">
+                        <h3 class="search-filter-title">
+                            <i class="fas fa-search me-2"></i>
+                            Search & Filter
+                        </h3>
+                    </div>
+                    <form method="GET" action="{{ route('resort.owner.documentation') }}" class="search-filter-form">
+                        <div class="row g-3">
                             <div class="col-md-4">
-                                <label for="search" class="form-label">Search Name</label>
-                                <input type="text" id="search" name="search" value="{{ $filters['search'] ?? '' }}" class="form-control" placeholder="Enter Guest Name">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="start_date" class="form-label">From</label>
-                                <input type="date" id="start_date" name="start_date" value="{{ $filters['start_date'] ?? '' }}" class="form-control">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="end_date" class="form-label">To</label>
-                                <input type="date" id="end_date" name="end_date" value="{{ $filters['end_date'] ?? '' }}" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">&nbsp;</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="showAll" name="all" value="1" {{ !empty($showAll) && $showAll ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="showAll">Show all results</label>
+                                <div class="form-group">
+                                    <label for="search" class="form-label">
+                                        <i class="fas fa-user me-1"></i>
+                                        Search Guest Name
+                                    </label>
+                                    <input type="text" id="search" name="search" value="{{ $filters['search'] ?? '' }}" class="form-control modern-input" placeholder="Enter guest name...">
                                 </div>
                             </div>
-                            <div class="col-md-2 d-flex gap-2 align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">Apply</button>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="start_date" class="form-label">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        From Date
+                                    </label>
+                                    <input type="date" id="start_date" name="start_date" value="{{ $filters['start_date'] ?? '' }}" class="form-control modern-input">
+                                </div>
                             </div>
-                        </form>
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <small class="text-muted">
-                                @if(!empty($showAll) && $showAll)
-                                    Results: {{ is_countable($bookings) ? count($bookings) : 0 }} (all)
-                                @else
-                                    Results: {{ $bookings->total() ?? 0 }}
-                                @endif
-                            </small>
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('resort.owner.documentation.export', request()->query()) }}" class="btn btn-success">Export CSV</a>
-                                <a href="{{ route('resort.owner.documentation.export_pdf', request()->query()) }}" class="btn btn-danger">Export PDF</a>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="end_date" class="form-label">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        To Date
+                                    </label>
+                                    <input type="date" id="end_date" name="end_date" value="{{ $filters['end_date'] ?? '' }}" class="form-control modern-input">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="form-check modern-checkbox">
+                                        <input class="form-check-input" type="checkbox" id="showAll" name="all" value="1" {{ !empty($showAll) && $showAll ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="showAll">
+                                            <i class="fas fa-list me-1"></i>
+                                            Show all results
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <div class="search-filter-actions">
+                            <button type="submit" class="btn btn-primary search-btn">
+                                <i class="fas fa-search me-2"></i>
+                                Apply Filters
+                            </button>
+                            <a href="{{ route('resort.owner.documentation') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
 
-                        <div id="docCapture" class="table-responsive ro-doc-table-container">
-                            <table class="table table-striped table-hover align-middle ro-doc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Room</th>
-                                        <th>Tourist</th>
-                                        <th>Tour Type</th>
-                                        <th>Departure Time — Overnight</th>
-                                        <th>Departure Time — Day tour</th>
-                                        <th>Pick-up (leaving)</th>
-                                        
-                                        <th class="text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($bookings as $booking)
-                                        <tr>
-                                            <td>{{ optional($booking->room)->room_name ?? '—' }}</td>
-                                            <td>
+                {{-- Results Summary and Export Section --}}
+                <div class="results-summary-card">
+                    <div class="results-info">
+                        <div class="results-count">
+                            <i class="fas fa-list-alt me-2"></i>
+                            <span class="results-text">
+                                @if(!empty($showAll) && $showAll)
+                                    Showing {{ is_countable($bookings) ? count($bookings) : 0 }} results (all)
+                                @else
+                                    Showing {{ $bookings->total() ?? 0 }} results
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    <div class="export-actions">
+                        <a href="{{ route('resort.owner.documentation.export', request()->query()) }}" class="btn btn-success export-btn">
+                            <i class="fas fa-file-csv me-2"></i>
+                            Export CSV
+                        </a>
+                        <a href="{{ route('resort.owner.documentation.export_pdf', request()->query()) }}" class="btn btn-danger export-btn">
+                            <i class="fas fa-file-pdf me-2"></i>
+                            Export PDF
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Documentation Table --}}
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title">
+                            <i class="fas fa-table me-2"></i>
+                            Booking Documentation
+                        </h3>
+                    </div>
+                    <div id="docCapture" class="table-responsive modern-table-container">
+                        <table class="table modern-table">
+                            <thead class="table-header-row">
+                                <tr>
+                                    <th class="table-header-cell">
+                                        <i class="fas fa-bed me-1"></i>
+                                        Room
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <i class="fas fa-user me-1"></i>
+                                        Tourist
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <i class="fas fa-route me-1"></i>
+                                        Tour Type
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <i class="fas fa-moon me-1"></i>
+                                        Overnight Departure
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <i class="fas fa-sun me-1"></i>
+                                        Day Tour Departure
+                                    </th>
+                                    <th class="table-header-cell">
+                                        <i class="fas fa-car me-1"></i>
+                                        Pick-up Time
+                                    </th>
+                                    <th class="table-header-cell text-center">
+                                        <i class="fas fa-cog me-1"></i>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body">
+                                @forelse($bookings as $booking)
+                                    <tr class="table-row">
+                                        <td class="table-cell">
+                                            <div class="cell-content">
+                                                <i class="fas fa-bed me-2 text-primary"></i>
+                                                {{ optional($booking->room)->room_name ?? '—' }}
+                                            </div>
+                                        </td>
+                                        <td class="table-cell">
+                                            <div class="cell-content">
+                                                <i class="fas fa-user me-2 text-info"></i>
                                                 @php
                                                     $acctName = trim(((optional($booking->user)->first_name ?? '') . ' ' . (optional($booking->user)->last_name ?? '')));
                                                 @endphp
                                                 {{ $acctName !== '' ? $acctName : (optional($booking->user)->username ?? '—') }}
-                                            </td>
-                                            <td>{{ ucfirst($booking->tour_type ?? '—') }}</td>
-                                            <td data-col="overnight">
+                                            </div>
+                                        </td>
+                                        <td class="table-cell">
+                                            <div class="cell-content">
+                                                <span class="tour-type-badge tour-type-{{ strtolower($booking->tour_type ?? 'unknown') }}">
+                                                    {{ ucfirst($booking->tour_type ?? '—') }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="table-cell" data-col="overnight">
+                                            <div class="cell-content">
+                                                <i class="fas fa-moon me-2 text-warning"></i>
                                                 @php
                                                     $overnightDep = null;
                                                     try {
@@ -257,9 +377,12 @@
                                                         $overnightDep = $booking->overnight_departure_time ?? null; 
                                                     }
                                                     @endphp
-                                                {{ $overnightDep ?? '—' }}
-                                            </td>
-                                            <td data-col="daytour">
+                                                <span class="time-value">{{ $overnightDep ?? '—' }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="table-cell" data-col="daytour">
+                                            <div class="cell-content">
+                                                <i class="fas fa-sun me-2 text-warning"></i>
                                                 @php
                                                     $dayDep = null;
                                                     try {
@@ -280,9 +403,12 @@
                                                         $dayDep = $booking->day_tour_departure_time ?? null; 
                                                     }
                                                     @endphp
-                                                {{ $dayDep ?? '—' }}
-                                            </td>
-                                            <td data-col="pickup">
+                                                <span class="time-value">{{ $dayDep ?? '—' }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="table-cell" data-col="pickup">
+                                            <div class="cell-content">
+                                                <i class="fas fa-car me-2 text-success"></i>
                                                 @php
                                                     $pickupText = '—';
                                                     try {
@@ -295,14 +421,16 @@
                                                         $pickupText = ($booking->tour_type === 'overnight') ? ($booking->overnight_date_time_of_pickup ?? '—') : ($booking->day_tour_time_of_pickup ?? '—');
                                                         }
                                                     @endphp
-                                                {{ $pickupText }}
-                                            </td>
-                                            
-                                            <td class="text-center">
+                                                <span class="time-value">{{ $pickupText }}</span>
+                                            </div>
+                                        </td>
+                                        
+                                        <td class="table-cell text-center">
+                                            <div class="action-buttons">
                                                 @php
                                                     $assignedBoat = optional($booking)->assignedBoat;
                                                 @endphp
-                                                <button type="button" class="btn btn-info btn-sm viewDocBtn"
+                                                <button type="button" class="btn btn-info btn-sm view-details-btn"
                                                         title="View details" aria-label="View details"
                                                         data-bs-toggle="modal" data-bs-target="#docViewModal"
                                                         data-guest-name="{{ $booking->guest_name ?? '' }}"
@@ -325,72 +453,435 @@
                                                         data-pwds="{{ $booking->num_pwds ?? '' }}"
                                                         data-boat-name="{{ $assignedBoat->boat_name ?? '' }}"
                                                         data-boat-number="{{ $assignedBoat->boat_number ?? '' }}">
-                                                    <i class="fas fa-eye"></i>
+                                                    <i class="fas fa-eye me-1"></i>
+                                                    View
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="11" class="text-center text-muted">No bookings found.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-
-                        @if(empty($showAll) || !$showAll)
-                            <div class="mt-3">
-                                {{ $bookings->appends(request()->query())->links('vendor.pagination.resort-owner') }}
-                            </div>
-                        @endif
-
-                        {{-- Signature section for resorts (prints at bottom) --}}
-                        @php
-                            $items = ($bookings instanceof \Illuminate\Pagination\AbstractPaginator)
-                                ? $bookings->items()
-                                : (is_iterable($bookings) ? $bookings : []);
-                            $resortNames = collect($items)
-                                ->map(function($b){
-                                    if (!is_object($b)) { return null; }
-                                    $resortName = null;
-                                    try {
-                                        $resortName = optional(optional($b->room)->resort)->resort_name;
-                                    } catch (\Throwable $e) {
-                                        // ignore and fallback
-                                    }
-                                    if (!$resortName && property_exists($b, 'name_of_resort')) {
-                                        $resortName = $b->name_of_resort;
-                                    }
-                                    return $resortName ?: null;
-                                })
-                                ->filter()
-                                ->unique()
-                                ->values();
-                        @endphp
-                        <!-- @if($resortNames->isNotEmpty())
-                            <div class="mt-5">
-                                <div class="row g-4">
-                                    @foreach($resortNames as $resortName)
-                                        <div class="col-12 col-md-4 d-flex flex-column align-items-center">
-                                            <div style="width: 100%; max-width: 320px; margin-top: 40px; border-top: 2px solid #000; height: 1px;"></div>
-                                            <div class="text-center fw-bold mt-1" style="max-width: 320px;">{{ $resortName }}</div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif -->
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="table-row">
+                                        <td colspan="7" class="table-cell text-center">
+                                            <div class="empty-state">
+                                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                                <h5 class="text-muted">No bookings found</h5>
+                                                <p class="text-muted">Try adjusting your search criteria or date range.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
+                {{-- Pagination --}}
+                @if(empty($showAll) || !$showAll)
+                    <div class="pagination-container">
+                        {{ $bookings->appends(request()->query())->links('vendor.pagination.resort-owner') }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 
     <style>
-        /* Custom CSS for sidebar nav-link hover and focus */
-        .nav-link.text-white:hover,
-        .nav-link.text-white:focus,
-        .nav-link.text-white.active {
-            background-color:rgb(6, 58, 170) !important; /* Maroon Red */
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
+            min-height: 100vh;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-title i {
+            color: #007bff;
+            font-size: 1.8rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0.5rem 0 0 0;
+            font-weight: 400;
+        }
+
+        /* Content Container */
+        .content-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Search and Filter Card */
+        .search-filter-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .search-filter-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem 2rem;
+            color: white;
+        }
+
+        .search-filter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-filter-form {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            color: #6c757d;
+            margin-right: 0.5rem;
+        }
+
+        .modern-input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .modern-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .modern-checkbox {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .search-filter-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Results Summary Card */
+        .results-summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-count {
+            display: flex;
+            align-items: center;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .results-count i {
+            color: #007bff;
+            margin-right: 0.5rem;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .export-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Table Card */
+        .table-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: #495057;
+            display: flex;
+            align-items: center;
+        }
+
+        .table-title i {
+            color: #007bff;
+            margin-right: 0.5rem;
+        }
+
+        .modern-table-container {
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-header-row {
+            background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+        }
+
+        .table-header-cell {
+            background: transparent;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .table-header-cell i {
+            color: #6c757d;
+            margin-right: 0.5rem;
+        }
+
+        .table-body {
+            background: white;
+        }
+
+        .table-row {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .table-row:hover {
+            background: #f8f9ff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-cell {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border: none;
+        }
+
+        .cell-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .cell-content i {
+            font-size: 0.9rem;
+        }
+
+        .tour-type-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tour-type-overnight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tour-type-day_tour {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .tour-type-unknown {
+            background: #6c757d;
+            color: white;
+        }
+
+        .time-value {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .view-details-btn {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .view-details-btn:hover {
+            background: linear-gradient(135deg, #138496, #117a8b);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+        }
+
+        .empty-state {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .empty-state i {
+            opacity: 0.5;
+        }
+
+        .pagination-container {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .search-filter-form {
+                padding: 1.5rem;
+            }
+            
+            .search-filter-actions {
+                flex-direction: column;
+            }
+            
+            .results-summary-card {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .export-actions {
+                justify-content: center;
+            }
+            
+            .table-header-cell {
+                padding: 0.75rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .table-cell {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.3rem;
+            }
+            
+            .search-filter-form {
+                padding: 1rem;
+            }
+            
+            .modern-table-container {
+                font-size: 0.85rem;
+            }
         }
 
         /* Style for the rotated icon */
@@ -702,7 +1193,7 @@
     <script>
         // Wire up details modal
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.viewDocBtn').forEach(function(btn){
+            document.querySelectorAll('.view-details-btn').forEach(function(btn){
                 btn.addEventListener('click', function(){
                     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 'N/A'; };
                     
@@ -897,41 +1388,29 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-        /* Modern Sidebar Styling - Dark Theme */
+
+
+        /* Simple Sidebar Styling */
         .modern-sidebar {
             width: 280px;
             min-width: 280px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .modern-sidebar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-            pointer-events: none;
+            background: #2c3e50;
+            border-right: 1px solid #34495e;
+            min-height: 100vh;
+            overflow-y: auto;
         }
 
         /* Sidebar Header */
         .sidebar-header {
-            padding: 2rem 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            z-index: 1;
+            padding: 1.5rem;
+            border-bottom: 1px solid #34495e;
+            background: #34495e;
         }
 
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .brand-icon {
@@ -996,40 +1475,21 @@
             border-radius: 12px;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .sidebar-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-nav .nav-link:hover::before {
-            opacity: 1;
+            background: transparent;
         }
 
         .sidebar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             transform: translateX(4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-nav .nav-link.active {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .sidebar-nav .nav-link.active::before {
-            opacity: 1;
         }
 
         .nav-icon {
@@ -1104,7 +1564,7 @@
 
         /* Mobile Toggle Button */
         .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg,rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
             padding: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
@@ -1170,6 +1630,7 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             width: 85vw !important;
+            z-index: 1050;
         }
 
         .mobile-sidebar-brand {
@@ -1234,40 +1695,21 @@
             border-radius: 12px;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .mobile-sidebar-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-sidebar-nav .nav-link:hover::before {
-            opacity: 1;
+            background: transparent;
         }
 
         .mobile-sidebar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             transform: translateX(4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-sidebar-nav .nav-link.active {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .mobile-sidebar-nav .nav-link.active::before {
-            opacity: 1;
         }
 
         /* Table polish */
@@ -1295,8 +1737,7 @@
 
         /* Main Content */
         .main-content {
-            padding: 2rem;
-            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
+            background: transparent;
             min-height: 100vh;
         }
 
@@ -1312,10 +1753,10 @@
                 padding: 0.75rem;
             }
             
-        .modern-mobile-sidebar {
-            width: 90vw !important;
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
         }
-    }
     
     /* Modern Modal Styling */
     .modern-modal {

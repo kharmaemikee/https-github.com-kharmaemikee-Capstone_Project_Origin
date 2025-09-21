@@ -91,22 +91,33 @@
                     <div class="page-title-section">
                         <h1 class="page-title">
                             <i class="fas fa-flag me-2"></i>
-                            Filipino Users
+                            Filipino Users & Guests
                         </h1>
-                        <p class="page-subtitle">List of all registered Filipino users in the system</p>
+                        <p class="page-subtitle">List of all registered Filipino users and guest visitors</p>
                     </div>
                     <div class="page-stats">
                         <div class="stat-card">
                             <div class="stat-number">{{ $filipinos->count() }}</div>
-                            <div class="stat-label">Total Filipinos</div>
+                            <div class="stat-label">Registered Filipinos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{{ $guestFilipinos->count() }}</div>
+                            <div class="stat-label">Filipino Guest Visitors</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Users Table --}}
-            <div class="table-container">
-                        <div class="table-responsive">
+            {{-- Registered Filipino Users Table --}}
+            <div class="table-container mb-4">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-users me-2"></i>
+                        Registered Filipino Users
+                    </h3>
+                    <span class="badge bg-primary">{{ $filipinos->count() }} users</span>
+                </div>
+                <div class="table-responsive">
                     <table class="table modern-table">
                         <thead class="table-header">
                             <tr>
@@ -116,9 +127,9 @@
                                 <th scope="col">Last Name</th>
                                 <th scope="col">Nationality</th>
                                 <th scope="col">Registered On</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @forelse($filipinos as $filipino)
                                 <tr class="table-row">
                                     <td class="text-center">{{ $loop->iteration }}</td>
@@ -153,10 +164,65 @@
                                             <p class="empty-description">There are no Filipino users registered in the system yet.</p>
                                         </div>
                                     </td>
-                                        </tr>
+                                </tr>
                             @endforelse
-                                </tbody>
-                            </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Filipino Guest Visitors Section --}}
+            <div class="table-container">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-flag me-2"></i>
+                        Filipino Guest Visitors
+                    </h3>
+                    <span class="badge bg-primary">{{ $guestFilipinos->count() }} guests</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col" class="text-center">#</th>
+                                <th scope="col">Guest Name</th>
+                                <th scope="col">Nationality</th>
+                                <th scope="col">Booking Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($guestFilipinos as $guest)
+                                <tr class="table-row">
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="name-cell">
+                                        <div class="user-name">{{ $guest->guest_name }}</div>
+                                    </td>
+                                    <td class="nationality-cell">
+                                        <div class="nationality-info">
+                                            <i class="fas fa-flag text-primary me-1"></i>
+                                            {{ $guest->guest_nationality }}
+                                        </div>
+                                    </td>
+                                    <td class="date-cell">
+                                        <div class="date-info">
+                                            <i class="fas fa-calendar text-primary me-1"></i>
+                                            {{ $guest->created_at->format('M d, Y') }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center empty-state-cell">
+                                        <div class="empty-state">
+                                            <i class="fas fa-flag empty-icon"></i>
+                                            <h5 class="empty-title">No Filipino Guest Visitors</h5>
+                                            <p class="empty-description">There are no Filipino guest visitors in the system yet.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -414,6 +480,35 @@
         .stat-label {
             font-size: 0.9rem;
             opacity: 0.9;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            border-bottom: 2px solid #f1f3f4;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #495057;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            color: #007bff;
+        }
+
+        .badge {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
         }
 
         /* Table Container */

@@ -340,7 +340,7 @@
                                 </td>
                                 @if(($userType ?? 'All Users') !== 'Tourist Users')
                                     <td class="documents-cell">
-                                        <div class="documents-grid">
+                                        <div class="documents-grid-2x2">
                                             {{-- BIR Permit --}}
                                             <div class="document-item permitCell" data-type="bir_permit">
                                                 <div class="document-label">BIR</div>
@@ -371,10 +371,11 @@
                                                     @endif
                                                 </div>
                                             </div>
+                                            
                                             {{-- DTI Permit --}}
                                             <div class="document-item permitCell" data-type="dti_permit">
                                                 <div class="document-label">DTI</div>
-                                                <div class="document-status"></div>
+                                                <div class="document-status">
                                                     @if ($user->dti_approved)
                                                         <span class="status-badge approved">
                                                             <i class="fas fa-check"></i>
@@ -2308,6 +2309,13 @@
             min-width: 300px;
         }
         
+        /* 2x2 Documents Grid */
+        .documents-grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
         .documents-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -2891,6 +2899,11 @@
             .permit-modal-body {
                 padding: 1.5rem;
             }
+            
+            .documents-grid-2x2 {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
         }
         
         @media (max-width: 576px) {
@@ -3082,6 +3095,10 @@
             
             .documents-grid {
                 grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .documents-grid-2x2 {
                 gap: 0.5rem;
             }
             

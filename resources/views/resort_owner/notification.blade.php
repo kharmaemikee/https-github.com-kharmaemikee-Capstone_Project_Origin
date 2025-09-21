@@ -279,7 +279,7 @@
                                     <form action="{{ route('resort.owner.upload-permits') }}" method="POST" enctype="multipart/form-data" class="mt-2 permit-resubmit-form">
                                         @csrf
                                         <div class="input-group input-group-sm align-items-center">
-                                            <input type="file" name="{{ $docKey ?? 'owner_image' }}" class="form-control" required>
+                                            <input type="file" name="{{ $docKey ?? 'owner_image' }}" class="form-control" accept=".pdf" required>
                                             <button type="submit" class="btn btn-primary ms-2 upload-again-btn">Upload again</button>
                                             <span class="ms-3 small text-muted thanks-msg" style="display:none;">Thank you for your patience.</span>
                                         </div>

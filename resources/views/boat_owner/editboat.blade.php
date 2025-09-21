@@ -121,9 +121,17 @@
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Edit Boat: {{ $boat->boat_name }}</h2>
+        <div class="main-content flex-grow-1 p-4">
+            {{-- Page Header --}}
+            <div class="page-header mb-4">
+                <div class="page-title-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Boat: {{ $boat->boat_name }}
+                    </h1>
+                    <p class="page-subtitle">Update your boat information and manage status</p>
+                </div>
+                <div class="page-actions">
                 @php
                     $totalBoats = isset($allBoats) ? $allBoats->count() : (isset($boats) ? $boats->count() : null);
                     $position = null;
@@ -136,96 +144,147 @@
                     }
                 @endphp
                 @if($position && $totalBoats)
-                    <span class="badge bg-primary">Assignment No: {{ $position }} of {{ $totalBoats }}</span>
+                        <div class="assignment-badge">
+                            <i class="fas fa-hashtag me-1"></i>
+                            Assignment #{{ $position }} of {{ $totalBoats }}
+                        </div>
                 @endif
+                </div>
             </div>
 
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show modern-alert" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show modern-alert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
-            <div class="card p-4">
+            {{-- Boat Information Form --}}
+            <div class="form-section">
+                <div class="section-header">
+                    <h5 class="section-title">
+                        <i class="fas fa-ship me-2"></i>
+                        Boat Information
+                    </h5>
+                </div>
+                <div class="modern-card">
                 <form action="{{ route('boat.update', $boat->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT') {{-- Use PUT method for updates --}}
 
-                    <div class="mb-3">
-                        <label for="boat_name" class="form-label">Boat Name</label>
-                        <input type="text" class="form-control" id="boat_name" name="boat_name" value="{{ old('boat_name', $boat->boat_name) }}" required>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="boat_name" class="form-label">
+                                    <i class="fas fa-ship me-1"></i>
+                                    Boat Name
+                                </label>
+                                <input type="text" class="form-control modern-input" id="boat_name" name="boat_name" value="{{ old('boat_name', $boat->boat_name) }}" required>
                         @error('boat_name')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                            </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="boat_number" class="form-label">Boat Number</label>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="boat_number" class="form-label">
+                                    <i class="fas fa-hashtag me-1"></i>
+                                    Boat Number
+                                </label>
                         <input type="text"
-                               class="form-control"
+                                       class="form-control modern-input"
                                id="boat_number"
                                name="boat_number"
                                value="{{ old('boat_number', $boat->boat_number) }}"
                                placeholder="e.g., 09123456789"
-                               pattern="[0-9]{11}" {{-- Allows exactly 11 digits --}}
-                               maxlength="11" {{-- Restricts input to 11 characters --}}
-                               minlength="11" {{-- Requires minimum 11 characters --}}
-                               title="Please enter exactly 11 digits for the boat number." {{-- Tooltip for validation message --}}
-                               inputmode="numeric" {{-- Optimizes virtual keyboard for numbers --}}
+                                       pattern="[0-9]{11}"
+                                       maxlength="11"
+                                       minlength="11"
+                                       title="Please enter exactly 11 digits for the boat number."
+                                       inputmode="numeric"
                                oninput="validateBoatNumber(this)"
                                required>
                         <div id="boat_number_error" class="text-danger mt-1" style="display: none;">
                         Invalid Contact Number. It must be exactly 11 digits.
                         </div>
                         @error('boat_number')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                            </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="boat_prices" class="form-label">Price</label>
-                        <input type="number" class="form-control" id="boat_prices" name="boat_prices" value="{{ old('boat_prices', $boat->boat_prices) }}" step="0.01" required>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="boat_prices" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    Price
+                                </label>
+                                <input type="number" class="form-control modern-input" id="boat_prices" name="boat_prices" value="{{ old('boat_prices', $boat->boat_prices) }}" step="0.01" required>
                         @error('boat_prices')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                            </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="boat_capacities" class="form-label">Capacity (pax)</label>
-                        <input type="number" class="form-control" id="boat_capacities" name="boat_capacities" value="{{ old('boat_capacities', $boat->boat_capacities) }}" required>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="boat_capacities" class="form-label">
+                                    <i class="fas fa-users me-1"></i>
+                                    Capacity (pax)
+                                </label>
+                                <input type="number" class="form-control modern-input" id="boat_capacities" name="boat_capacities" value="{{ old('boat_capacities', $boat->boat_capacities) }}" required>
                         @error('boat_capacities')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                            </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="boat_length" class="form-label">Boat Length</label>
-                        <input type="text" class="form-control" id="boat_length" name="boat_length" value="{{ old('boat_length', $boat->boat_length ?? '') }}" placeholder="e.g., 24 ft or 7.3 m">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="boat_length" class="form-label">
+                                    <i class="fas fa-ruler me-1"></i>
+                                    Boat Length
+                                </label>
+                                <input type="text" class="form-control modern-input" id="boat_length" name="boat_length" value="{{ old('boat_length', $boat->boat_length ?? '') }}" placeholder="e.g., 24 ft or 7.3 m">
                         @error('boat_length')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Boat Captain fields --}}
-                    <div class="mb-3">
-                        <label for="captain_name" class="form-label">Boat Captain Name</label>
-                        <input type="text" class="form-control" id="captain_name" name="captain_name" value="{{ old('captain_name', $boat->captain_name ?? '') }}" placeholder="Enter captain full name">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="captain_name" class="form-label">
+                                    <i class="fas fa-user-tie me-1"></i>
+                                    Boat Captain Name
+                                </label>
+                                <input type="text" class="form-control modern-input" id="captain_name" name="captain_name" value="{{ old('captain_name', $boat->captain_name ?? '') }}" placeholder="Enter captain full name">
                         @error('captain_name')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="mb-3">
-                        <label for="captain_contact" class="form-label">Boat Captain Contact</label>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="captain_contact" class="form-label">
+                                    <i class="fas fa-phone me-1"></i>
+                                    Boat Captain Contact
+                                </label>
                         <input type="text" 
-                               class="form-control" 
+                                       class="form-control modern-input" 
                                id="captain_contact" 
                                name="captain_contact" 
                                value="{{ old('captain_contact', $boat->captain_contact ?? '') }}" 
@@ -240,113 +299,166 @@
                             Invalid Contact Number. It must be exactly 11 digits.
                         </div>
                         @error('captain_contact')
-                            <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="image_path" class="form-label">Boat Image</label>
-                        <input type="file" class="form-control" id="image_path" name="image_path" accept="image/*">
+                    {{-- Image Upload Section --}}
+                    <div class="form-group">
+                        <label for="image_path" class="form-label">
+                            <i class="fas fa-image me-1"></i>
+                            Boat Image
+                        </label>
+                        <input type="file" class="form-control modern-input" id="image_path" name="image_path" accept="image/*">
                         @error('image_path')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
+                        <div class="image-preview mt-3">
                         @if ($boat->image_path)
-                            <div class="mt-2">
-                                <p>Current Image:</p>
-                                <img src="{{ asset($boat->image_path) }}" alt="{{ $boat->boat_name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 5px;">
+                                <div class="current-image">
+                                    <p class="mb-2"><strong>Current Image:</strong></p>
+                                    <img src="{{ asset($boat->image_path) }}" alt="{{ $boat->boat_name }}" class="preview-image">
                             </div>
                         @else
-                            <div class="mt-2">
-                                <p>No image uploaded yet. Using default image.</p>
-                                <img src="{{ asset('images/default_boat.png') }}" alt="Default Boat Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 5px;">
+                                <div class="default-image">
+                                    <p class="mb-2"><strong>No image uploaded yet. Using default image.</strong></p>
+                                    <img src="{{ asset('images/default_boat.png') }}" alt="Default Boat Image" class="preview-image">
                             </div>
                         @endif
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary modern-btn">
+                            <i class="fas fa-save me-2"></i>
+                            Update Boat
+                        </button>
+                    </div>
                 </form>
 
-                <hr class="my-4"> {{-- Separator for clarity --}}
+                </div>
 
-                {{-- Section for Boat Status Management --}}
-                <h4>Boat Status</h4>
-                <p class="text-muted mb-3">Current Status:
+                {{-- Boat Status Management Section --}}
+                <div class="form-section mt-4">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="fas fa-cogs me-2"></i>
+                            Boat Status Management
+                        </h5>
+                    </div>
+                    <div class="modern-card">
+                        <div class="status-info">
+                            <div class="current-status">
+                                <span class="status-label">Current Status:</span>
                     @php
                         $statusClass = '';
                         switch ($boat->status) {
                             case \App\Models\Boat::STATUS_OPEN:
                             case \App\Models\Boat::STATUS_APPROVED:
-                                $statusClass = 'badge-light-success'; // Changed to light badge
+                                            $statusClass = 'status-approved';
                                 break;
                             case \App\Models\Boat::STATUS_ASSIGNED:
-                                $statusClass = 'badge-light-info'; // Changed to light badge
+                                            $statusClass = 'status-assigned';
                                 break;
                             case \App\Models\Boat::STATUS_CLOSED:
                             case \App\Models\Boat::STATUS_REJECTED:
-                                $statusClass = 'badge-light-danger'; // Changed to light badge
+                                            $statusClass = 'status-rejected';
                                 break;
                             case \App\Models\Boat::STATUS_REHAB:
-                                $statusClass = 'badge-light-warning'; // Changed to light badge
+                                            $statusClass = 'status-rehab';
                                 break;
                             case \App\Models\Boat::STATUS_PENDING:
                             default:
-                                $statusClass = 'badge-light-warning'; // Changed to light badge
+                                            $statusClass = 'status-pending';
                                 break;
                         }
                     @endphp
-                    <span class="badge {{ $statusClass }}">{{ ucfirst($boat->status ?? 'N/A') }}</span>
+                                <span class="status-badge {{ $statusClass }}">{{ ucfirst($boat->status ?? 'N/A') }}</span>
+                            </div>
+                            
                     @if ($boat->status === \App\Models\Boat::STATUS_REHAB && $boat->rejection_reason)
-                        <br><small class="text-info">(Reason: {{ $boat->rejection_reason }})</small>
+                                <div class="status-reason">
+                                    <i class="fas fa-tools me-1"></i>
+                                    <strong>Maintenance Reason:</strong> {{ $boat->rejection_reason }}
+                                </div>
                     @elseif ($boat->status === \App\Models\Boat::STATUS_REJECTED && $boat->rejection_reason)
-                        <br><small class="text-danger">(Reason: {{ $boat->rejection_reason }})</small>
+                                <div class="status-reason">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    <strong>Rejection Reason:</strong> {{ $boat->rejection_reason }}
+                                </div>
                     @elseif ($boat->status === \App\Models\Boat::STATUS_ASSIGNED)
-                        <br><small class="text-info">(Currently assigned to a booking - status will automatically change to "Open" when booking period ends)</small>
+                                <div class="status-reason">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <strong>Note:</strong> Currently assigned to a booking - status will automatically change to "Open" when booking period ends
+                                </div>
                     @endif
-                </p>
+                        </div>
 
-                <div class="d-flex gap-2 mb-3">
+                        <div class="status-actions">
+                            <div class="action-buttons">
                     {{-- Open Button --}}
-                    {{-- Disable if already open/approved, or if pending/rejected by admin --}}
-                    <form id="status-open-form" action="{{ route('boat.owner.update_status', $boat->id) }}" method="POST" class="status-form">
+                                <form id="status-open-form" action="{{ route('boat.owner.update_status', $boat->id) }}" method="POST" class="status-form d-inline">
                         @csrf
                         @method('PUT')
                         <input type="hidden" name="status" value="{{ \App\Models\Boat::STATUS_OPEN }}">
-                        <button type="submit" class="btn btn-primary btn-sm" {{ ($boat->status === \App\Models\Boat::STATUS_OPEN || $boat->status === \App\Models\Boat::STATUS_APPROVED || $boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_REJECTED || $boat->status === \App\Models\Boat::STATUS_ASSIGNED) ? 'disabled' : '' }}>Open</button>
+                                    <button type="submit" class="btn btn-success modern-btn status-btn" {{ ($boat->status === \App\Models\Boat::STATUS_OPEN || $boat->status === \App\Models\Boat::STATUS_APPROVED || $boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_REJECTED || $boat->status === \App\Models\Boat::STATUS_ASSIGNED) ? 'disabled' : '' }}>
+                                        <i class="fas fa-play me-1"></i>
+                                        Open
+                                    </button>
                     </form>
 
-                    {{-- Maintenance Button (now only controlled by custom JS) --}}
-                    {{-- Disable if already in maintenance, or if pending/rejected by admin --}}
-                    <button type="button" class="btn btn-danger btn-sm" id="rehab-button"
+                                {{-- Maintenance Button --}}
+                                <button type="button" class="btn btn-warning modern-btn status-btn" id="rehab-button"
                             {{ ($boat->status === \App\Models\Boat::STATUS_REHAB || $boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_REJECTED || $boat->status === \App\Models\Boat::STATUS_ASSIGNED) ? 'disabled' : '' }}
                             data-current-status="{{ $boat->status ?? '' }}">
+                                    <i class="fas fa-tools me-1"></i>
                         Maintenance
                     </button>
 
-                    {{-- Close Button (now triggers modal) --}}
-                    {{-- Disable if already closed, or if pending/rejected by admin --}}
-                    <button type="button" class="btn btn-danger btn-sm "
+                                {{-- Close Button --}}
+                                <button type="button" class="btn btn-danger modern-btn status-btn"
                             {{ ($boat->status === \App\Models\Boat::STATUS_CLOSED || $boat->status === \App\Models\Boat::STATUS_PENDING || $boat->status === \App\Models\Boat::STATUS_REJECTED || $boat->status === \App\Models\Boat::STATUS_ASSIGNED) ? 'disabled' : '' }}
                             data-bs-toggle="modal" data-bs-target="#closeConfirmationModal">
+                                    <i class="fas fa-stop me-1"></i>
                         Close
                     </button>
+                            </div>
                 </div>
 
-                {{-- NEW: Maintenance Reason Input in its own form (conditionally displayed) --}}
-                {{-- This form is typically hidden and only shown via JS after modal confirmation,
-                    or if the boat is ALREADY in maintenance status on page load. --}}
+                        {{-- Maintenance Reason Form --}}
                 <form id="status-rehab-form" action="{{ route('boat.owner.update_status', $boat->id) }}" method="POST"
                       style="display: {{ ($boat->status === \App\Models\Boat::STATUS_REHAB) ? 'block' : 'none' }};">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="status" value="{{ \App\Models\Boat::STATUS_REHAB }}">
-                    <div class="mb-3">
-                        <label for="rehab_reason" class="form-label">Reason for Maintenance</label>
-                        <textarea class="form-control" id="rehab_reason" name="rehab_reason" rows="3">{{ old('rehab_reason', $boat->rejection_reason) }}</textarea>
-                        @error('rehab_reason')<div class="text-danger">{{ $message }}</div>@enderror
-                        <small class="form-text text-muted">This reason will be displayed on the public page when the boat is under maintenance.</small>
-                        <button type="submit" class="btn btn-primary btn-sm mt-2 rounded-pill">Update Maintenance Status & Reason</button>
+                            <div class="maintenance-reason-section">
+                                <h6 class="reason-title">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Maintenance Reason
+                                </h6>
+                                <div class="form-group">
+                                    <label for="rehab_reason" class="form-label">Please provide a reason for maintenance:</label>
+                                    <textarea class="form-control modern-input" id="rehab_reason" name="rehab_reason" rows="3" placeholder="Enter the reason for putting this boat under maintenance...">{{ old('rehab_reason', $boat->rejection_reason) }}</textarea>
+                                    @error('rehab_reason')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        This reason will be displayed on the public page when the boat is under maintenance.
+                                    </small>
+                                </div>
+                                <div class="reason-actions">
+                                    <button type="submit" class="btn btn-warning modern-btn">
+                                        <i class="fas fa-save me-2"></i>
+                                        Update Maintenance Status & Reason
+                                    </button>
+                                </div>
                     </div>
                 </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -643,8 +755,248 @@
 
         /* Main Content */
         .main-content {
-            background: #f8f9fa;
+            background: transparent;
             min-height: 100vh;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .assignment-badge {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .modern-input {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .modern-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            background: white;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            text-align: center;
+        }
+
+        .preview-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 3px solid #fff;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .modern-btn {
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Status Management */
+        .status-info {
+            margin-bottom: 2rem;
+        }
+
+        .current-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-approved {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-assigned {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-rejected {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-rehab {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #e2e3e5, #d3d6da);
+            color: #383d41;
+            border: 1px solid #d3d6da;
+        }
+
+        .status-reason {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid rgba(0, 123, 255, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #0c5460;
+        }
+
+        /* Status Actions */
+        .status-actions {
+            margin-top: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .status-btn {
+            min-width: 140px;
+        }
+
+        /* Maintenance Reason Section */
+        .maintenance-reason-section {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .reason-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .reason-actions {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        /* Modern Alerts */
+        .modern-alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         /* Responsive Design */
@@ -656,6 +1008,34 @@
             .main-content {
                 padding: 1rem;
             }
+
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .page-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .status-btn {
+                width: 100%;
+            }
+
+            .modern-card {
+                padding: 1.5rem;
+            }
         }
 
         @media (max-width: 576px) {
@@ -665,6 +1045,23 @@
             
             .main-content {
                 padding: 0.75rem;
+            }
+
+            .page-header {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+            }
+
+            .modern-card {
+                padding: 1rem;
+            }
+
+            .preview-image {
+                width: 150px;
+                height: 150px;
             }
         }
 

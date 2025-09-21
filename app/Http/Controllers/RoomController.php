@@ -178,6 +178,8 @@ class RoomController extends Controller
 
         // Pass the resort to the view as well, for consistency and navigation
         $resort = $room->resort;
+        // Load room images for display
+        $room->load('images');
         // Unread notifications count for sidebar badge
         $unreadCount = \App\Models\ResortOwnerNotification::where('user_id', Auth::id())
             ->where('is_read', false)
@@ -206,7 +208,11 @@ class RoomController extends Controller
             'price_per_night' => 'required|numeric|min:0',
             'max_guests' => 'required|integer|min:1',
             'room_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB Max
+            'images' => 'nullable|array|max:4', // Allow up to 4 additional images
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Each image max 2MB
             'delete_image_flag' => 'nullable|boolean',
+            'delete_additional_images' => 'nullable|array',
+            'delete_additional_images.*' => 'integer|exists:room_images,id',
             'is_available' => 'boolean', // Keep for compatibility, but `status` is preferred
             'status' => ['required', Rule::in(['open', 'closed', 'maintenance'])], // NEW: Validate status
         ];
@@ -252,6 +258,42 @@ class RoomController extends Controller
             'status' => $validatedData['status'], // NEW: Update the status
             'rehab_reason' => ($validatedData['status'] === 'maintenance') ? ($validatedData['rehab_reason'] ?? null) : null, // NEW: Update rehab_reason conditionally
         ]);
+
+        // Handle additional images upload
+        if ($request->hasFile('images')) {
+            $destination = public_path('image');
+            if (!is_dir($destination)) {
+                @mkdir($destination, 0775, true);
+            }
+
+            foreach ($request->file('images') as $image) {
+                $filename = time() . '_' . uniqid('', true) . '.' . $image->getClientOriginalExtension();
+                $image->move($destination, $filename);
+                
+                // Create RoomImage record
+                \App\Models\RoomImage::create([
+                    'room_id' => $room->id,
+                    'image_path' => 'image/' . $filename,
+                ]);
+            }
+        }
+
+        // Handle deletion of additional images
+        if ($request->has('delete_additional_images')) {
+            $imageIdsToDelete = $request->input('delete_additional_images');
+            $imagesToDelete = \App\Models\RoomImage::whereIn('id', $imageIdsToDelete)
+                ->where('room_id', $room->id)
+                ->get();
+
+            foreach ($imagesToDelete as $imageToDelete) {
+                // Delete the file from storage
+                if ($imageToDelete->image_path && file_exists(public_path($imageToDelete->image_path))) {
+                    @unlink(public_path($imageToDelete->image_path));
+                }
+                // Delete the database record
+                $imageToDelete->delete();
+            }
+        }
 
         return redirect()->route('resort.owner.information')
                          ->with('success', 'Room updated successfully!');

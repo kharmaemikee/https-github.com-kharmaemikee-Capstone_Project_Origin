@@ -106,10 +106,6 @@
                             <div class="stat-number">{{ $guestForeigners->count() }}</div>
                             <div class="stat-label">Foreign Guest Visitors</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-number">{{ $guestFilipinos->count() }}</div>
-                            <div class="stat-label">Filipino Guest Visitors</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -228,60 +224,6 @@
                 </div>
             </div>
 
-            {{-- Filipino Guest Visitors Section --}}
-            <div class="table-container">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <i class="fas fa-flag me-2"></i>
-                        Filipino Guest Visitors
-                    </h3>
-                    <span class="badge bg-primary">{{ $guestFilipinos->count() }} guests</span>
-                </div>
-                <div class="table-responsive">
-                    <table class="table modern-table">
-                        <thead class="table-header">
-                            <tr>
-                                <th scope="col" class="text-center">#</th>
-                                <th scope="col">Guest Name</th>
-                                <th scope="col">Nationality</th>
-                                <th scope="col">Booking Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($guestFilipinos as $guest)
-                                <tr class="table-row">
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="name-cell">
-                                        <div class="user-name">{{ $guest->guest_name }}</div>
-                                    </td>
-                                    <td class="nationality-cell">
-                                        <div class="nationality-info">
-                                            <i class="fas fa-flag text-primary me-1"></i>
-                                            {{ $guest->guest_nationality }}
-                                        </div>
-                                    </td>
-                                    <td class="date-cell">
-                                        <div class="date-info">
-                                            <i class="fas fa-calendar text-primary me-1"></i>
-                                            {{ $guest->created_at->format('M d, Y') }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center empty-state-cell">
-                                        <div class="empty-state">
-                                            <i class="fas fa-flag empty-icon"></i>
-                                            <h5 class="empty-title">No Filipino Guest Visitors</h5>
-                                            <p class="empty-description">There are no Filipino guest visitors in the system yet.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 

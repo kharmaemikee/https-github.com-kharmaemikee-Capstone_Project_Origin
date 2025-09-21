@@ -676,6 +676,8 @@
             background: linear-gradient(135deg,rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
             padding: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1000;
         }
 
         .mobile-toggle-btn {
@@ -702,6 +704,19 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             width: 85vw !important;
+            z-index: 99999 !important;
+        }
+
+        /* Ensure offcanvas backdrop doesn't interfere */
+        .offcanvas-backdrop {
+            z-index: 99998 !important;
+        }
+
+        /* Override any app layout navigation z-index on mobile */
+        @media (max-width: 767.98px) {
+            nav.navbar {
+                z-index: 1000 !important;
+            }
         }
 
         .mobile-sidebar-brand {

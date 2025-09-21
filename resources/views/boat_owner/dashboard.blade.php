@@ -25,26 +25,26 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        @if(auth()->user()->canAccessMainFeatures())
+                    @if(auth()->user()->canAccessMainFeatures())
                             <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
                                 <div class="nav-icon">
                                     <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
                                 </div>
                                 <span class="nav-text">Boat Management</span>
-                            </a>
-                        @else
+                        </a>
+                    @else
                             <span class="nav-link disabled-link" 
-                                  data-bs-toggle="tooltip" 
-                                  data-bs-placement="right" 
-                                  title="Upload your permits first to unlock this feature">
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="right" 
+                              title="Upload your permits first to unlock this feature">
                                 <div class="nav-icon">
                                     <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
                                 </div>
                                 <span class="nav-text">Boat Management</span>
                                 <span class="nav-badge">Locked</span>
-                            </span>
-                        @endif
-                    </li>
+                        </span>
+                    @endif
+                </li>
                     <li class="nav-item">
                         <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
                             <div class="nav-icon">
@@ -101,26 +101,26 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            @if(auth()->user()->canAccessMainFeatures())
+                        @if(auth()->user()->canAccessMainFeatures())
                                 <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
                                     <div class="nav-icon">
                                         <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
                                     </div>
                                     <span class="nav-text">Boat Management</span>
-                                </a>
-                            @else
-                                <span class="nav-link disabled-link" 
-                                      data-bs-toggle="tooltip" 
-                                      data-bs-placement="right" 
-                                      title="Upload your permits first to unlock this feature">
-                                    <div class="nav-icon">
-                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
-                                    </div>
-                                    <span class="nav-text">Boat Management</span>
-                                    <span class="nav-badge">Locked</span>
-                                </span>
-                            @endif
-                        </li>
+                            </a>
+                        @else
+                            <span class="nav-link disabled-link" 
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="right" 
+                              title="Upload your permits first to unlock this feature">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
+                                <span class="nav-badge">Locked</span>
+                           </span>
+                        @endif
+                    </li>
                         <li class="nav-item">
                             <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
                                 <div class="nav-icon">
@@ -808,6 +808,16 @@
         /* Styles for active parent link - matched with boat.blade.php if applicable or kept for consistency */
         .nav-link.active-parent {
              background-color: rgb(6, 58, 170) !important; /* This ensures consistency with the active link color from boat.blade.php */
+        }
+
+        .disabled-link {
+            pointer-events: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .text-white-50 {
+            color: rgba(255, 255, 255, 0.5) !important;
         }
     </style>
 

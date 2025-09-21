@@ -84,72 +84,92 @@
         </div>
 
         {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                {{-- Icon added here for Resort Owner in mobile sidebar using <img> --}}
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Resorts Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Resorts Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
                 <ul class="nav flex-column">
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
+                   
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.dashboard') }}" class="nav-link {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item mt-2">
+                        
+                        <li class="nav-item">
                         @if(auth()->user()->canAccessMainFeatures())
-                            <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
-                                <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Resort Management
+                                <a href="{{ route('resort.owner.information') }}" class="nav-link {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                    </div>
+                                    <span class="nav-text">Resort Management</span>
                             </a>
                         @else
-                            <span class="nav-link text-white-50 rounded p-2 d-flex align-items-center disabled-link" 
+                                <span class="nav-link disabled-link" 
                                   data-bs-toggle="tooltip" 
                                   data-bs-placement="right" 
                                   title="Upload your permits first to unlock this feature">
-                                <img src="{{ asset('images/information.png') }}" alt="Resort Information Icon" style="width: 20px; height: 20px; margin-right: 8px; opacity: 0.5;">
-                                Resort Information
-                                <span class="badge bg-warning ms-2">Locked</span>
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/information.png') }}" alt="Resort Management Icon" class="nav-icon-img disabled">
+                                    </div>
+                                    <span class="nav-text">Resort Management</span>
+                                    <span class="nav-badge">Locked</span>
                             </span>
                         @endif
                     </li>
-                    <li class="nav-item mt-2">
-                        {{-- Active link for Account Management --}}
-                        <a href="{{ route('resort.owner.verified') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
-                            <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Account Management
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.verified') }}" class="nav-link {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Account Management</span>
                         </a>
                     </li>
-                    {{-- Notifications (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notifications
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.notification') }}" class="nav-link {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Notifications</span>
                             @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
                             @endif
                         </a>
                     </li>
-                    {{-- Documentation (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Documentation
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
                         </a>
                     </li>
                 </ul>
+                </div>
             </div>
         </div>
 
@@ -346,12 +366,6 @@
     </div>
 
     <style>
-        /* Custom CSS for sidebar nav-link hover and focus */
-        .nav-link.text-white:hover,
-        .nav-link.text-white:focus,
-        .nav-link.text-white.active {
-            background-color:rgb(6, 58, 170) !important; /* Maroon Red */
-        }
 
         /* Style for the rotated icon */
         .collapse-icon img {
@@ -751,9 +765,11 @@
 
         /* Mobile Toggle Button */
         .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg,rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
             padding: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1000;
         }
 
         .mobile-toggle-btn {
@@ -780,6 +796,19 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             width: 85vw !important;
+            z-index: 99999 !important;
+        }
+
+        /* Ensure offcanvas backdrop doesn't interfere */
+        .offcanvas-backdrop {
+            z-index: 99998 !important;
+        }
+
+        /* Override any app layout navigation z-index on mobile */
+        @media (max-width: 767.98px) {
+            nav.navbar {
+                z-index: 1000 !important;
+            }
         }
 
         .mobile-sidebar-brand {
@@ -844,40 +873,21 @@
             border-radius: 12px;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .mobile-sidebar-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-sidebar-nav .nav-link:hover::before {
-            opacity: 1;
+            background: transparent;
         }
 
         .mobile-sidebar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             transform: translateX(4px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-sidebar-nav .nav-link.active {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .mobile-sidebar-nav .nav-link.active::before {
-            opacity: 1;
         }
 
         /* Main Content Area */

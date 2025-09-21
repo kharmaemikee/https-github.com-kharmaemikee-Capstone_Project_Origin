@@ -23,12 +23,25 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Boat Management</span>
-                        </a>
+                        @if(auth()->user()->canAccessMainFeatures())
+                            <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
+                            </a>
+                        @else
+                            <span class="nav-link disabled-link" 
+                                  data-bs-toggle="tooltip" 
+                                  data-bs-placement="right" 
+                                  title="Upload your permits first to unlock this feature">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
+                                </div>
+                                <span class="nav-text">Boat Management</span>
+                                <span class="nav-badge">Locked</span>
+                            </span>
+                        @endif
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
@@ -54,6 +67,86 @@
                     </li>
                     
                 </ul>
+            </div>
+        </div>
+
+        {{-- Mobile Offcanvas Toggle Button --}}
+        <div class="mobile-toggle d-md-none">
+            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        {{-- Mobile Offcanvas Sidebar --}}
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+            <div class="offcanvas-header">
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Boats Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="mobile-sidebar-nav">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            @if(auth()->user()->canAccessMainFeatures())
+                                <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
+                                    </div>
+                                    <span class="nav-text">Boat Management</span>
+                                </a>
+                            @else
+                                <span class="nav-link disabled-link" 
+                                      data-bs-toggle="tooltip" 
+                                      data-bs-placement="right" 
+                                      title="Upload your permits first to unlock this feature">
+                                    <div class="nav-icon">
+                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
+                                    </div>
+                                    <span class="nav-text">Boat Management</span>
+                                    <span class="nav-badge">Locked</span>
+                                </span>
+                            @endif
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Account Management</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Notifications</span>
+                                @php
+                                    $unreadCount = \App\Models\BoatOwnerNotification::where('user_id', auth()->id())->where('is_read', false)->count();
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -163,6 +256,25 @@
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+
+            // --- JavaScript for Offcanvas Hiding ---
+            var mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                var offcanvas = new bootstrap.Offcanvas(mobileSidebar);
+
+                function hideOffcanvasOnDesktop() {
+                    if (window.innerWidth >= 768) { // Bootstrap's 'md' breakpoint is 768px
+                        offcanvas.hide();
+                    }
+                }
+
+                // Hide offcanvas immediately if screen is already desktop size on load
+                hideOffcanvasOnDesktop();
+
+                // Add event listener for window resize
+                window.addEventListener('resize', hideOffcanvasOnDesktop);
+            }
+            // --- End JavaScript ---
 
             document.querySelectorAll('.restore-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -308,7 +420,100 @@
         .nav-icon-img { width: 20px; height: 20px; filter: brightness(0) invert(1); }
 
         /* Main Content matches boat.blade */
-        .main-content { padding: 2rem; background: #f8f9fa; min-height: 100vh; }
+        .main-content { 
+            padding: 2rem; 
+            background: transparent; 
+            min-height: 100vh; 
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            background: linear-gradient(135deg, rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            width: 85vw !important;
+            max-width: 350px;
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.25rem 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+        }
 
         /* Notification badge styles (match boat.blade.php) */
         .nav-badge {
@@ -332,6 +537,27 @@
 
         /* Buttons */
         .btn-icon { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modern-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+        }
     </style>
 </x-app-layout>
 

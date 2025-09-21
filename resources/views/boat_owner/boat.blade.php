@@ -124,43 +124,257 @@
 
         {{-- Main Content Area --}}
         <div class="main-content flex-grow-1 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Manage Boat</h2>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="{{ route('boat.owner.add') }}" class="btn btn-dark d-flex align-items-center gap-2 text-white text-decoration-none">
-                    Add Boat
-                    <span style="font-size: 1.2rem;">+</span>
-                    </a>
-                    <a href="{{ route('boat.owner.archive') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 text-decoration-none">
-                        Archive
-                        <i class="fas fa-archive"></i>
-                    </a>
+            {{-- Page Header --}}
+            <div class="page-header mb-4">
+                <div class="page-title-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-ship me-2"></i>
+                        Boat Management
+                    </h1>
+                    <p class="page-subtitle">Manage your boat fleet and monitor boat status</p>
+                </div>
+                <div class="page-actions">
+                    <div class="action-buttons">
+                        <a href="{{ route('boat.owner.add') }}" class="btn btn-primary modern-btn">
+                            <i class="fas fa-plus me-2"></i>
+                            Add Boat
+                        </a>
+                        <a href="{{ route('boat.owner.archive') }}" class="btn btn-light modern-btn archive-btn-header">
+                            <i class="fas fa-archive me-2"></i>
+                            Archive
+                        </a>
+                    </div>
                 </div>
             </div>
 
 
             @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            
+                <div class="alert alert-danger alert-dismissible fade show modern-alert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
-            <div class="table-responsive">
-                <table class="table table-hover table-striped">
-                    <thead>
+            {{-- Boats Grid --}}
+            <div class="boats-section">
+                <div class="section-header">
+                    <h5 class="section-title">
+                        <i class="fas fa-list me-2"></i>
+                        Your Boats
+                    </h5>
+                    <div class="boats-count">
+                        <span class="count-badge">{{ $boats->count() }} boats</span>
+                    </div>
+                </div>
+
+                @if($boats->count() > 0)
+                    <div class="boats-grid">
+                        @foreach($boats as $boat)
+                            <div class="boat-card">
+                                <div class="boat-image-container">
+                                    @if ($boat->image_path)
+                                        <img src="{{ asset($boat->image_path) }}"
+                                             alt="{{ $boat->boat_name }}"
+                                             class="boat-image"
+                                             onerror="handleImageError(this, '{{ asset('images/boat.png') }}')">
+                                    @else
+                                        <img src="{{ asset('images/boat.png') }}"
+                                             alt="Default Boat Image"
+                                             class="boat-image">
+                                    @endif
+                                    <div class="boat-status-overlay">
+                                        @php
+                                            $statusClass = '';
+                                            $displayText = '';
+                                            switch ($boat->status) {
+                                                case \App\Models\Boat::STATUS_APPROVED:
+                                                    $statusClass = 'status-approved';
+                                                    $displayText = 'Approved';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_REJECTED:
+                                                    $statusClass = 'status-rejected';
+                                                    $displayText = 'Rejected';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_PENDING:
+                                                    $statusClass = 'status-pending';
+                                                    $displayText = 'Pending';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_OPEN:
+                                                    $statusClass = 'status-open';
+                                                    $displayText = 'Open';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_ASSIGNED:
+                                                    $statusClass = 'status-assigned';
+                                                    $displayText = 'Assigned';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_CLOSED:
+                                                    $statusClass = 'status-closed';
+                                                    $displayText = 'Not Available';
+                                                    break;
+                                                case \App\Models\Boat::STATUS_REHAB:
+                                                    $statusClass = 'status-rehab';
+                                                    $displayText = 'Rehab';
+                                                    break;
+                                                default:
+                                                    $statusClass = 'status-unknown';
+                                                    $displayText = 'N/A';
+                                                    break;
+                                            }
+                                        @endphp
+                                        <span class="boat-status {{ $statusClass }}">{{ $displayText }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="boat-content">
+                                    <div class="boat-header">
+                                        <h6 class="boat-name">{{ $boat->boat_name }}</h6>
+                                        <span class="boat-number">#{{ $boat->boat_number }}</span>
+                                    </div>
+                                    
+                                    <div class="boat-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-dollar-sign detail-icon"></i>
+                                            <span class="detail-label">Price:</span>
+                                            <span class="detail-value">₱{{ number_format($boat->boat_prices, 2) }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-users detail-icon"></i>
+                                            <span class="detail-label">Capacity:</span>
+                                            <span class="detail-value">{{ $boat->boat_capacities }} pax</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-ruler detail-icon"></i>
+                                            <span class="detail-label">Length:</span>
+                                            <span class="detail-value">{{ $boat->boat_length ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-user-tie detail-icon"></i>
+                                            <span class="detail-label">Captain:</span>
+                                            <span class="detail-value">
+                                                @php
+                                                    $captainName = !empty($boat->captain_name) ? $boat->captain_name : null;
+                                                    $hasCaptain = false;
+                                                    if ($captainName) {
+                                                        $hasCaptain = true;
+                                                    } elseif (!empty($boat->has_captain)) {
+                                                        $hasCaptain = (bool) $boat->has_captain;
+                                                    } elseif (!empty($boat->captain_user_id)) {
+                                                        $hasCaptain = true;
+                                                    }
+                                                @endphp
+                                                {{ $captainName ?? ($hasCaptain ? 'Yes' : 'No') }}
+                                            </span>
+                                        </div>
+                                        @if($boat->captain_contact)
+                                            <div class="detail-item">
+                                                <i class="fas fa-phone detail-icon"></i>
+                                                <span class="detail-label">Contact:</span>
+                                                <span class="detail-value">{{ $boat->captain_contact }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if (($boat->status ?? '') === \App\Models\Boat::STATUS_REJECTED && $boat->rejection_reason)
+                                        <div class="rejection-reason">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            <strong>Reason:</strong> {{ $boat->rejection_reason }}
+                                        </div>
+                                    @elseif (($boat->status ?? '') === \App\Models\Boat::STATUS_REHAB && $boat->rejection_reason)
+                                        <div class="rejection-reason">
+                                            <i class="fas fa-tools me-1"></i>
+                                            <strong>Rehab Reason:</strong> {{ $boat->rejection_reason }}
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="boat-actions">
+                                        <a href="{{ route('boat.edit', $boat->id) }}" class="btn btn-primary btn-sm action-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Boat">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-warning btn-sm action-btn archive-btn"
+                                                data-boat-id="{{ $boat->id }}"
+                                                data-boat-name="{{ $boat->boat_name }}"
+                                                data-bs-placement="top" 
+                                                title="Archive Boat">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-ship"></i>
+                        </div>
+                        <h5 class="empty-title">No Boats Added Yet</h5>
+                        <p class="empty-text">Start building your boat fleet by adding your first boat.</p>
+                        <a href="{{ route('boat.owner.add') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Add Your First Boat
+                        </a>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Legacy Table View (Hidden by default, can be toggled) --}}
+            <div class="table-view-toggle mb-3" style="display: none;">
+                <button class="btn btn-outline-secondary btn-sm" onclick="toggleTableView()">
+                    <i class="fas fa-table me-1"></i>
+                    Toggle Table View
+                </button>
+            </div>
+
+            <div class="table-responsive table-view" style="display: none;">
+                <table class="table table-hover table-striped modern-table">
+                    <thead class="table-header">
                         <tr>
-                            <th scope="col">Assign No</th>
-                            <th scope="col">Boat Image</th>
-                            <th scope="col">Boat Name</th>
-                            <th scope="col">Boat Plate Number</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Capacity</th>
-                            <th scope="col">Length</th>
-                            <th scope="col">Boat Captain</th>
-                            <th scope="col">Captain Contact</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">
+                                <i class="fas fa-hashtag me-1"></i>
+                                #
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-image me-1"></i>
+                                Image
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-ship me-1"></i>
+                                Boat Name
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-tag me-1"></i>
+                                Plate Number
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-dollar-sign me-1"></i>
+                                Price
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-users me-1"></i>
+                                Capacity
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-ruler me-1"></i>
+                                Length
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-user-tie me-1"></i>
+                                Captain
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-phone me-1"></i>
+                                Contact
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Status
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-cogs me-1"></i>
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -171,12 +385,12 @@
                                     @if ($boat->image_path)
                                         <img src="{{ asset($boat->image_path) }}"
                                              alt="{{ $boat->boat_name }}"
-                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                                             class="table-boat-image"
                                              onerror="handleImageError(this, '{{ asset('images/boat.png') }}')">
                                     @else
                                         <img src="{{ asset('images/boat.png') }}"
                                              alt="Default Boat Image"
-                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                             class="table-boat-image">
                                     @endif
                                 </td>
                                 <td>{{ $boat->boat_name }}</td>
@@ -225,8 +439,8 @@
                                                 $displayText = 'Assigned';
                                                 break;
                                             case \App\Models\Boat::STATUS_CLOSED:
-                                                $statusClass = 'badge-light-secondary'; // You can define a new badge style if you want a specific color for 'Not Available'
-                                                $displayText = 'Not Available'; // Changed text here
+                                                $statusClass = 'badge-light-secondary';
+                                                $displayText = 'Not Available';
                                                 break;
                                             case \App\Models\Boat::STATUS_REHAB:
                                                 $statusClass = 'badge-light-warning';
@@ -249,7 +463,6 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        {{-- Edit button is now always enabled --}}
                                         <a href="{{ route('boat.edit', $boat->id) }}" class="btn btn-primary btn-sm action-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -265,7 +478,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">No boats added yet. Click "Add Boat" to get started!</td>
+                                <td colspan="11" class="text-center">
+                                    <div class="empty-state">
+                                        <i class="fas fa-ship empty-icon"></i>
+                                        <h6 class="empty-title">No Boats Found</h6>
+                                        <p class="empty-text">No boats added yet. Click "Add Boat" to get started!</p>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -525,8 +744,461 @@
 
         /* Main Content */
         .main-content {
-            background: #f8f9fa;
+            background: transparent;
             min-height: 100vh;
+        }
+
+        /* Modern Boat Management Styling */
+        
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .page-title-section {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modern-btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .archive-btn-header {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #495057 !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            font-weight: 600;
+        }
+
+        .archive-btn-header:hover {
+            background: white !important;
+            color: #2c3e50 !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Boats Section */
+        .boats-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            color: #495057;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .boats-count {
+            display: flex;
+            align-items: center;
+        }
+
+        .count-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Boats Grid */
+        .boats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        /* Boat Card */
+        .boat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .boat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .boat-image-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .boat-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .boat-card:hover .boat-image {
+            transform: scale(1.05);
+        }
+
+        .boat-status-overlay {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .boat-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-approved {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-rejected {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #17a2b8, #6f42c1);
+            color: white;
+        }
+
+        .status-open {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-assigned {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .status-closed {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .status-rehab {
+            background: linear-gradient(135deg, #fd7e14, #dc3545);
+            color: white;
+        }
+
+        .status-unknown {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .boat-content {
+            padding: 1.5rem;
+        }
+
+        .boat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .boat-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .boat-number {
+            background: #e9ecef;
+            color: #6c757d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .boat-details {
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-icon {
+            width: 20px;
+            color: #667eea;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 0.5rem;
+            min-width: 80px;
+        }
+
+        .detail-value {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .rejection-reason {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc3545;
+            font-size: 0.9rem;
+        }
+
+        .boat-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f3f4;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn i {
+            font-size: 14px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+            color: #667eea;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .empty-text {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* Modern Table */
+        .modern-table {
+            margin: 0;
+            border: none;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .table-header th {
+            font-weight: 600;
+            padding: 1rem 0.75rem;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-boat-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modern Alert */
+        .modern-alert {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .page-actions {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .modern-btn {
+                width: 100%;
+            }
+
+            .boats-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .boat-card {
+                margin-bottom: 1rem;
+            }
+
+            .boat-image-container {
+                height: 150px;
+            }
+
+            .boat-content {
+                padding: 1rem;
+            }
+
+            .boat-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .boat-actions {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .boats-grid {
+                padding: 0.75rem;
+            }
+
+            .boat-content {
+                padding: 0.75rem;
+            }
+
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .detail-label {
+                min-width: auto;
+                margin-right: 0;
+            }
         }
 
         /* Responsive Design */
@@ -874,5 +1546,22 @@
                 });
             @endif
         });
+
+        // Toggle between card and table view
+        function toggleTableView() {
+            const boatsSection = document.querySelector('.boats-section');
+            const tableView = document.querySelector('.table-view');
+            const toggleBtn = document.querySelector('.table-view-toggle button');
+            
+            if (boatsSection.style.display === 'none') {
+                boatsSection.style.display = 'block';
+                tableView.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-table me-1"></i> Toggle Table View';
+            } else {
+                boatsSection.style.display = 'none';
+                tableView.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fas fa-th-large me-1"></i> Toggle Card View';
+            }
+        }
     </script>
 </x-app-layout>

@@ -149,119 +149,622 @@
 
         {{-- Main Content Area --}}
         <div class="main-content flex-grow-1">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Add Room for {{ $resort->resort_name }}</h2>
+            {{-- Page Header --}}
+            <div class="page-header">
+                <div class="page-title-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-plus me-2"></i>
+                        Add Room: {{ $resort->resort_name }}
+                    </h1>
+                    <p class="page-subtitle">Create a new room or cottage for your resort</p>
+                </div>
             </div>
 
-            <div class="card shadow-sm p-4">
-                <form action="{{ route('resort.owner.rooms.store', $resort->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
+            {{-- Form Container --}}
+            <div class="form-container">
+                <div class="form-card">
+                    <form action="{{ route('resort.owner.rooms.store', $resort->id) }}" method="POST" enctype="multipart/form-data" class="modern-form">
+                        @csrf
 
-                    <div class="mb-3">
-                        <label for="accommodation_type" class="form-label">Type</label>
-                        <select class="form-select @error('accommodation_type') is-invalid @enderror" id="accommodation_type" name="accommodation_type" required>
-                            <option value="room" {{ old('accommodation_type', request('type', 'room')) === 'room' ? 'selected' : '' }}>Room</option>
-                            <option value="cottage" {{ old('accommodation_type', request('type')) === 'cottage' ? 'selected' : '' }}>Cottage</option>
-                        </select>
-                        @error('accommodation_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        {{-- Basic Information Section --}}
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Basic Information
+                            </h3>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="accommodation_type" class="form-label">
+                                            <i class="fas fa-home me-1"></i>
+                                            Accommodation Type
+                                        </label>
+                                        <select class="form-control @error('accommodation_type') is-invalid @enderror" id="accommodation_type" name="accommodation_type" required>
+                                            <option value="room" {{ old('accommodation_type', request('type', 'room')) === 'room' ? 'selected' : '' }}>Room</option>
+                                            <option value="cottage" {{ old('accommodation_type', request('type')) === 'cottage' ? 'selected' : '' }}>Cottage</option>
+                                        </select>
+                                        @error('accommodation_type')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="room_name" class="form-label">
+                                            <i class="fas fa-tag me-1"></i>
+                                            Room Name
+                                        </label>
+                                        <input type="text" class="form-control @error('room_name') is-invalid @enderror" id="room_name" name="room_name" value="{{ old('room_name') }}" required>
+                                        @error('room_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="mb-3">
-                        <label for="room_name" class="form-label">Room Name</label>
-                        <input type="text" class="form-control @error('room_name') is-invalid @enderror" id="room_name" name="room_name" value="{{ old('room_name') }}" required>
-                        @error('room_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            <div class="form-group">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-align-left me-1"></i>
+                                    Description
+                                </label>
+                                <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4" placeholder="Describe the room features, amenities, and special characteristics...">{{ old('description') }}</textarea>
+                                @error('description')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description') }}</textarea>
-                        @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        {{-- Pricing & Capacity Section --}}
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-dollar-sign me-2"></i>
+                                Pricing & Capacity
+                            </h3>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="price_per_night" class="form-label" id="priceLabel">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            Price Per Night (₱)
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₱</span>
+                                            <input type="number" step="0.01" class="form-control @error('price_per_night') is-invalid @enderror" id="price_per_night" name="price_per_night" value="{{ old('price_per_night') }}" required min="0" placeholder="0.00">
+                                        </div>
+                                        @error('price_per_night')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="max_guests" class="form-label">
+                                            <i class="fas fa-users me-1"></i>
+                                            Maximum Guests
+                                        </label>
+                                        <input type="number" class="form-control @error('max_guests') is-invalid @enderror" id="max_guests" name="max_guests" value="{{ old('max_guests') }}" required min="1" placeholder="1">
+                                        @error('max_guests')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="price_per_night" class="form-label" id="priceLabel">Price Per Night (₱)</label>
-                        <input type="number" step="0.01" class="form-control @error('price_per_night') is-invalid @enderror" id="price_per_night" name="price_per_night" value="{{ old('price_per_night') }}" required min="0">
-                        @error('price_per_night')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        {{-- Image Upload Section --}}
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-image me-2"></i>
+                                Room Images
+                            </h3>
+                            
+                            <div class="form-group">
+                                <label for="room_image" class="form-label">
+                                    <i class="fas fa-upload me-1"></i>
+                                    Upload Cover Image
+                                </label>
+                                <div class="file-upload-container">
+                                    <input type="file" class="form-control @error('room_image') is-invalid @enderror" id="room_image" name="room_image" accept="image/*">
+                                    <div class="file-upload-info">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Max 2MB. Accepted formats: JPG, PNG, GIF
+                                        </small>
+                                    </div>
+                                </div>
+                                @error('room_image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                    <div class="mb-3">
-                        <label for="max_guests" class="form-label">Maximum Guests</label>
-                        <input type="number" class="form-control @error('max_guests') is-invalid @enderror" id="max_guests" name="max_guests" value="{{ old('max_guests') }}" required min="1">
-                        @error('max_guests')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            <div class="form-group">
+                                <label for="images" class="form-label">
+                                    <i class="fas fa-images me-1"></i>
+                                    Additional Photos (up to 4)
+                                </label>
+                                <div class="file-upload-container">
+                                    <input type="file" class="form-control @error('images') is-invalid @enderror" id="images" name="images[]" accept="image/*" multiple>
+                                    <div class="file-upload-info">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            You can select multiple files; max 4 photos, 2MB each. Accepted formats: JPG, PNG, GIF
+                                        </small>
+                                    </div>
+                                </div>
+                                @error('images')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('images.*')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="room_image" class="form-label">Cover Image</label>
-                        <input type="file" class="form-control @error('room_image') is-invalid @enderror" id="room_image" name="room_image" accept="image/*">
-                        @error('room_image')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <div class="form-text">Max 2MB. Accepted formats: JPG, PNG, GIF.</div>
-                    </div>
+                        {{-- Room Status Section --}}
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-cog me-2"></i>
+                                Room Status
+                            </h3>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-toggle-on me-1"></i>
+                                    Select Room Status
+                                </label>
+                                <div class="status-selection">
+                                    <div class="status-option">
+                                        <input class="form-check-input d-none" type="radio" name="status" id="statusOpen" value="open" {{ old('status', 'open') == 'open' ? 'checked' : '' }}>
+                                        <label class="status-btn status-open" for="statusOpen">
+                                            <div class="status-icon">
+                                                <i class="fas fa-door-open"></i>
+                                            </div>
+                                            <div class="status-info">
+                                                <div class="status-title">Open</div>
+                                                <div class="status-desc">Available for booking</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="status-option">
+                                        <input class="form-check-input d-none" type="radio" name="status" id="statusClosed" value="closed" {{ old('status') == 'closed' ? 'checked' : '' }}>
+                                        <label class="status-btn status-closed" for="statusClosed">
+                                            <div class="status-icon">
+                                                <i class="fas fa-door-closed"></i>
+                                            </div>
+                                            <div class="status-info">
+                                                <div class="status-title">Closed</div>
+                                                <div class="status-desc">Temporarily unavailable</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="status-option">
+                                        <input class="form-check-input d-none" type="radio" name="status" id="statusRehab" value="maintenance" {{ old('status') == 'maintenance' ? 'checked' : '' }}>
+                                        <label class="status-btn status-maintenance" for="statusRehab">
+                                            <div class="status-icon">
+                                                <i class="fas fa-tools"></i>
+                                            </div>
+                                            <div class="status-info">
+                                                <div class="status-title">Under Maintenance</div>
+                                                <div class="status-desc">Being renovated</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                @error('status')
+                                    <div class="text-danger small mt-2">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
 
-                    <div class="mb-3">
-                        <label for="images" class="form-label">Additional Photos (up to 4)</label>
-                        <input type="file" class="form-control @error('images') is-invalid @enderror" id="images" name="images[]" accept="image/*" multiple>
-                        @error('images')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        @error('images.*')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <div class="form-text">You can select multiple files; max 4 photos, 2MB each.</div>
-                    </div>
+                            {{-- Maintenance Reason (conditionally displayed) --}}
+                            <div class="form-group" id="rehabReasonContainer" style="display: none;">
+                                <label for="rehab_reason" class="form-label">
+                                    <i class="fas fa-clipboard-list me-1"></i>
+                                    Maintenance Reason
+                                </label>
+                                <textarea class="form-control @error('rehab_reason') is-invalid @enderror" id="rehab_reason" name="rehab_reason" rows="3" placeholder="Please provide details about the maintenance work...">{{ old('rehab_reason') }}</textarea>
+                                @error('rehab_reason')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Required if status is "Under Maintenance"
+                                </div>
+                            </div>
+                        </div>
 
-                    {{-- NEW: Room Status Field --}}
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Room Status</label>
-                        <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required onchange="toggleRehabReason()">
-                            <option value="open" {{ old('status') == 'open' ? 'selected' : '' }}>Open</option>
-                            <option value="closed" {{ old('status') == 'closed' ? 'selected' : '' }}>Closed</option>
-                            <option value="rehab" {{ old('status') == 'rehab' ? 'selected' : '' }}>Under Rehabilitation</option>
-                        </select>
-                        @error('status')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        {{-- Legacy Availability Checkbox --}}
+                        <div class="form-section">
+                            <div class="form-group">
+                                <div class="form-check legacy-checkbox">
+                                    <input type="checkbox" class="form-check-input" id="is_available" name="is_available" value="1" {{ old('is_available', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_available">
+                                        <i class="fas fa-calendar-check me-1"></i>
+                                        Available for Booking (Legacy - Status field preferred)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
 
-                    {{-- NEW: Rehabilitation Reason Field (conditionally displayed) --}}
-                    <div class="mb-3" id="rehabReasonGroup" style="display: none;">
-                        <label for="rehab_reason" class="form-label">Rehabilitation Reason</label>
-                        <textarea class="form-control @error('rehab_reason') is-invalid @enderror" id="rehab_reason" name="rehab_reason" rows="3">{{ old('rehab_reason') }}</textarea>
-                        @error('rehab_reason')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <div class="form-text">Required if status is "Under Rehabilitation".</div>
-                    </div>
-
-                    {{-- Original 'is_available' checkbox - keeping it for compatibility as it's in your fillable --}}
-                    {{-- Note: 'status' is now the primary field for availability states --}}
-                    <div class="mb-4 form-check">
-                        <input type="checkbox" class="form-check-input" id="is_available" name="is_available" value="1" {{ old('is_available', true) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="is_available">Available for Booking (Legacy Checkbox)</label>
-                        <div class="form-text">This checkbox is for older compatibility; the "Room Status" field is now primary.</div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('resort.owner.information') }}" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary" style="background-color:rgb(9, 135, 219); border-color: rgb(9, 135, 219);">Add Room</button>
-                    </div>
-                </form>
+                        {{-- Form Actions --}}
+                        <div class="form-actions">
+                            <div class="action-buttons">
+                                <a href="{{ route('resort.owner.information') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Add Room
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <style>
+        /* Font Awesome CDN for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
+            min-height: 100vh;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-title i {
+            color: #007bff;
+            font-size: 1.8rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0.5rem 0 0 0;
+            font-weight: 400;
+        }
+
+        /* Form Container */
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .modern-form {
+            padding: 2rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #495057;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .section-title i {
+            color: #007bff;
+            margin-right: 0.5rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            color: #6c757d;
+            margin-right: 0.5rem;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Input Groups */
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group .form-control:focus {
+            border-left: 2px solid #007bff;
+        }
+
+        /* File Upload */
+        .file-upload-container {
+            position: relative;
+        }
+
+        .file-upload-info {
+            margin-top: 0.5rem;
+        }
+
+        /* Status Selection */
+        .status-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .status-option {
+            position: relative;
+        }
+
+        .status-btn {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .status-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-btn.active {
+            border-color: #007bff;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .status-open .status-icon {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-closed .status-icon {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .status-maintenance .status-icon {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .status-info {
+            flex: 1;
+        }
+
+        .status-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-desc {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        /* Legacy Checkbox */
+        .legacy-checkbox {
+            padding: 1rem;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+        }
+
+        .legacy-checkbox .form-check-label {
+            color: #856404;
+            font-weight: 500;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            background: #f8f9fa;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e9ecef;
+            margin: 0 -2rem -2rem -2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .modern-form {
+                padding: 1.5rem;
+            }
+            
+            .form-section {
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+            }
+            
+            .status-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.3rem;
+            }
+            
+            .modern-form {
+                padding: 1rem;
+            }
+            
+            .form-actions {
+                padding: 1rem;
+                margin: 0 -1rem -1rem -1rem;
+            }
+        }
+
         /* Custom CSS for sidebar nav-link hover and focus */
         .nav-link.text-white:hover,
         .nav-link.text-white:focus,
@@ -334,23 +837,80 @@
     <script>
         // Function to show/hide rehab reason based on status selection
         function toggleRehabReason() {
-            var statusSelect = document.getElementById('status');
-            var rehabReasonGroup = document.getElementById('rehabReasonGroup');
-            if (statusSelect.value === 'rehab') {
-                rehabReasonGroup.style.display = 'block';
+            var statusRehab = document.getElementById('statusRehab');
+            var rehabReasonContainer = document.getElementById('rehabReasonContainer');
+            var rehabReasonInput = document.getElementById('rehab_reason');
+            
+            if (statusRehab && statusRehab.checked) {
+                rehabReasonContainer.style.display = 'block';
+                rehabReasonInput.setAttribute('required', 'required');
             } else {
-                rehabReasonGroup.style.display = 'none';
-                // Optionally clear the value if not rehab to prevent unwanted data
-                var rehabReasonInput = document.getElementById('rehab_reason');
-                if (rehabReasonInput) {
-                    rehabReasonInput.value = '';
-                }
+                rehabReasonContainer.style.display = 'none';
+                rehabReasonInput.removeAttribute('required');
+                rehabReasonInput.value = '';
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the state of the rehab reason field on page load
             toggleRehabReason();
+
+            // Status button interactions and styling
+            const statusButtons = document.querySelectorAll('.status-btn');
+            const statusRadios = document.querySelectorAll('input[name="status"]');
+            
+            // Function to update active status button
+            function updateActiveStatusButton() {
+                statusButtons.forEach(btn => btn.classList.remove('active'));
+                const checkedRadio = document.querySelector('input[name="status"]:checked');
+                if (checkedRadio) {
+                    const correspondingBtn = document.querySelector(`label[for="${checkedRadio.id}"]`);
+                    if (correspondingBtn) {
+                        correspondingBtn.classList.add('active');
+                    }
+                }
+            }
+            
+            // Add click event to status buttons
+            statusButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    statusButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Update active button when radio changes
+            statusRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateActiveStatusButton();
+                    toggleRehabReason();
+                });
+            });
+
+            // Image upload validation
+            const imagesInput = document.getElementById('images');
+            if (imagesInput) {
+                imagesInput.addEventListener('change', function() {
+                    const files = this.files;
+                    if (files.length > 4) {
+                        alert('You can only select up to 4 images. Please select fewer images.');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Check file sizes
+                    for (let i = 0; i < files.length; i++) {
+                        if (files[i].size > 2 * 1024 * 1024) { // 2MB
+                            alert(`File "${files[i].name}" is too large. Please select files smaller than 2MB.`);
+                            this.value = '';
+                            return;
+                        }
+                    }
+                });
+            }
+            
+            // Initial setup
+            updateActiveStatusButton();
             
             // Handle form submission with SweetAlert2 success popup
             const roomForm = document.querySelector('form[action*="rooms.store"]');
