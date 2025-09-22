@@ -1,4 +1,7 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd); background-attachment: fixed; background-size: 100% 100%;">
 
         {{-- Desktop Sidebar --}}
@@ -84,12 +87,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
@@ -489,9 +486,48 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
+        /* Modern Sidebar Styling - Dark Theme */
+        .modern-sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
         /* Main Content */
         .main-content {
+            flex: 1;
             padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
             background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
         }
@@ -819,10 +855,144 @@
             justify-content: center;
         }
 
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 55vw !important;
+            z-index: 99999 !important;
+        }
+
+        /* Ensure offcanvas backdrop doesn't interfere */
+        .offcanvas-backdrop {
+            z-index: 99998 !important;
+        }
+
+        /* Override any app layout navigation z-index on mobile */
+        @media (max-width: 767.98px) {
+            nav.navbar {
+                z-index: 1000 !important;
+            }
+        }
+
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
             
             .page-header {
@@ -1562,30 +1732,6 @@
             opacity: 0.5;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg,rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Compact, clean modal styles */
         .ro-doc-modal-header {
@@ -1629,7 +1775,7 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85vw !important;
+            width: 55vw !important;
             z-index: 1050;
         }
 
@@ -1754,7 +1900,7 @@
             }
             
             .modern-mobile-sidebar {
-                width: 90vw !important;
+                width: 80vw !important;
             }
         }
     

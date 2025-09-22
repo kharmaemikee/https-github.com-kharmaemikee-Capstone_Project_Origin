@@ -1,11 +1,13 @@
 <x-app-layout>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+        {{-- Include Shared Sidebar --}}
         @include('tourist.partials.sidebar')
-        
-        {{-- Main Content Area (Resorts List) --}}
-        <div class="container-fluid flex-grow-1 p-3 p-md-4">
-            {{-- Enhanced Header Section --}}
-            <div class="header-section mb-5">
+
+        <div class="main-content flex-grow-1">
+            {{-- Main Content Area (Resorts List) --}}
+            <div class="container-fluid flex-grow-1 p-3 p-md-4">
+                {{-- Enhanced Header Section --}}
+                <div class="header-section mb-5">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
                     <div class="header-content">
                         <h1 class="page-title mb-2">
@@ -147,6 +149,7 @@
                         </div>
                     @endforelse
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -561,8 +564,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .modern-sidebar::before {
@@ -749,6 +756,18 @@
             100% { transform: scale(1); }
         }
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
         /* Custom CSS for sidebar nav-link hover and focus */
         .nav-link.text-white:hover,
         .nav-link.text-white:focus,
@@ -758,15 +777,30 @@
 
         /* Main Content Area */
         .main-content {
+            flex: 1;
             padding: 2rem;
-            background: transparent;
-            min-height: 100vh;
+            margin-left: 280px;
             overflow-y: auto;
         }
 
-        @media (max-width: 767.98px) {
+        @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 

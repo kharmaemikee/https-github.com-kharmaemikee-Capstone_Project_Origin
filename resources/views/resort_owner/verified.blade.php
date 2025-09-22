@@ -1,4 +1,7 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
@@ -83,12 +86,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
@@ -558,6 +555,18 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
@@ -566,8 +575,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .modern-sidebar::before {
@@ -763,39 +776,13 @@
             opacity: 0.5;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg,rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1000;
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85vw !important;
+            width: 55vw !important;
             z-index: 99999 !important;
         }
 
@@ -892,16 +879,41 @@
 
         /* Main Content Area */
         .main-content {
+            flex: 1;
             padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
             background: transparent;
             min-height: 100vh;
-            overflow-y: auto;
         }
 
         @media (max-width: 767.98px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
             }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
+            }
+
+            @media (max-width: 576px) {
+            
+            
+            .modern-mobile-sidebar {
+                width: 90vw !important;
+            }
+        }
         }
     </style>
 </x-app-layout>

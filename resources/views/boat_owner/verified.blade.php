@@ -1,153 +1,9 @@
 <x-app-layout>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+        {{-- Include Shared Sidebar --}}
+        @include('boat_owner.partials.sidebar')
 
-        {{-- Desktop Sidebar --}}
-        <div class="modern-sidebar d-none d-md-block">
-            <div class="sidebar-header">
-                <div class="sidebar-brand">
-                    <div class="brand-icon">
-                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="brand-icon-img">
-                    </div>
-                    <div class="brand-text">
-                        <h4 class="brand-title">Welcome {{ auth()->user()->first_name }}</h4>
-                        <p class="brand-subtitle">Boat Owner Portal</p>
-                    </div>
-                </div>
-            </div>
-            <div class="sidebar-nav">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-                    <li class="nav-item">
-                    @if(auth()->user()->canAccessMainFeatures())
-                            <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Boat Management</span>
-                        </a>
-                    @else
-                            <span class="nav-link disabled-link" 
-                              data-bs-toggle="tooltip" 
-                              data-bs-placement="right" 
-                              title="Upload your permits first to unlock this feature">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
-                                </div>
-                                <span class="nav-text">Boat Management</span>
-                                <span class="nav-badge">Locked</span>
-                        </span>
-                    @endif
-                </li>
-                    <li class="nav-item">
-                        <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Account Management</span>
-                    </a>
-                </li>
-                    <li class="nav-item">
-                        <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Notifications</span>
-                        @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="nav-badge notification-badge" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-            </div>
-        </div>
-
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
-            <div class="offcanvas-header">
-                {{-- Icon added here for Boat Owner in mobile sidebar using <img> --}}
-                <div class="mobile-sidebar-brand">
-                    <div class="mobile-brand-icon">
-                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="mobile-brand-icon-img">
-                    </div>
-                    <div class="mobile-brand-text">
-                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Welcome {{ auth()->user()->first_name }}</h5>
-                        <p class="mobile-brand-subtitle">Boat Owner Portal</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div class="mobile-sidebar-nav">
-                <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Dashboard</span>
-                        </a>
-                    </li>
-                        <li class="nav-item">
-                        @if(auth()->user()->canAccessMainFeatures())
-                                <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
-                                    <div class="nav-icon">
-                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
-                                    </div>
-                                    <span class="nav-text">Boat Management</span>
-                            </a>
-                        @else
-                                <span class="nav-link disabled-link" 
-                                  data-bs-toggle="tooltip" 
-                                  data-bs-placement="right" 
-                                  title="Upload your permits first to unlock this feature">
-                                    <div class="nav-icon">
-                                        <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img disabled">
-                                    </div>
-                                    <span class="nav-text">Boat Management</span>
-                                    <span class="nav-badge">Locked</span>
-                            </span>
-                        @endif
-                    </li>
-                        <li class="nav-item">
-                            <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Account Management</span>
-                        </a>
-                    </li>
-                        <li class="nav-item">
-                            <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Notifications</span>
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                </ul>
-                </div>
-            </div>
-        </div>
-
-        {{-- Main Content --}}
-        <div class="flex-grow-1 p-4">
+        <div class="main-content flex-grow-1">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
@@ -406,14 +262,23 @@
         .modern-sidebar {
             width: 280px;
             min-width: 280px;
-            background: #2c3e50;
-            border-right: 1px solid #34495e;
-            position: relative;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #34495e;
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-brand {
@@ -425,12 +290,14 @@
         .brand-icon {
             width: 50px;
             height: 50px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .brand-icon-img {
@@ -445,21 +312,27 @@
 
         .brand-title {
             color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.25rem;
+            font-weight: 700;
             margin: 0;
-            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .brand-subtitle {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.85rem;
             margin: 0;
-            line-height: 1.2;
+            font-weight: 400;
         }
 
         .sidebar-nav {
-            padding: 1rem 0;
+            padding: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-nav .nav {
+            padding: 0 1rem;
         }
 
         .sidebar-nav .nav-item {
@@ -534,19 +407,34 @@
         .nav-text {
             font-weight: 500;
             font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .nav-badge {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
             border-radius: 12px;
-            margin-left: auto;
             font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
 
         .notification-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
             animation: pulse 2s infinite;
         }
 
@@ -556,36 +444,13 @@
             100% { transform: scale(1); }
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
-            background: #2c3e50;
-            width: 85vw !important;
-            max-width: 350px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 55vw !important;
         }
 
         .mobile-sidebar-brand {
@@ -598,11 +463,14 @@
         .mobile-brand-icon {
             width: 45px;
             height: 45px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .mobile-brand-icon-img {
@@ -616,49 +484,108 @@
             font-size: 1.1rem;
             font-weight: 700;
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-brand-subtitle {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.8rem;
             margin: 0;
+            font-weight: 400;
         }
 
         .mobile-sidebar-nav .nav-link {
             display: flex;
             align-items: center;
-            padding: 1rem 1.5rem;
-            color: rgba(255,255,255,0.8);
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 0.25rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
         }
 
         .mobile-sidebar-nav .nav-link:hover {
-            background: rgba(255,255,255,0.1);
             color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-sidebar-nav .nav-link.active {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
         }
 
         /* Main Content */
         .main-content {
-            background: #f8f9fa;
-            min-height: 100vh;
+            flex: 1;
+            padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
+        }
+
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .modern-sidebar {
-                display: none;
-            }
-            
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -669,6 +596,16 @@
             
             .main-content {
                 padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
             }
         }
 

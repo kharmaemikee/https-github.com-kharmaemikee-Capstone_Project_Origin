@@ -47,7 +47,13 @@ class RoomController extends Controller
         if (Auth::id() !== $resort->user_id) {
             abort(403, 'Unauthorized action.');
         }
-        return view('resort_owner.rooms.create', compact('resort'));
+        
+        // Get unread notification count
+        $unreadCount = \App\Models\ResortOwnerNotification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+            
+        return view('resort_owner.rooms.create', compact('resort', 'unreadCount'));
     }
 
     /**
@@ -383,6 +389,11 @@ class RoomController extends Controller
         try {
             $archivedRooms = $resort->rooms()->archived()->paginate(10);
             
+            // Get unread notification count
+            $unreadCount = \App\Models\ResortOwnerNotification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->count();
+            
             // Debug: Log the query and results
             Log::info('Archive query executed', [
                 'resort_id' => $resort->id,
@@ -403,7 +414,7 @@ class RoomController extends Controller
                 ]);
             }
             
-            return view('resort_owner.rooms.archive', compact('resort', 'archivedRooms'));
+            return view('resort_owner.rooms.archive', compact('resort', 'archivedRooms', 'unreadCount'));
         } catch (\Exception $e) {
             Log::error('Error in archiveIndex: ' . $e->getMessage(), [
                 'resort_id' => $resort->id,

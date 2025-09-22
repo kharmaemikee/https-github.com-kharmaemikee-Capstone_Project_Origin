@@ -1,4 +1,7 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar (same style as resort-information) --}}
@@ -46,6 +49,9 @@
                                 <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
                             </div>
                             <span class="nav-text">Notifications</span>
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span class="nav-badge notification-badge" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
+                            @endif
                         </a>
                     </li>
                     <li class="nav-item">
@@ -60,12 +66,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
@@ -114,6 +114,9 @@
                                     <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
                                 </div>
                                 <span class="nav-text">Notifications</span>
+                                @if(isset($unreadCount) && $unreadCount > 0)
+                                    <span class="nav-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                @endif
                             </a>
                         </li>
                         <li class="nav-item">
@@ -130,100 +133,165 @@
         </div>
 
         <div class="main-content flex-grow-1">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-4 text-gray-900">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="h4 mb-0">Archived Rooms for {{ $resort->resort_name }}</h3>
+            <div class="container-fluid flex-grow-1 p-0">
+                {{-- Page Header --}}
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <h1 class="page-title">
+                            <i class="fas fa-archive me-2"></i>
+                            Archived Rooms
+                        </h1>
+                        <p class="page-subtitle">Manage archived rooms for {{ $resort->resort_name }}</p>
                     </div>
+                    <div class="page-actions">
+                        <a href="{{ route('resort.owner.information') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Resort Management
+                        </a>
+                    </div>
+                </div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
+                {{-- Alerts --}}
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-                    @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
+                {{-- Archive Content --}}
+                <div class="archive-container">
+                    <div class="archive-card">
+                        @if($archivedRooms->count() > 0)
+                            <div class="archive-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-archive"></i>
+                                    <span>{{ $archivedRooms->count() }} Archived Room{{ $archivedRooms->count() !== 1 ? 's' : '' }}</span>
+                                </div>
+                            </div>
 
-
-                    <div class="px-4">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Image</th>
-                                    <th scope="col">Room Name</th>
-                                    <th scope="col">Price / Night</th>
-                                    <th scope="col">Max Guests</th>
-                                    <th scope="col">Archived Date</th>
-                                    <th scope="col">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($archivedRooms as $room)
-                                    <tr>
-                                        <td>
-                                            @if ($room->image_path)
-                                                <img src="{{ asset($room->image_path) }}"
-                                                    alt="{{ $room->room_name }}"
-                                                    style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
-                                                    >
-                                            @else
-                                                <img src="{{ asset('images/default_room.png') }}"
-                                                    alt="Default Room Image"
-                                                    style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
-                                            @endif
-                                        </td>
-                                        <td>{{ $room->room_name }}</td>
-                                        <td>₱{{ number_format($room->price_per_night, 2) }}</td>
-                                        <td>{{ $room->max_guests }}</td>
-                                        <td>
-                                            <span class="text-muted">
-                                                @if($room->archived_at)
-                                                    @if($room->archived_at instanceof \Carbon\Carbon)
-                                                        {{ $room->archived_at->format('M d, Y H:i') }}
-                                                    @else
-                                                        {{ is_string($room->archived_at) ? $room->archived_at : 'Invalid Date' }}
-                                                    @endif
-                                                @else
-                                                    Unknown
-                                                @endif
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-success btn-sm btn-icon restore-btn" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}" title="Restore Room">
-                                                    <i class="fas fa-undo"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-sm btn-icon delete-btn" data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}" title="Delete Room">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                                                                         <div class="text-muted">
-                                                 <i class="fas fa-archive fa-3x mb-3"></i>
-                                                 <p>No archived rooms found.</p>
-                                             </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                        </div>
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table archive-table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">
+                                                    <i class="fas fa-image me-1"></i>
+                                                    Image
+                                                </th>
+                                                <th scope="col">
+                                                    <i class="fas fa-bed me-1"></i>
+                                                    Room Name
+                                                </th>
+                                                <th scope="col">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    Price / Night
+                                                </th>
+                                                <th scope="col">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    Max Guests
+                                                </th>
+                                                <th scope="col">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    Archived Date
+                                                </th>
+                                                <th scope="col">
+                                                    <i class="fas fa-cogs me-1"></i>
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($archivedRooms as $room)
+                                                <tr class="archive-row">
+                                                    <td class="room-image-cell">
+                                                        <div class="room-image-wrapper">
+                                                            @if ($room->image_path)
+                                                                <img src="{{ asset($room->image_path) }}"
+                                                                    alt="{{ $room->room_name }}"
+                                                                    class="room-image"
+                                                                    data-fallback="{{ asset('images/default_room.png') }}">
+                                                            @else
+                                                                <img src="{{ asset('images/default_room.png') }}"
+                                                                    alt="Default Room Image"
+                                                                    class="room-image">
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                    <td class="room-name-cell">
+                                                        <div class="room-name">{{ $room->room_name }}</div>
+                                                    </td>
+                                                    <td class="price-cell">
+                                                        <span class="price-amount">₱{{ number_format($room->price_per_night, 2) }}</span>
+                                                    </td>
+                                                    <td class="guests-cell">
+                                                        <span class="guests-count">{{ $room->max_guests }}</span>
+                                                        <small class="guests-label">guests</small>
+                                                    </td>
+                                                    <td class="date-cell">
+                                                        <div class="archived-date">
+                                                            @if($room->archived_at)
+                                                                @if($room->archived_at instanceof \Carbon\Carbon)
+                                                                    <div class="date-main">{{ $room->archived_at->format('M d, Y') }}</div>
+                                                                    <div class="date-time">{{ $room->archived_at->format('H:i') }}</div>
+                                                                @else
+                                                                    <div class="date-main">{{ is_string($room->archived_at) ? $room->archived_at : 'Invalid Date' }}</div>
+                                                                @endif
+                                                            @else
+                                                                <div class="date-main text-muted">Unknown</div>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                    <td class="actions-cell">
+                                                        <div class="action-buttons">
+                                                            <button type="button" class="btn btn-success btn-sm action-btn restore-btn" 
+                                                                    data-room-id="{{ $room->id }}" 
+                                                                    data-room-name="{{ $room->room_name }}" 
+                                                                    title="Restore Room">
+                                                                <i class="fas fa-undo me-1"></i>
+                                                                Restore
+                                                            </button>
+                                                            <button type="button" class="btn btn-danger btn-sm action-btn delete-btn" 
+                                                                    data-room-id="{{ $room->id }}" 
+                                                                    data-room-name="{{ $room->room_name }}" 
+                                                                    title="Delete Room">
+                                                                <i class="fas fa-trash me-1"></i>
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-archive"></i>
+                                </div>
+                                <h3 class="empty-title">No Archived Rooms</h3>
+                                <p class="empty-description">There are no archived rooms for this resort.</p>
+                                <a href="{{ route('resort.owner.information') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Manage Rooms
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     @if($archivedRooms->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
+                        <div class="pagination-container">
                             {{ $archivedRooms->links('vendor.pagination.custom') }}
                         </div>
                     @endif
@@ -239,6 +307,18 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
@@ -247,8 +327,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
         .modern-sidebar::before {
@@ -410,7 +494,10 @@
 
         /* Main Content */
         .main-content {
+            flex: 1;
             padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
             background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
         }
@@ -499,37 +586,13 @@
             }
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85vw !important;
+            width: 55vw !important;
         }
 
         .mobile-sidebar-brand {
@@ -672,6 +735,21 @@
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -694,14 +772,6 @@
                 width: 95vw !important;
             }
             
-            .mobile-toggle {
-                padding: 0.75rem;
-            }
-            
-            .mobile-toggle-btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 1rem;
-            }
             
             .mobile-brand-title {
                 font-size: 1rem;
@@ -711,15 +781,342 @@
                 font-size: 0.75rem;
             }
         }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #007bff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title-section {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Archive Container */
+        .archive-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .archive-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Archive Stats */
+        .archive-stats {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .stat-item i {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        /* Table Container */
+        .table-container {
+            padding: 0;
+        }
+
+        .archive-table {
+            margin-bottom: 0;
+            border: none;
+        }
+
+        .archive-table thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .archive-table tbody tr {
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .archive-table tbody tr:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .archive-table tbody td {
+            padding: 1.5rem;
+            border: none;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        /* Room Image */
+        .room-image-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .room-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .room-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Room Name */
+        .room-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        /* Price */
+        .price-amount {
+            font-weight: 700;
+            color: #28a745;
+            font-size: 1.2rem;
+        }
+
+        /* Guests */
+        .guests-count {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+
+        .guests-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-left: 0.25rem;
+        }
+
+        /* Date */
+        .archived-date {
+            text-align: center;
+        }
+
+        .date-main {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+
+        .date-time {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .restore-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+        }
+
+        .restore-btn:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+            color: white;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            border: none;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: linear-gradient(135deg, #c82333 0%, #e55a00 100%);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+
+        .empty-description {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            padding: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .archive-table thead th {
+                padding: 1rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .archive-table tbody td {
+                padding: 1rem 0.75rem;
+            }
+
+            .room-image {
+                width: 60px;
+                height: 60px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .action-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+            }
+
+            .archive-table thead th {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .archive-table tbody td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .room-image {
+                width: 50px;
+                height: 50px;
+            }
+
+            .room-name {
+                font-size: 0.9rem;
+            }
+
+            .price-amount {
+                font-size: 1rem;
+            }
+
+            .guests-count {
+                font-size: 1rem;
+            }
+        }
     </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Image error handling
-            window.handleImageError = function(imgElement, defaultImagePath) {
-                imgElement.onerror = null;
-                imgElement.src = defaultImagePath;
-            };
+            const roomImages = document.querySelectorAll('.room-image[data-fallback]');
+            roomImages.forEach(img => {
+                img.addEventListener('error', function() {
+                    this.src = this.getAttribute('data-fallback');
+                });
+            });
 
             // Restore room button logic
             document.querySelectorAll('.restore-btn').forEach(btn => {

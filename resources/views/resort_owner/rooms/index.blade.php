@@ -1,4 +1,6 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -73,12 +75,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
@@ -132,7 +128,7 @@
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
+        <div class="main-content flex-grow-1">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Rooms for {{ $resort->resort_name }}</h2>
                 <a href="{{ route('resort.owner.rooms.create', $resort->id) }}" class="btn btn-dark d-flex align-items-center gap-2 text-white text-decoration-none">
@@ -168,12 +164,12 @@
                                     @if ($room->image_path)
                                         <img src="{{ asset($room->image_path) }}"
                                             alt="{{ $room->room_name }}"
-                                            style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                                            class="room-image"
                                             onerror="handleImageError(this, '{{ asset('images/default_room.png') }}')">
                                     @else
                                         <img src="{{ asset('images/default_room.png') }}"
                                             alt="Default Room Image"
-                                            style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                            class="room-image">
                                     @endif
                                 </td>
                                 <td>{{ $room->room_name }}</td>
@@ -588,6 +584,18 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
@@ -596,8 +604,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
         .modern-sidebar::before {
@@ -793,30 +805,6 @@
             opacity: 0.5;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
@@ -926,7 +914,10 @@
 
         /* Main Content */
         .main-content {
+            flex: 1;
             padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
             background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
         }
@@ -935,6 +926,21 @@
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -945,6 +951,29 @@
             
             .modern-mobile-sidebar {
                 width: 90vw !important;
+            }
+        }
+
+        /* Room Image Responsive Styles */
+        .room-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .room-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .room-image {
+                width: 50px;
+                height: 50px;
             }
         }
     </style>

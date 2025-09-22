@@ -1,4 +1,7 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
@@ -70,66 +73,79 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="d-md-none bg-light border-bottom p-2">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                &#9776;
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
+        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                {{-- Icon added here for Resort Owner in mobile sidebar using <img> --}}
-                <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                    <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Resorts Menu
-                </h5>
+                <div class="mobile-sidebar-brand">
+                    <div class="mobile-brand-icon">
+                        <img src="{{ asset('images/summer.png') }}" alt="Resort Owner Icon" class="mobile-brand-icon-img">
+                    </div>
+                    <div class="mobile-brand-text">
+                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Resorts Menu</h5>
+                        <p class="mobile-brand-subtitle">Management Dashboard</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <ul class="nav flex-column">
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.dashboard') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.information') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Resort Management
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.verified') }}" class="nav-link text-white rounded p-2 d-flex align-items-center">
-                            <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Account Management
-                        </a>
-                    </li>
-                    {{-- Notifications (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.notification') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
-                            <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Notifications
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="badge bg-danger ms-2" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    {{-- Documentation (Mobile) --}}
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('resort.owner.documentation') }}" class="nav-link text-white rounded p-2 d-flex align-items-center {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
-                            <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Documentation
-                        </a>
-                    </li>
-                </ul>
+                <div class="mobile-sidebar-nav">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.dashboard') }}" class="nav-link {{ request()->routeIs('resort.owner.dashboard') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.information') }}" class="nav-link {{ request()->routeIs('resort.owner.information') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/management.png') }}" alt="Resort Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Resort Management</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.verified') }}" class="nav-link {{ request()->routeIs('resort.owner.verified') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Account Management</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.notification') }}" class="nav-link {{ request()->routeIs('resort.owner.notification') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Notifications</span>
+                                @if(isset($unreadCount) && $unreadCount > 0)
+                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
+                                @endif
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="{{ route('resort.owner.documentation') }}" class="nav-link {{ request()->routeIs('resort.owner.documentation') ? 'active' : '' }}">
+                                <div class="nav-icon">
+                                    <img src="{{ asset('images/documentation.png') }}" alt="Documentation Icon" class="nav-icon-img">
+                                </div>
+                                <span class="nav-text">Documentation</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         {{-- Main Content Area --}}
         <div class="main-content flex-grow-1">
+            <div class="container-fluid flex-grow-1 p-3 p-md-4">
             {{-- Page Header --}}
             <div class="page-header">
                 <div class="page-title-section">
@@ -437,6 +453,7 @@
                     </form>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 
@@ -446,7 +463,10 @@
 
         /* Main Content */
         .main-content {
-            padding: 2rem;
+            flex: 1;
+            padding: 0;
+            margin-left: 280px;
+            overflow-y: auto;
             background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
         }
@@ -833,9 +853,103 @@
         }
 
         /* Responsive Design */
+        /* Specific breakpoint for 768px */
+        @media (max-width: 768px) and (min-width: 767px) {
+            .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .d-lg-none {
+                display: block !important;
+            }
+            
+            nav.navbar .d-lg-none .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                left: 0 !important;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Ensure the hamburger button container is visible */
+            .d-lg-none {
+                display: block !important;
+            }
+            
+            /* Force hamburger button visibility with higher specificity */
+            nav.navbar .d-lg-none .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                border: none !important;
+                color: white !important;
+                border-radius: 8px !important;
+                padding: 8px 12px !important;
+                font-size: 16px !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3) !important;
+            }
+            
+            nav.navbar .d-lg-none .hamburger-btn:hover {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+                color: white !important;
+            }
+            
+            /* Additional debugging - make sure button is visible */
+            .navbar .d-lg-none {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            .navbar .d-lg-none .btn.hamburger-btn {
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 9999 !important;
+            }
+            
+            .modern-navbar {
+                left: 0 !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+            }
+            
+            /* Ensure no sidebar space is reserved */
+            .d-flex.flex-column.flex-md-row {
+                flex-direction: column !important;
+            }
+            
+            /* Force main content to full width */
+            .main-content {
+                flex: 1 !important;
+                margin-left: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
             }
             
             .page-header {
@@ -1045,6 +1159,28 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+
+        /* Adjust navbar width to match sidebar - desktop only */
+        @media (min-width: 769px) {
+            .modern-navbar {
+                left: 280px;
+                right: 0;
+                width: calc(100% - 280px);
+            }
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+        
+        /* Ensure sidebar is hidden at 768px and below */
+        @media (max-width: 768px) {
+            .modern-sidebar {
+                display: none !important;
+            }
+        }
+
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
@@ -1053,8 +1189,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
         .modern-sidebar::before {
@@ -1250,29 +1390,111 @@
             opacity: 0.5;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
+
+        /* Mobile Sidebar */
+        .modern-mobile-sidebar {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85vw !important;
         }
 
-        .mobile-toggle-btn {
+        .mobile-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .mobile-brand-icon {
+            width: 45px;
+            height: 45px;
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        .mobile-brand-icon-img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-brand-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-brand-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .mobile-sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .mobile-sidebar-nav .nav {
+            padding: 0 1rem;
+        }
+
+        .mobile-sidebar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-sidebar-nav .nav-link:hover {
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-sidebar-nav .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-sidebar-nav .nav-link.active::before {
+            opacity: 1;
         }
 
         /* Mobile Sidebar */
@@ -1281,6 +1503,19 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             width: 85vw !important;
+            z-index: 99999 !important;
+        }
+
+        /* Ensure offcanvas backdrop doesn't interfere */
+        .offcanvas-backdrop {
+            z-index: 99998 !important;
+        }
+
+        /* Override any app layout navigation z-index on mobile */
+        @media (max-width: 767.98px) {
+            nav.navbar {
+                z-index: 1000 !important;
+            }
         }
 
         .mobile-sidebar-brand {

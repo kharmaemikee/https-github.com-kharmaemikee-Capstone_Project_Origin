@@ -1,4 +1,7 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
 
         {{-- Desktop Sidebar --}}
@@ -70,12 +73,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
@@ -161,154 +158,259 @@
         </div>
 
         {{-- Main Content Area --}}
-        <div class="flex-grow-1 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Edit Resort: {{ $resort->resort_name }}</h2>
+        <div class="main-content flex-grow-1">
+            <div class="container-fluid flex-grow-1 p-0">
+            {{-- Page Header --}}
+            <div class="page-header">
+                <div class="page-title-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Resort: {{ $resort->resort_name }}
+                    </h1>
+                    <p class="page-subtitle">Update your resort information and settings</p>
+                </div>
             </div>
 
-            <div class="card p-4 shadow-sm">
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                {{-- Form for editing basic resort information --}}
-                <form action="{{ route('resort.owner.update', $resort->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT') {{-- Use PUT or PATCH for updates --}}
-
-                    {{-- Resort Name --}}
-                    <div class="mb-3">
-                        <label for="resort_name" class="form-label">Resort Name</label>
-                        <input type="text" class="form-control form-control-sm" id="resort_name" name="resort_name" value="{{ old('resort_name', $resort->resort_name) }}" required>
-                        @error('resort_name')<div class="text-danger">{{ $message }}</div>@enderror
-                    </div>
-
-                    {{-- Location --}}
-                    <div class="mb-3">
-                        <label for="location" class="form-label">Location</label>
-                        <input type="text" class="form-control form-control-sm" id="location" name="location" value="{{ old('location', $resort->location) }}" required>
-                        @error('location')<div class="text-danger">{{ $message }}</div>@enderror
-                    </div>
-
-                    {{-- Contact Number --}}
-                    <div class="mb-3">
-                        <label for="contact_number" class="form-label">Contact Number</label>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               id="contact_number" 
-                               name="contact_number" 
-                               value="{{ old('contact_number', $resort->contact_number) }}"
-                               placeholder="e.g., 09123456789"
-                               pattern="[0-9]{11}" 
-                               maxlength="11" 
-                               minlength="11"
-                               title="Please enter exactly 11 digits for the contact number." 
-                               inputmode="numeric"
-                               oninput="validateContactNumber(this)">
-                        <div id="contact_number_error" class="text-danger mt-1" style="display: none;">
-                            The number is not enough. Please enter exactly 11 digits.
+            {{-- Form Container --}}
+            <div class="form-container">
+                <div class="form-card">
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                        @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    {{-- Form for editing basic resort information --}}
+                    <div class="modern-form">
+                        <div class="form-section-header">
+                            <h3 class="form-section-title">
+                                <i class="fas fa-edit me-2"></i>
+                                Resort Information
+                            </h3>
+                            <p class="form-section-subtitle">Update your resort's basic information and details</p>
+                        </div>
+
+                        <form action="{{ route('resort.owner.update', $resort->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            {{-- Image Upload Section - Moved to Top --}}
+                            <div class="mb-4">
+                                <label for="image" class="form-label">
+                                    <i class="fas fa-image me-1"></i>
+                                    Resort Image
+                                </label>
+                                <input type="file" class="form-control form-control-sm" id="image" name="image" accept="image/*">
+                                @error('image')<div class="text-danger">{{ $message }}</div>@enderror
+                            </div>
+
+                            {{-- Current Image Display --}}
+                            <div class="mb-4">
+                                <label class="form-label">Current Image</label>
+                                <div class="current-image-container">
+                                    @if($resort->image_path)
+                                        <img src="{{ asset($resort->image_path) }}" class="current-image" data-fallback="{{ asset('images/default_resort.png') }}">
+                                        <small class="form-text text-muted">Current resort image</small>
+                                    @else
+                                        <img src="{{ asset('images/default_resort.png') }}" class="current-image">
+                                        <small class="form-text text-muted">No image uploaded. Please upload a new image.</small>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                {{-- Resort Name --}}
+                                <div class="col-md-6 mb-4">
+                                    <label for="resort_name" class="form-label">
+                                        <i class="fas fa-building me-1"></i>
+                                        Resort Name
+                                    </label>
+                                    <input type="text" class="form-control form-control-sm" id="resort_name" name="resort_name" value="{{ old('resort_name', $resort->resort_name) }}" required>
+                                    @error('resort_name')<div class="text-danger">{{ $message }}</div>@enderror
+                                </div>
+
+                                {{-- Location --}}
+                                <div class="col-md-6 mb-4">
+                                    <label for="location" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                        Location
+                                    </label>
+                                    <input type="text" class="form-control form-control-sm" id="location" name="location" value="{{ old('location', $resort->location) }}" required>
+                                    @error('location')<div class="text-danger">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                {{-- Contact Number --}}
+                                <div class="col-md-6 mb-4">
+                                    <label for="contact_number" class="form-label">
+                                        <i class="fas fa-phone me-1"></i>
+                                        Contact Number
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-sm" 
+                                           id="contact_number" 
+                                           name="contact_number" 
+                                           value="{{ old('contact_number', $resort->contact_number) }}"
+                                           placeholder="e.g., 09123456789"
+                                           pattern="[0-9]{11}" 
+                                           maxlength="11" 
+                                           minlength="11"
+                                           title="Please enter exactly 11 digits for the contact number." 
+                                           inputmode="numeric"
+                                           oninput="validateContactNumber(this)">
+                                    <div id="contact_number_error" class="text-danger mt-1" style="display: none;">
+                                        The number is not enough. Please enter exactly 11 digits.
+                                    </div>
+                                    @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                </div>
+
+                                {{-- Empty column for spacing --}}
+                                <div class="col-md-6 mb-4">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                {{-- Facebook Page Link --}}
+                                <div class="col-md-6 mb-4">
+                                    <label for="facebook_page_link" class="form-label">
+                                        <i class="fab fa-facebook me-1"></i>
+                                        Facebook Page Link
+                                    </label>
+                                    <input type="url" class="form-control form-control-sm" id="facebook_page_link" name="facebook_page_link" value="{{ old('facebook_page_link', $resort->facebook_page_link) }}" placeholder="e.g., https://www.facebook.com/yourresortpage">
+                                    @error('facebook_page_link')<div class="text-danger">{{ $message }}</div>@enderror
+                                    <small class="form-text text-muted">Provide the full URL to your resort's Facebook page.</small>
+                                </div>
+
+                                {{-- Facebook Messenger Link --}}
+                                <div class="col-md-6 mb-4">
+                                    <label for="facebook_messenger_link" class="form-label">
+                                        <i class="fab fa-facebook-messenger me-1"></i>
+                                        Facebook Messenger Link (Optional)
+                                    </label>
+                                    <input type="url" class="form-control form-control-sm" id="facebook_messenger_link" name="facebook_messenger_link" value="{{ old('facebook_messenger_link', $resort->facebook_messenger_link) }}" placeholder="e.g., https://m.me/yourresortpage">
+                                    @error('facebook_messenger_link')<div class="text-danger">{{ $message }}</div>@enderror
+                                    <small class="form-text text-muted">Provide the full URL for direct messages on Facebook Messenger.</small>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    Update Resort Information
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
-                    {{-- Facebook Page Link (UPDATED FIELD NAME) --}}
-                    <div class="mb-3">
-                        <label for="facebook_page_link" class="form-label">Facebook Page Link</label>
-                        <input type="url" class="form-control form-control-sm" id="facebook_page_link" name="facebook_page_link" value="{{ old('facebook_page_link', $resort->facebook_page_link) }}" placeholder="e.g., https://www.facebook.com/yourresortpage">
-                        @error('facebook_page_link')<div class="text-danger">{{ $message }}</div>@enderror
-                        <small class="form-text text-muted">Provide the full URL to your resort's Facebook page.</small>
+                    {{-- Visual Separator --}}
+                    <div class="section-divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-text">OR</div>
+                        <div class="divider-line"></div>
                     </div>
 
-                    {{-- Facebook Messenger Link (KEEP THIS IN MIND FOR CONTROLLER/MODEL) --}}
-                    <div class="mb-3">
-                        <label for="facebook_messenger_link" class="form-label">Facebook Messenger Link (Optional)</label>
-                        <input type="url" class="form-control form-control-sm" id="facebook_messenger_link" name="facebook_messenger_link" value="{{ old('facebook_messenger_link', $resort->facebook_messenger_link) }}" placeholder="e.g., https://m.me/yourresortpage">
-                        @error('facebook_messenger_link')<div class="text-danger">{{ $message }}</div>@enderror
-                        <small class="form-text text-muted">Provide the full URL for direct messages on Facebook Messenger.</small>
+                    {{-- Section for Resort Status Management --}}
+                    <div class="status-management-section">
+                        <div class="form-section-header">
+                            <h3 class="form-section-title">
+                                <i class="fas fa-toggle-on me-2"></i>
+                                Resort Status Management
+                            </h3>
+                            <p class="form-section-subtitle">Control your resort's availability and status</p>
+                        </div>
+
+                        <div class="status-display">
+                            <div class="current-status">
+                                <span class="status-label">Current Status:</span>
+                                @php
+                                    $statusClass = '';
+                                    $statusIcon = '';
+                                    switch ($resort->status) {
+                                        case 'open':
+                                            $statusClass = 'custom-badge-open';
+                                            $statusIcon = 'fas fa-check-circle';
+                                            break;
+                                        case 'closed':
+                                            $statusClass = 'custom-badge-closed';
+                                            $statusIcon = 'fas fa-times-circle';
+                                            break;
+                                        case 'rehab':
+                                            $statusClass = 'custom-badge-rehab';
+                                            $statusIcon = 'fas fa-tools';
+                                            break;
+                                        default:
+                                            $statusClass = 'text-bg-secondary';
+                                            $statusIcon = 'fas fa-question-circle';
+                                            break;
+                                    }
+                                @endphp
+                                <span class="badge {{ $statusClass }}">
+                                    <i class="{{ $statusIcon }} me-1"></i>
+                                    {{ ucfirst($resort->status ?? 'N/A') }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="status-actions">
+                            {{-- Open Button --}}
+                            <form id="status-open-form" action="{{ route('resort.owner.update_status', $resort->id) }}" method="POST" class="status-form">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="status" value="open">
+                                <button type="submit" class="btn custom-btn-open" {{ ($resort->status ?? '') === 'open' ? 'disabled' : '' }}>
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Open Resort
+                                </button>
+                            </form>
+
+                            {{-- Close Button --}}
+                            <button type="button" class="btn custom-btn-close" {{ ($resort->status ?? '') === 'closed' ? 'disabled' : '' }} data-bs-toggle="modal" data-bs-target="#closeConfirmationModal">
+                                <i class="fas fa-times-circle me-1"></i>
+                                Close Resort
+                            </button>
+
+                            {{-- Rehab Button --}}
+                            <button type="button" class="btn custom-btn-rehab" id="rehab-button" {{ ($resort->status ?? '') === 'rehab' ? 'disabled' : '' }} data-current-status="{{ $resort->status ?? '' }}">
+                                <i class="fas fa-tools me-1"></i>
+                                Under Renovation
+                            </button>
+                        </div>
+
+                        {{-- Rehab Reason Input --}}
+                        <form id="status-rehab-form" action="{{ route('resort.owner.update_status', $resort->id) }}" method="POST" class="rehab-form">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="status" value="rehab">
+                            <div class="rehab-reason-section">
+                                <label for="rehab_reason" class="form-label">
+                                    <i class="fas fa-comment-alt me-1"></i>
+                                    Reason for Renovation
+                                </label>
+                                <textarea class="form-control form-control-sm" id="rehab_reason" name="rehab_reason" rows="3" placeholder="Please provide a detailed reason for the renovation...">{{ old('rehab_reason', $resort->rehab_reason) }}</textarea>
+                                @error('rehab_reason')<div class="text-danger">{{ $message }}</div>@enderror
+                                <small class="form-text text-muted">This reason will be displayed on the public page when the resort is under renovation.</small>
+                                <div class="rehab-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        Update Renovation Status
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-
-                    {{-- Image Upload --}}
-                    <div class="mb-3">
-                        <label for="image" class="form-label">Resort Image</label>
-                        <input type="file" class="form-control form-control-sm" id="image" name="image">
-                        @error('image')<div class="text-danger">{{ $message }}</div>@enderror
-                        @if($resort->image_path)
-                            <small class="form-text text-muted mt-2">Current image:</small><br>
-                            <img src="{{ asset($resort->image_path) }}" class="img-thumbnail mt-2" style="max-width: 150px;" onerror="this.onerror=null;this.src='{{ asset('images/default_resort.png') }}';">
-                        @else
-                            <small class="form-text text-muted mt-2">No image uploaded. Please upload a new image.</small>
-                            <img src="{{ asset('images/default_resort.png') }}" class="img-thumbnail mt-2" style="max-width: 150px;">
-                        @endif
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-sm" style="background-color:rgb(9, 135, 219); border-color: rgb(9, 135, 219);">Update</button>
-                </form>
-
-                <hr class="my-4"> {{-- Separator for clarity --}}
-
-                {{-- Section for Resort Status Management --}}
-                <h4>Resort Status</h4>
-                <p class="text-muted mb-3">Current Status:
-                    @php
-                        $statusClass = '';
-                        switch ($resort->status) {
-                            case 'open':
-                                $statusClass = 'custom-badge-open'; // Custom class for open (now green)
-                                break;
-                            case 'closed':
-                                $statusClass = 'custom-badge-closed'; // Custom class for closed
-                                break;
-                            case 'rehab':
-                                $statusClass = 'custom-badge-rehab'; // Custom class for rehab
-                                break;
-                            default:
-                                $statusClass = 'text-bg-secondary';
-                                break;
-                        }
-                    @endphp
-                    <span class="badge {{ $statusClass }}">{{ ucfirst($resort->status ?? 'N/A') }}</span>
-                </p>
-
-                <div class="d-flex gap-2 mb-3">
-                    {{-- Open Button --}}
-                    <form id="status-open-form" action="{{ route('resort.owner.update_status', $resort->id) }}" method="POST" class="status-form">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="status" value="open">
-                        <button type="submit" class="btn custom-btn-open" {{ ($resort->status ?? '') === 'open' ? 'disabled' : '' }}>Open</button>
-                    </form>
-
-                    {{-- Close Button (now triggers modal) --}}
-                    <button type="button" class="btn custom-btn-close" {{ ($resort->status ?? '') === 'closed' ? 'disabled' : '' }} data-bs-toggle="modal" data-bs-target="#closeConfirmationModal">Close</button>
-
-                    {{-- Rehab Button (now triggers modal conditionally) --}}
-                    <button type="button" class="btn custom-btn-rehab" id="rehab-button" {{ ($resort->status ?? '') === 'rehab' ? 'disabled' : '' }} data-current-status="{{ $resort->status ?? '' }}">Rehab</button>
                 </div>
-
-                {{-- NEW: Rehab Reason Input in its own form --}}
-                <form id="status-rehab-form" action="{{ route('resort.owner.update_status', $resort->id) }}" method="POST" style="display: {{ ($resort->status ?? '') === 'rehab' ? 'block' : 'none' }};">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="status" value="rehab">
-                    <div class="mb-3">
-                        <label for="rehab_reason" class="form-label">Reason for Rehab</label>
-                        <textarea class="form-control form-control-sm" id="rehab_reason" name="rehab_reason" rows="3">{{ old('rehab_reason', $resort->rehab_reason) }}</textarea>
-                        @error('rehab_reason')<div class="text-danger">{{ $message }}</div>@enderror
-                        <small class="form-text text-muted">This reason will be displayed on the public page when the resort is under rehab.</small>
-                        <button type="submit" class="btn btn-primary btn-sm mt-2" style="background-color:rgb(9, 135, 219); border-color: rgb(9, 135, 219);">Update Rehab Status & Reason</button>
-                    </div>
-                </form>
-
+            </div>
             </div>
         </div>
     </div>
@@ -598,6 +700,25 @@
 
             // Initialize visibility on page load
             toggleRehabReasonVisibility();
+            
+            // Set initial display state for rehab form
+            const rehabForm = document.getElementById('status-rehab-form');
+            if (rehabForm) {
+                const currentStatus = '{{ $resort->status ?? "" }}';
+                if (currentStatus === 'rehab') {
+                    rehabForm.style.display = 'block';
+                } else {
+                    rehabForm.style.display = 'none';
+                }
+            }
+
+            // Handle image fallback
+            const currentImage = document.querySelector('.current-image[data-fallback]');
+            if (currentImage) {
+                currentImage.addEventListener('error', function() {
+                    this.src = this.getAttribute('data-fallback');
+                });
+            }
 
             // --- New JavaScript for Offcanvas Hiding ---
             var mobileSidebar = document.getElementById('mobileSidebar');
@@ -624,20 +745,40 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-        /* Simple Sidebar Styling */
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
+        /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
             min-width: 280px;
-            background: #2c3e50;
-            border-right: 1px solid #34495e;
-            position: relative;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
         /* Sidebar Header */
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #34495e;
-            background: #34495e;
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-brand {
@@ -795,29 +936,280 @@
             opacity: 0.5;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg,rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            margin-left: 280px;
+            overflow-y: auto;
+            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
+            min-height: 100vh;
         }
 
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
             font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 0;
         }
 
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+        /* Form Container */
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .modern-form {
+            padding: 2rem;
+        }
+
+        /* Form Section Headers */
+        .form-section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .form-section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f8f9fa;
+            text-align: center;
+        }
+
+        .form-actions .btn {
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .form-actions .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        /* Current Image Display */
+        .current-image-container {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .current-image {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 0 2rem;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #dee2e6, transparent);
+        }
+
+        .divider-text {
+            padding: 0 1.5rem;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        /* Status Management Section */
+        .status-management-section {
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .status-display {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .current-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .status-actions .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .status-actions .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-actions .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Rehab Reason Section */
+        .rehab-reason-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 2px solid #e9ecef;
+        }
+
+        .rehab-actions {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .rehab-actions .btn {
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        /* Rehab Form */
+        .rehab-form {
+            transition: all 0.3s ease;
+        }
+
+        /* Form Input Styling */
+        .form-control {
+            padding: 1rem 1.25rem !important;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            min-height: 48px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            background-color: #fff;
+        }
+
+        .form-control-sm {
+            padding: 1rem 1.25rem !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+            min-height: 48px !important;
+        }
+
+        /* Override Bootstrap's form-control-sm */
+        .modern-form .form-control-sm {
+            padding: 1rem 1.25rem !important;
+            font-size: 1rem !important;
+            min-height: 48px !important;
+        }
+
+        .modern-form input[type="text"],
+        .modern-form input[type="url"],
+        .modern-form input[type="file"],
+        .modern-form textarea {
+            padding: 1rem 1.25rem !important;
+            min-height: 48px !important;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem !important;
         }
 
         /* Mobile Sidebar */
@@ -825,7 +1217,7 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85vw !important;
+            width: 55vw !important;
         }
 
         .mobile-sidebar-brand {
@@ -927,7 +1319,129 @@
         }
 
         /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                left: 0 !important;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .modern-form {
+                padding: 1.5rem;
+            }
+            
+            .form-control {
+                padding: 0.875rem 1rem !important;
+                font-size: 0.95rem;
+                min-height: 44px !important;
+            }
+            
+            .form-control-sm {
+                padding: 0.875rem 1rem !important;
+                font-size: 0.95rem !important;
+                min-height: 44px !important;
+            }
+            
+            .modern-form input[type="text"],
+            .modern-form input[type="url"],
+            .modern-form input[type="file"],
+            .modern-form textarea {
+                padding: 0.875rem 1rem !important;
+                min-height: 44px !important;
+            }
+
+            /* Mobile-specific form styling */
+            .form-section-title {
+                font-size: 1.3rem;
+            }
+
+            .status-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .status-actions .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .current-status {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .section-divider {
+                margin: 1.5rem 0;
+                padding: 0 1rem;
+            }
+
+            .status-management-section {
+                padding: 1.5rem;
+            }
+        }
+
         @media (max-width: 576px) {
+            .main-content {
+                padding: 0;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.3rem;
+            }
+            
+            .modern-form {
+                padding: 1rem;
+            }
+            
+            .form-control {
+                padding: 0.75rem 0.875rem !important;
+                font-size: 0.9rem;
+                min-height: 40px !important;
+            }
+            
+            .form-control-sm {
+                padding: 0.75rem 0.875rem !important;
+                font-size: 0.9rem !important;
+                min-height: 40px !important;
+            }
+            
+            .modern-form input[type="text"],
+            .modern-form input[type="url"],
+            .modern-form input[type="file"],
+            .modern-form textarea {
+                padding: 0.75rem 0.875rem !important;
+                min-height: 40px !important;
+            }
+            
             .modern-mobile-sidebar {
                 width: 90vw !important;
             }

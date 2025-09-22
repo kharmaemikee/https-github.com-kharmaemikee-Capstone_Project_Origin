@@ -1,136 +1,9 @@
 <x-app-layout>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+        {{-- Include Shared Sidebar --}}
+        @include('boat_owner.partials.sidebar')
 
-        {{-- Desktop Sidebar --}}
-        <div class="modern-sidebar d-none d-md-block">
-            {{-- Sidebar Header --}}
-            <div class="sidebar-header">
-                <div class="sidebar-brand">
-                    <div class="brand-icon">
-                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="brand-icon-img">
-                    </div>
-                    <div class="brand-text">
-                        <h4 class="brand-title">Welcome {{ auth()->user()->first_name }}</h4>
-                        <p class="brand-subtitle">Boat Owner Portal</p>
-                    </div>
-                </div>
-            </div>
-            
-            {{-- Sidebar Navigation --}}
-            <div class="sidebar-nav">
-                <ul class="nav flex-column">
-                
-                    <li class="nav-item">
-                        <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Boat Management</span>
-                    </a>
-                </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Account Management</span>
-                    </a>
-                </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                            <div class="nav-icon">
-                                <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
-                            </div>
-                            <span class="nav-text">Notifications</span>
-                        @if(isset($unreadCount) && $unreadCount > 0)
-                                <span class="nav-badge notification-badge" id="unreadBadgeDesktop">{{ $unreadCount }}</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-            </div>
-        </div>
-
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        {{-- Mobile Offcanvas Sidebar --}}
-        <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
-            <div class="offcanvas-header">
-                <div class="mobile-sidebar-brand">
-                    <div class="mobile-brand-icon">
-                        <img src="{{ asset('images/summer.png') }}" alt="Boat Owner Icon" class="mobile-brand-icon-img">
-                    </div>
-                    <div class="mobile-brand-text">
-                        <h5 class="mobile-brand-title" id="mobileSidebarLabel">Boat Menu</h5>
-                        <p class="mobile-brand-subtitle">Management Dashboard</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div class="mobile-sidebar-nav">
-                <ul class="nav flex-column">
-                   
-                        <li class="nav-item">
-                            <a href="{{ route('boat.owner.dashboard') }}" class="nav-link {{ request()->routeIs('boat.owner.dashboard') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Dashboard</span>
-                        </a>
-                    </li>
-                        
-                        <li class="nav-item">
-                            <a href="{{ route('boat') }}" class="nav-link {{ request()->routeIs('boat') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/boat-steering.png') }}" alt="Boat Management Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Boat Management</span>
-                        </a>
-                    </li>
-                        
-                        <li class="nav-item">
-                            <a href="{{ route('boat.owner.verified') }}" class="nav-link {{ request()->routeIs('boat.owner.verified') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/verified.png') }}" alt="Account Management Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Account Management</span>
-                        </a>
-                    </li>
-                        
-                        <li class="nav-item">
-                            <a href="{{ route('boat.owner.notification') }}" class="nav-link {{ request()->routeIs('boat.owner.notification') ? 'active' : '' }}">
-                                <div class="nav-icon">
-                                    <img src="{{ asset('images/bell.png') }}" alt="Notification Icon" class="nav-icon-img">
-                                </div>
-                                <span class="nav-text">Notifications</span>
-                            @if(isset($unreadCount) && $unreadCount > 0)
-                                    <span class="nav-badge notification-badge" id="unreadBadgeMobile">{{ $unreadCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex-grow-1 p-4">
+        <div class="main-content flex-grow-1">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
@@ -392,11 +265,16 @@
         .modern-sidebar {
             width: 280px;
             min-width: 280px;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            position: relative;
-            overflow-y: auto;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
             height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .sidebar-header {
@@ -544,36 +422,13 @@
             100% { transform: scale(1); }
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, rgb(35, 46, 26) 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            width: 85vw !important;
-            max-width: 350px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 55vw !important;
         }
 
         .mobile-sidebar-brand {
@@ -639,14 +494,45 @@
             min-height: 100vh;
         }
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            margin-left: 280px;
+            overflow-y: auto;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
-            .modern-sidebar {
-                display: none;
-            }
-            
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -657,6 +543,16 @@
             
             .main-content {
                 padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .modern-mobile-sidebar {
+                width: 95vw !important;
             }
         }
     </style>

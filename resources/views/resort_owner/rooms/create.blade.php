@@ -1,4 +1,6 @@
 <x-app-layout>
+    {{-- Font Awesome CDN for Icons --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -73,12 +75,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
 
         {{-- Mobile Offcanvas Sidebar --}}
         <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
@@ -149,6 +145,7 @@
 
         {{-- Main Content Area --}}
         <div class="main-content flex-grow-1">
+            <div class="container-fluid flex-grow-1 p-3 p-md-4">
             {{-- Page Header --}}
             <div class="page-header">
                 <div class="page-title-section">
@@ -410,6 +407,7 @@
                     </form>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 
@@ -419,7 +417,10 @@
 
         /* Main Content */
         .main-content {
-            padding: 2rem;
+            flex: 1;
+            padding: 0;
+            margin-left: 280px;
+            overflow-y: auto;
             background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
         }
@@ -706,9 +707,103 @@
         }
 
         /* Responsive Design */
+        /* Specific breakpoint for 768px */
+        @media (max-width: 768px) and (min-width: 767px) {
+            .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .d-lg-none {
+                display: block !important;
+            }
+            
+            nav.navbar .d-lg-none .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                left: 0 !important;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Ensure the hamburger button container is visible */
+            .d-lg-none {
+                display: block !important;
+            }
+            
+            /* Force hamburger button visibility with higher specificity */
+            nav.navbar .d-lg-none .hamburger-btn {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                border: none !important;
+                color: white !important;
+                border-radius: 8px !important;
+                padding: 8px 12px !important;
+                font-size: 16px !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3) !important;
+            }
+            
+            nav.navbar .d-lg-none .hamburger-btn:hover {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+                color: white !important;
+            }
+            
+            /* Additional debugging - make sure button is visible */
+            .navbar .d-lg-none {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            .navbar .d-lg-none .btn.hamburger-btn {
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 9999 !important;
+            }
+            
+            .modern-navbar {
+                left: 0 !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+            }
+            
+            /* Ensure no sidebar space is reserved */
+            .d-flex.flex-column.flex-md-row {
+                flex-direction: column !important;
+            }
+            
+            /* Force main content to full width */
+            .main-content {
+                flex: 1 !important;
+                margin-left: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
             }
             
             .page-header {
@@ -997,6 +1092,33 @@
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+
+        /* Adjust navbar width to match sidebar - desktop only */
+        @media (min-width: 768px) {
+            .modern-navbar {
+                left: 280px;
+                right: 0;
+                width: calc(100% - 280px);
+            }
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+        
+        /* Ensure sidebar is hidden at 768px and below */
+        @media (max-width: 768px) {
+            .modern-sidebar {
+                display: none !important;
+            }
+        }
+        
+        /* Ensure hamburger button container is hidden on larger screens */
+        .d-lg-none {
+            display: none !important;
+        }
+
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
             width: 280px;
@@ -1005,8 +1127,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
         .modern-sidebar::before {
@@ -1202,30 +1328,6 @@
             opacity: 0.5;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
@@ -1371,28 +1473,5 @@
             box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
         }
 
-        /* Main Content */
-        .main-content {
-            padding: 2rem;
-            background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
-            min-height: 100vh;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 0.75rem;
-            }
-            
-            .modern-mobile-sidebar {
-                width: 90vw !important;
-            }
-        }
     </style>
 </x-app-layout>

@@ -3,10 +3,18 @@
         {{-- Back arrow --}}
         {{-- Welcome text --}}
         <div class="d-flex align-items-center">
+            {{-- Mobile Hamburger Button --}}
+            <div class="d-lg-none me-3">
+                <button class="btn hamburger-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            {{-- Welcome Text --}}
             <a class="nav-link d-inline-block {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                 <div class="welcome-content">
                     <h5 class="m-0 welcome-text">
-                        <i class="fas fa-home me-2 text-primary"></i>
+                        <i class="fas fa-home me-2 text-primary d-none d-lg-inline"></i>
                         @auth
                             @if(Auth::user()->role === 'admin')
                                 <span class="welcome-title">Welcome Admin</span>
@@ -43,7 +51,7 @@
         </div>
 
         {{-- User Menu for Mobile --}}
-        <div class="d-md-none ms-auto mobile-nav-container"> 
+        <div class="d-lg-none ms-auto mobile-nav-container"> 
             <div class="dropdown d-inline-block">
                 @auth
                     @if(Auth::user()->role === 'admin')
@@ -178,7 +186,7 @@
         </div>
 
         {{-- User Menu for Desktop --}}
-        <div class="d-none d-md-block ms-auto desktop-nav-container">
+        <div class="d-none d-lg-block ms-auto desktop-nav-container">
             <div class="dropdown d-inline-block">
                 @auth
                     @if(Auth::user()->role === 'admin')
@@ -334,6 +342,40 @@
         transition: all 0.3s ease;
         height: 60px !important;
         min-height: 60px !important;
+    }
+
+    /* Hamburger Button Styles */
+    .hamburger-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hamburger-btn:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .hamburger-btn:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        color: white;
+    }
+
+    .hamburger-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
     }
 
     .modern-navbar:hover {
@@ -549,6 +591,13 @@
             font-size: 0.7rem;
         }
         
+        .hamburger-btn {
+            width: 36px;
+            height: 36px;
+            padding: 6px 10px;
+            font-size: 1rem;
+        }
+        
         .modern-user-btn, .modern-user-link {
             padding: 6px 10px;
         }
@@ -596,6 +645,13 @@
             display: none;
         }
         
+        .hamburger-btn {
+            width: 32px;
+            height: 32px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+        }
+        
         .modern-user-btn, .modern-user-link {
             padding: 5px 8px;
         }
@@ -632,6 +688,13 @@
         
         .welcome-subtitle {
             display: none;
+        }
+        
+        .hamburger-btn {
+            width: 30px;
+            height: 30px;
+            padding: 3px 6px;
+            font-size: 0.8rem;
         }
         
         .modern-user-btn, .modern-user-link {

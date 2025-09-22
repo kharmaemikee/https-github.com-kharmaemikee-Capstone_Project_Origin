@@ -4,12 +4,14 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
+        {{-- Include Shared Sidebar --}}
         @include('tourist.partials.sidebar')
 
-        {{-- Main Content Area (Resort Details and Rooms) --}}
-        <main class="py-4 px-3 flex-grow-1">
-            {{-- Enhanced Header Section --}}
-            <div class="resort-header-section mb-5">
+        <div class="main-content flex-grow-1">
+            {{-- Main Content Area (Resort Details and Rooms) --}}
+            <div class="container-fluid flex-grow-1 p-3 p-md-4">
+                {{-- Enhanced Header Section --}}
+                <div class="resort-header-section mb-5">
                 <div class="resort-header-content">
                     <div class="resort-title-section">
                         <h1 class="resort-title mb-3">
@@ -397,6 +399,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -965,30 +969,6 @@
             }
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
@@ -1136,6 +1116,16 @@
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -1158,14 +1148,6 @@
                 width: 95vw !important;
             }
             
-            .mobile-toggle {
-                padding: 0.75rem;
-            }
-            
-            .mobile-toggle-btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 1rem;
-            }
             
             .mobile-brand-title {
                 font-size: 1rem;
@@ -1420,6 +1402,13 @@
     <style>
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
 
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
@@ -1429,8 +1418,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .modern-sidebar::before {
@@ -1624,17 +1617,44 @@
             background-color: rgb(6, 58, 170) !important; /* Maroon Red */
         }
 
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
+
         /* Main Content Area */
         .main-content {
+            flex: 1;
             padding: 2rem;
-            background: transparent;
-            min-height: 100vh;
+            margin-left: 280px;
             overflow-y: auto;
         }
 
-        @media (max-width: 767.98px) {
+        @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
     </style>

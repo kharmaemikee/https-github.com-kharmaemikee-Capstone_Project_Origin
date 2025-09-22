@@ -194,12 +194,6 @@
             </div>
         </div>
 
-        {{-- Mobile Offcanvas Toggle Button --}}
-        <div class="mobile-toggle d-md-none">
-            <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
 
         {{-- Main Content Area --}}
         <div class="main-content flex-grow-1">
@@ -251,7 +245,7 @@
                             <tr>
                                 <th class="user-info-col">
                                     <i class="fas fa-user"></i>
-                                    User Information
+                                    Tourist Information
                                 </th>
                                 @if(($userType ?? 'All Users') === 'Tourist Users')
                                     <th class="contact-col">
@@ -1877,30 +1871,6 @@
             background: rgba(255, 255, 255, 0.1);
         }
         
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar - aligned with admin dashboard */
         .modern-mobile-sidebar {
@@ -3814,14 +3784,6 @@
                 width: 95vw !important;
             }
             
-            .mobile-toggle {
-                padding: 0.75rem;
-            }
-            
-            .mobile-toggle-btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 1rem;
-            }
             
             .mobile-brand-title {
                 font-size: 1rem;

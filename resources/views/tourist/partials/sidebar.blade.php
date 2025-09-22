@@ -58,12 +58,6 @@
     </div>
 </div>
 
-{{-- Mobile Toggle Button --}}
-<div class="mobile-toggle d-md-none">
-    <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-        <i class="fas fa-bars"></i>
-    </button>
-</div>
 
 {{-- Mobile Offcanvas Sidebar --}}
 <div class="offcanvas offcanvas-start modern-mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">

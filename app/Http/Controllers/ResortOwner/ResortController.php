@@ -50,7 +50,12 @@ class ResortController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('resort_owner.edit-resort', compact('resort'));
+        // Get unread notification count
+        $unreadCount = \App\Models\ResortOwnerNotification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        return view('resort_owner.edit-resort', compact('resort', 'unreadCount'));
     }
 
     /**

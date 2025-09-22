@@ -4,77 +4,10 @@
         </head>
 
         <div class="d-flex flex-column flex-md-row min-vh-100" style="background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);">
-            {{-- Desktop Sidebar (same as your visit.blade.php) --}}
-            <div class="p-3 d-none d-md-block" style="width: 250px; min-width: 250px; background-color: #2C3E50;">
-                <h4 class="fw-bold text-white text-center d-flex align-items-center justify-content-center">
-                    <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                    Menu
-                </h4>
-                <ul class="nav flex-column mt-3">
-                    <li class="nav-item">
-                        <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Home
-                        </a>
-                    </li>
-                    @php
-                        $unreadCount = 0;
-                        try {
-                            if (Auth::check()) {
-                                $unreadCount = \App\Models\TouristNotification::where('user_id', Auth::id())->where('is_read', false)->count();
-                            }
-                        } catch (\Throwable $e) { $unreadCount = 0; }
-                    @endphp
-                    <li class="nav-item mt-2">
-                        <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 active d-flex align-items-center justify-content-start">
-                            <img src="{{ asset('images/visit.png') }}" alt="Your Visit Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                            Your Visit
-                            @if($unreadCount > 0)
-                                <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            {{-- Include Shared Sidebar --}}
+            @include('tourist.partials.sidebar')
 
-            {{-- Mobile Offcanvas Toggle Button (same as your visit.blade.php) --}}
-            <div class="d-md-none bg-light border-bottom p-2">
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-                    &#9776;
-                </button>
-            </div>
-
-            {{-- Mobile Offcanvas Sidebar (same as your visit.blade.php) --}}
-            <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="background-color: #2C3E50; color: white; width: 50vw;">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center justify-content-center" id="mobileSidebarLabel">
-                        <img src="{{ asset('images/man.png') }}" alt="Tourist Icon" style="width: 24px; height: 24px; margin-right: 8px;">
-                        Menu
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a href="{{ route('tourist.tourist') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start">
-                                <img src="{{ asset('images/house.png') }}" alt="Home Icon" style="width: 20px; height: 20px; margin-right: 8px;">
-                                Home
-                            </a>
-                        </li>
-                        <li class="nav-item mt-2">
-                            <a href="{{ route('tourist.visit') }}" class="nav-link text-white rounded p-2 text-center d-flex align-items-center justify-content-start active">
-                                Your Visit
-                                @if(($unreadCount ?? 0) > 0)
-                                    <span class="badge bg-danger ms-2">{{ $unreadCount }}</span>
-                                @endif
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            {{-- Main Content Area --}}
-            <main class="py-4 px-3 flex-grow-1">
+            <div class="main-content flex-grow-1">
                 <div class="container">
                     <h2 class="fw-bold mb-4">Edit Your Booking</h2>
 
@@ -274,36 +207,32 @@
 
         <style>
             /* Add any specific styles for the edit page here if needed */
+            
+            /* Adjust navbar width to match sidebar */
+            .modern-navbar {
+                left: 280px;
+                right: 0;
+                width: calc(100% - 280px);
+            }
+
+            /* Hide hamburger button by default on larger screens */
+            .hamburger-btn {
+                display: none !important;
+            }
+
+            /* Main Content Area */
+            .main-content {
+                flex: 1;
+                padding: 2rem;
+                margin-left: 280px;
+                overflow-y: auto;
+            }
             .nav-link.text-white:hover,
             .nav-link.text-white:focus,
             .nav-link.text-white.active {
                 background-color: rgb(6, 58, 170) !important;
             }
 
-            /* Mobile Toggle Button */
-            .mobile-toggle {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                padding: 1rem;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            }
-
-            .mobile-toggle-btn {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                color: white;
-                padding: 0.75rem 1rem;
-                border-radius: 10px;
-                font-size: 1.1rem;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            .mobile-toggle-btn:hover {
-                background: rgba(255, 255, 255, 0.15);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            }
 
             /* Mobile Sidebar */
             .modern-mobile-sidebar {
@@ -374,8 +303,12 @@
                 text-decoration: none;
                 border-radius: 12px;
                 transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
             }
 
             .mobile-sidebar-nav .nav-link::before {
@@ -451,12 +384,28 @@
             @media (max-width: 768px) {
                 .main-content {
                     padding: 1rem;
+                    margin-left: 0;
+                }
+                
+                .modern-sidebar {
+                    display: none !important;
+                }
+                
+                /* Ensure hamburger button is visible */
+                .hamburger-btn {
+                    display: block !important;
+                }
+                
+                .modern-navbar {
+                    left: 0;
+                    width: 100%;
                 }
             }
 
             @media (max-width: 576px) {
                 .main-content {
                     padding: 0.75rem;
+                    margin-left: 0;
                 }
                 
                 .modern-mobile-sidebar {
@@ -467,20 +416,13 @@
             @media (max-width: 320px) {
                 .main-content {
                     padding: 0.5rem;
+                    margin-left: 0;
                 }
                 
                 .modern-mobile-sidebar {
                     width: 95vw !important;
                 }
                 
-                .mobile-toggle {
-                    padding: 0.75rem;
-                }
-                
-                .mobile-toggle-btn {
-                    padding: 0.5rem 0.75rem;
-                    font-size: 1rem;
-                }
                 
                 .mobile-brand-title {
                     font-size: 1rem;

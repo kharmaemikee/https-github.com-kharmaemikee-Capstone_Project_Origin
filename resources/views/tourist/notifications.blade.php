@@ -22,8 +22,7 @@
         {{-- Include Shared Sidebar --}}
         @include('tourist.partials.sidebar')
 
-        {{-- Main Content --}}
-        <main class="main-content">
+        <div class="main-content flex-grow-1">
             {{-- Modern Header Section --}}
             <div class="page-header">
                 <div class="header-content">
@@ -513,13 +512,25 @@
                 </div>
             @endif
         </div>
-        </main>
+        </div>
     </div>
 
 
     <style>
         /* Font Awesome CDN for icons */
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger button by default on larger screens */
+        .hamburger-btn {
+            display: none !important;
+        }
 
         /* Modern Sidebar Styling - Dark Theme */
         .modern-sidebar {
@@ -529,8 +540,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .modern-sidebar::before {
@@ -719,16 +734,10 @@
 
         /* Main Content Area */
         .main-content {
+            flex: 1;
             padding: 2rem;
-            background: transparent;
-            min-height: 100vh;
+            margin-left: 280px;
             overflow-y: auto;
-        }
-
-        @media (max-width: 767.98px) {
-            .main-content {
-                padding: 1rem;
-            }
         }
 
         /* Custom CSS for sidebar nav-link hover and focus */
@@ -1932,37 +1941,12 @@
             }
         }
 
-            .swal2-confirm-responsive,
-            .swal2-cancel-responsive {
-                font-size: 12px !important;
-                padding: 6px 12px !important;
-            }
+        .swal2-confirm-responsive,
+        .swal2-cancel-responsive {
+            font-size: 12px !important;
+            padding: 6px 12px !important;
         }
 
-        /* Mobile Toggle Button */
-        .mobile-toggle {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .mobile-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
 
         /* Mobile Sidebar */
         .modern-mobile-sidebar {
@@ -2110,6 +2094,21 @@
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+            
+            .modern-sidebar {
+                display: none !important;
+            }
+            
+            /* Ensure hamburger button is visible */
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -2132,14 +2131,6 @@
                 width: 95vw !important;
             }
             
-            .mobile-toggle {
-                padding: 0.75rem;
-            }
-            
-            .mobile-toggle-btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 1rem;
-            }
             
             .mobile-brand-title {
                 font-size: 1rem;
@@ -2428,6 +2419,26 @@
                         }
                     });
                 });
+            }
+        });
+
+        // Mobile sidebar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            var mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                var offcanvas = new bootstrap.Offcanvas(mobileSidebar);
+
+                function hideOffcanvasOnDesktop() {
+                    if (window.innerWidth >= 768) { // Bootstrap's 'md' breakpoint is 768px
+                        offcanvas.hide();
+                    }
+                }
+
+                // Hide offcanvas immediately if screen is already desktop size on load
+                hideOffcanvasOnDesktop();
+
+                // Add event listener for window resize
+                window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
         });
     </script>
