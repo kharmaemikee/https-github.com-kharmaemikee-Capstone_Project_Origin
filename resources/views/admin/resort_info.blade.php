@@ -372,8 +372,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .modern-sidebar::before {
@@ -551,7 +555,7 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85vw !important;
+            width: 55vw !important;
         }
 
         .mobile-sidebar-brand {
@@ -657,6 +661,20 @@
             padding: 2rem;
             background: linear-gradient(to bottom right, #d3ecf8, #f7fbfd);
             min-height: 100vh;
+            margin-left: 280px;
+            overflow-y: auto;
+        }
+
+        /* Adjust navbar width to match sidebar */
+        .modern-navbar {
+            left: 280px;
+            right: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Hide hamburger by default (desktop) */
+        .hamburger-btn {
+            display: none !important;
         }
 
         /* Page Header Styles */
@@ -1039,6 +1057,20 @@
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                margin-left: 0;
+            }
+
+            .modern-sidebar {
+                display: none !important;
+            }
+
+            .hamburger-btn {
+                display: block !important;
+            }
+
+            .modern-navbar {
+                left: 0;
+                width: 100%;
             }
             
             .page-header {

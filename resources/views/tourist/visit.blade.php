@@ -129,7 +129,7 @@
                                             <div class="price-item">
                                                 <i class="fas fa-bed"></i>
                                                 <span class="price-label">Room Price</span>
-                                                <span class="price-value">₱{{ number_format($booking->room->price_per_night, 2) }}/night</span>
+                                                <span class="price-value">₱{{ number_format($booking->room->price_per_night, 2) }}/Per Stay</span>
                                             </div>
                                         </div>
                                     @endif

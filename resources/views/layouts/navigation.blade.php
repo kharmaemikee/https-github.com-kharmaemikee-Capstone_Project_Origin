@@ -1,4 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-light fixed-top modern-navbar">
+@php($navbarFull = request()->routeIs('profile.*'))
+<nav class="navbar navbar-expand-lg navbar-light fixed-top modern-navbar {{ $navbarFull ? 'modern-navbar--full' : '' }}">
     <div class="container-fluid d-flex align-items-center" style="padding: 0px 15px; height: 60px;">
         {{-- Back arrow --}}
         {{-- Welcome text --}}
@@ -342,6 +343,16 @@
         transition: all 0.3s ease;
         height: 60px !important;
         min-height: 60px !important;
+        /* Align navbar flush with fixed sidebar on desktop */
+        left: 280px;
+        right: 0;
+        width: calc(100% - 280px);
+    }
+
+    /* Modifier: full-width navbar for pages without sidebar (e.g., profile) */
+    .modern-navbar--full {
+        left: 0 !important;
+        width: 100% !important;
     }
 
     /* Hamburger Button Styles */
@@ -359,6 +370,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    /* Hide hamburger on desktop by default */
+    @media (min-width: 768px) {
+        .hamburger-btn { display: none !important; }
     }
 
     .hamburger-btn:hover {
@@ -577,6 +593,9 @@
     @media (max-width: 767px) {
         .modern-navbar {
             height: 60px !important;
+            /* Reset offset on mobile so navbar spans full width */
+            left: 0;
+            width: 100%;
         }
         
         .welcome-content {

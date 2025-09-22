@@ -66,7 +66,7 @@
             <div class="most-visited-section">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <i class="fas fa-fire me-2"></i>
+                        <i class="fas fa-fire me-2" style="color:#ff8a00;"></i>
                         Most Visited Resorts
                     </h2>
                     <p class="section-subtitle">Popular destinations loved by our visitors</p>
@@ -78,7 +78,7 @@
                                 <img src="{{ asset($resort->image_path ?? 'images/cottages.png') }}" 
                                      class="resort-image" 
                                      alt="{{ $resort->resort_name }}" 
-                                     onerror="handleImageError(this, '{{ asset('images/cottages.png') }}');">
+                                     data-default-image="{{ asset('images/cottages.png') }}">
                                 <div class="resort-overlay">
                                     <div class="overlay-content">
                                         <i class="fas fa-eye overlay-icon"></i>
@@ -109,7 +109,7 @@
                                         <span>{{ $resort->visit_count ?? 0 }} visits</span>
                                     </div>
                                     <div class="stat-item">
-                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star" style="color:#ffc107;"></i>
                                         <span>{{ number_format($resort->ratings_avg ?? ($resort->average_rating ?? 0), 1) }} / 5</span>
                                     </div>
                                 </div>
@@ -814,6 +814,11 @@
             color: #007bff;
         }
 
+        /* Yellow star for ratings in Most Visited Resorts */
+        .most-visited-section .stat-item .fa-star {
+            color: #f1c40f;
+        }
+
         .resort-btn {
             display: inline-flex;
             align-items: center;
@@ -1214,6 +1219,17 @@
                 // Add event listener for window resize
                 window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
+
+            // Bind error handler to resort images to set fallback image
+            document.querySelectorAll('.resort-image[data-default-image]')
+                .forEach(function(img){
+                    img.addEventListener('error', function(){
+                        var fallback = img.getAttribute('data-default-image');
+                        if (fallback && img.src !== fallback) {
+                            img.src = fallback;
+                        }
+                    });
+                });
         });
     </script>
 </x-app-layout>

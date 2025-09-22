@@ -247,10 +247,10 @@
                                     <i class="fas fa-check-circle me-1"></i>
                                     Admin Status
                                 </div>
-                                <div class="info-value">
+                                <!-- <div class="info-value">
                                     <span class="status-badge status-approved">Approved</span>
                                     <small class="status-note">Automatically approved on registration</small>
-                                </div>
+                                </div> -->
                             </div>
                             
                             @if ($resort->facebook_page_link)
