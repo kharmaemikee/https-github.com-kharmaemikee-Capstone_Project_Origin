@@ -926,18 +926,21 @@
         }
 
         .brand-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .brand-icon-img {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             filter: brightness(0) invert(1);
         }
 
@@ -947,15 +950,17 @@
 
         .brand-title {
             color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.25rem;
+            font-weight: 700;
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .brand-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
             margin: 0;
+            font-weight: 400;
         }
 
         /* Sidebar Navigation */
@@ -974,51 +979,107 @@
         .sidebar-nav .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover::before {
+            opacity: 1;
         }
 
         .sidebar-nav .nav-link:hover {
-            background: rgba(255, 255, 255, 0.1);
             color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-nav .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav .nav-link.active::before {
+            opacity: 1;
         }
 
         .nav-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 0.75rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .nav-icon-img {
             width: 20px;
             height: 20px;
             filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         .nav-text {
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
         }
 
         .nav-badge {
-            background: #dc3545;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
-            border-radius: 10px;
-            margin-left: auto;
+            border-radius: 12px;
             font-weight: 600;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .notification-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .disabled-link {

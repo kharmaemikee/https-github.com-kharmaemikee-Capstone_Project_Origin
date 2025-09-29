@@ -68,6 +68,7 @@
                                                 <h5 class="notification-title">{{ $notification->message }}</h5>
                                                 <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
                                             </div>
+                                            
                                         @if ($notification->type === 'permit_resubmit')
                                             @php
                                                 $docMap = [
@@ -101,20 +102,7 @@
                                         @endif
 
                                         @if ($notification->booking)
-                                            @if ($notification->booking->resort)
-                                                <p class="mb-1">Resort: <strong>{{ $notification->booking->resort->resort_name }}</strong></p>
-                                            @endif
-                                            @if ($notification->booking->user)
-                                                <p class="mb-1">Tourist: <strong>
-                                                    {{ trim($notification->booking->user->first_name . ' ' . $notification->booking->user->middle_name . ' ' . $notification->booking->user->last_name) }}
-                                                </strong></p>
-                                            @endif
-                                            @if ($notification->booking->room)
-                                                <p class="mb-1">Room: <strong>{{ $notification->booking->room->room_name }}</strong></p>
-                                            @endif
-                                            <p class="mb-1">Number of Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
-                                            
-                                            {{-- Guest Information Table --}}
+                                            {{-- Guest Information (moved to top) --}}
                                             @if($notification->booking->guest_name)
                                                 <hr class="my-2">
                                                 <h6>Guest Information:</h6>
@@ -203,81 +191,115 @@
                                                     </table>
                                                 </div>
                                             @endif
-                                            <p class="mb-1">Check-in: <strong>
-                                                @php
-                                                    try {
-                                                        echo \Carbon\Carbon::parse($notification->booking->check_in_date)->format('M d, Y');
-                                                    } catch(\Exception $e) {
-                                                        echo $notification->booking->check_in_date;
-                                                    }
-                                                @endphp
-                                            </strong></p>
-                                            <p class="mb-1">Tour Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
-                                            @if ($notification->booking->tour_type === 'day_tour')
-                                                <p class="mb-1">Departure (to resort): <strong>
-                                                    @php
-                                                        try {
-                                                            echo \Carbon\Carbon::parse($notification->booking->day_tour_departure_time)->format('h:i A');
-                                                        } catch(\Exception $e) {
-                                                            echo $notification->booking->day_tour_departure_time;
-                                                        }
-                                                    @endphp
-                                                </strong></p>
-                                                <p class="mb-1">Pick-up (leaving): <strong>
-                                                    @php
-                                                        try {
-                                                            echo \Carbon\Carbon::parse($notification->booking->day_tour_time_of_pickup)->format('h:i A');
-                                                        } catch(\Exception $e) {
-                                                            echo $notification->booking->day_tour_time_of_pickup;
-                                                        }
-                                                    @endphp
-                                                </strong></p>
-                                            @elseif ($notification->booking->tour_type === 'overnight')
-                                                <p class="mb-1">Departure (to resort): <strong>
-                                                    @php
-                                                        try {
-                                                            echo \Carbon\Carbon::parse($notification->booking->overnight_departure_time)->format('h:i A');
-                                                        } catch(\Exception $e) {
-                                                            echo $notification->booking->overnight_departure_time;
-                                                        }
-                                                    @endphp
-                                                </strong></p>
-                                                <p class="mb-1">Pick-up (leaving): <strong>
-                                                    @php
-                                                        try {
-                                                            echo \Carbon\Carbon::parse($notification->booking->overnight_date_time_of_pickup)->format('M d, Y h:i A');
-                                                        } catch(\Exception $e) {
-                                                            echo $notification->booking->overnight_date_time_of_pickup;
-                                                        }
-                                                    @endphp
-                                                </strong></p>
-                                                @if ($notification->booking->check_out_date)
-                                                    <p class="mb-1">Check-out Date: <strong>
-                                                        @php
-                                                            try {
-                                                                echo \Carbon\Carbon::parse($notification->booking->check_out_date)->format('M d, Y');
-                                                            } catch(\Exception $e) {
-                                                                echo $notification->booking->check_out_date;
-                                                            }
-                                                        @endphp
-                                                    </strong></p>
-                                                @endif
-                                                <p class="mb-1">Senior Citizens: <strong>{{ $notification->booking->num_senior_citizens }}</strong></p>
-                                                <p class="mb-1">PWDs: <strong>{{ $notification->booking->num_pwds }}</strong></p>
+                                            
+                                            @if ($notification->booking->resort)
+                                                <p class="mb-1">Resort: <strong>{{ $notification->booking->resort->resort_name }}</strong></p>
                                             @endif
-                                            <p class="mb-2 mt-2">Status:
-                                                @if ($notification->booking->status === 'approved')
-                                                    <span class="status-badge status-approved"><strong>Approved</strong></span>
-                                                @elseif ($notification->booking->status === 'rejected')
-                                                    <span class="status-badge status-rejected"><strong>Rejected</strong></span>
-                                                @elseif ($notification->booking->status === 'cancelled')
-                                                    <span class="status-badge status-rejected"><strong>Cancelled</strong></span>
-                                                @elseif ($notification->booking->status === 'completed')
-                                                    <span class="status-badge status-completed"><strong>Completed</strong></span>
-                                                @else
-                                                    <span class="status-badge status-pending"><strong>{{ ucfirst($notification->booking->status) }}</strong></span>
-                                                @endif
-                                            </p>
+                                            @if ($notification->booking->user)
+                                                <p class="mb-1">Tourist: <strong>
+                                                    {{ trim($notification->booking->user->first_name . ' ' . $notification->booking->user->middle_name . ' ' . $notification->booking->user->last_name) }}
+                                                </strong></p>
+                                            @endif
+                                            @if ($notification->booking->room)
+                                                <p class="mb-1">Room: <strong>{{ $notification->booking->room->room_name }}</strong></p>
+                                            @endif
+                                            <p class="mb-1">Number of Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
+                                            
+                                            <p class="mb-1">Tour Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
+                                            @php
+                                                // Always use reservation date as base
+                                                $baseDate = null;
+                                                try { $baseDate = \Carbon\Carbon::parse($notification->booking->reservation_date); }
+                                                catch(\Exception $e) { $baseDate = null; }
+                                            @endphp
+                                            @if ($notification->booking->tour_type === 'day_tour')
+                                                @php
+                                                    // Check-in uses Departure time merged onto reservation date
+                                                    $checkInDisplay = null;
+                                                    try {
+                                                        $depRaw = (string)$notification->booking->day_tour_departure_time;
+                                                        $dep = null;
+                                                        try { $dep = \Carbon\Carbon::parse($depRaw); } catch(\Exception $e) { $dep = null; }
+                                                        if ($baseDate) {
+                                                            if ($dep) { $checkInDisplay = $baseDate->copy()->setTime($dep->hour, $dep->minute, 0); }
+                                                            else { $checkInDisplay = $baseDate->copy()->setTimeFromTimeString($depRaw); }
+                                                        } else {
+                                                            $checkInDisplay = $dep ?: null;
+                                                        }
+                                                    } catch(\Exception $e) { $checkInDisplay = null; }
+
+                                                    // Check-out uses Pick-up time merged onto reservation date
+                                                    $checkOutDisplay = null;
+                                                    try {
+                                                        $pickRaw = (string)$notification->booking->day_tour_time_of_pickup;
+                                                        $pick = null;
+                                                        try { $pick = \Carbon\Carbon::parse($pickRaw); } catch(\Exception $e) { $pick = null; }
+                                                        if ($baseDate) {
+                                                            if ($pick) { $checkOutDisplay = $baseDate->copy()->setTime($pick->hour, $pick->minute, 0); }
+                                                            else { $checkOutDisplay = $baseDate->copy()->setTimeFromTimeString($pickRaw); }
+                                                        } else {
+                                                            $checkOutDisplay = $pick ?: null;
+                                                        }
+                                                    } catch(\Exception $e) { $checkOutDisplay = null; }
+                                                @endphp
+                                                @php
+                                                    // Ensure Check-out is not earlier than Check-in
+                                                    try {
+                                                        if ($checkInDisplay && $checkOutDisplay && $checkOutDisplay->lt($checkInDisplay)) {
+                                                            $targetBase = null;
+                                                            try { $targetBase = \Carbon\Carbon::parse((string)$notification->booking->check_out_date); } catch(\Exception $e) { $targetBase = null; }
+                                                            if (!$targetBase) {
+                                                                $nights = (int)($notification->booking->number_of_nights ?? 0);
+                                                                if ($baseDate && $nights > 0) { $targetBase = $baseDate->copy()->addDays($nights); }
+                                                            }
+                                                            if ($targetBase) {
+                                                                $checkOutDisplay = $targetBase->copy()->setTime($checkOutDisplay->hour, $checkOutDisplay->minute, 0);
+                                                            }
+                                                        }
+                                                    } catch(\Exception $e) {}
+                                                @endphp
+                                                <p class="mb-1">Check-in: <strong>{{ $checkInDisplay ? $checkInDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
+                                                <p class="mb-1">Check-out: <strong>{{ $checkOutDisplay ? $checkOutDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
+                                            @elseif ($notification->booking->tour_type === 'overnight')
+                                                @php
+                                                    // Check-in uses Overnight departure time's time merged onto reservation date
+                                                    $checkInDisplay = null;
+                                                    try {
+                                                        $depRaw = (string)$notification->booking->overnight_departure_time;
+                                                        $dep = null;
+                                                        try { $dep = \Carbon\Carbon::parse($depRaw); } catch(\Exception $e) { $dep = null; }
+                                                        if ($baseDate) {
+                                                            if ($dep) { $checkInDisplay = $baseDate->copy()->setTime($dep->hour, $dep->minute, 0); }
+                                                            else { $checkInDisplay = $baseDate->copy()->setTimeFromTimeString($depRaw); }
+                                                        } else {
+                                                            $checkInDisplay = $dep ?: null;
+                                                        }
+                                                    } catch(\Exception $e) { $checkInDisplay = null; }
+
+                                                    // Check-out uses full overnight pickup datetime if provided
+                                                    $checkOutDisplay = null;
+                                                    try { $checkOutDisplay = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup); }
+                                                    catch(\Exception $e) { $checkOutDisplay = null; }
+                                                @endphp
+                                                @php
+                                                    // Ensure Check-out is not earlier than Check-in
+                                                    try {
+                                                        if ($checkInDisplay && $checkOutDisplay && $checkOutDisplay->lt($checkInDisplay)) {
+                                                            $targetBase = null;
+                                                            try { $targetBase = \Carbon\Carbon::parse((string)$notification->booking->check_out_date); } catch(\Exception $e) { $targetBase = null; }
+                                                            if (!$targetBase && $baseDate) {
+                                                                $nights = (int)($notification->booking->number_of_nights ?? 0);
+                                                                if ($nights > 0) { $targetBase = $baseDate->copy()->addDays($nights); }
+                                                            }
+                                                            if ($targetBase) {
+                                                                $checkOutDisplay = $targetBase->copy()->setTime($checkOutDisplay->hour, $checkOutDisplay->minute, 0);
+                                                            }
+                                                        }
+                                                    } catch(\Exception $e) {}
+                                                @endphp
+                                                <p class="mb-1">Check-in: <strong>{{ $checkInDisplay ? $checkInDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
+                                                <p class="mb-1">Check-out: <strong>{{ $checkOutDisplay ? $checkOutDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
+                                            @endif
 
                                             {{-- Show assigned boat & captain if available --}}
                                             @if ($notification->booking->status === 'approved')
@@ -286,21 +308,18 @@
                                                     $assignedBoatName = $notification->booking->assigned_boat ?? ($assignedBoatModel->boat_name ?? null);
                                                     $captainName = $notification->booking->boat_captain_crew
                                                         ?? ($assignedBoatModel->captain_name ?? null);
-                                                    $boatNumber = $assignedBoatModel->boat_number ?? null;
+                                                    // removed boat number display
                                                     $boatLength = $assignedBoatModel->boat_length ?? null;
                                                 @endphp
-                                                @if ($assignedBoatName || $captainName)
+                                                @if ($assignedBoatName)
+                                                    <p class="mb-1"><strong>Boat No:</strong> #{{ $loop->iteration }}</p>
                                                     <div class="mt-2">
                                                         @if($assignedBoatName)
                                                             <p class="mb-1">Assigned Boat: <strong>{{ $assignedBoatName }}</strong></p>
                                                         @endif
-                                                        @if($boatNumber)
-                                                            <p class="mb-1">Boat No: <strong>{{ $boatNumber }}</strong></p>
-                                                        @endif
                                                         @if($boatLength)
                                                             <p class="mb-1">Boat Length: <strong>{{ $boatLength }}</strong></p>
                                                         @endif
-                                                        <p class="mb-1">Boat Captain: <strong>{{ $captainName ?? 'N/A' }}</strong></p>
                                                     </div>
                                                 @endif
                                             @endif

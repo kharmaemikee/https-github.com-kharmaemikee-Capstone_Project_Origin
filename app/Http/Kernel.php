@@ -5,6 +5,7 @@ namespace App\Http;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Auth\Middleware\Authenticate;
 use \App\Http\Middleware\RoleMiddleware; // Ensure custom role middleware is imported
+use \App\Http\Middleware\AuthenticateWithPhone; // Phone verification middleware
 use Illuminate\Middleware\ThrottleRequests; // This will be removed
 
 
@@ -68,7 +69,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'rolemiddleware' => RoleMiddleware::class,
-        'phone.verified' => \App\Http\Middleware\AuthenticateWithPhone::class,
+        'phone.verified' => AuthenticateWithPhone::class,
         
     ];
 }

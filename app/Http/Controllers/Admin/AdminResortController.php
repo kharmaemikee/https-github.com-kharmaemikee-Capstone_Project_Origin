@@ -44,9 +44,10 @@ class AdminResortController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Load rooms associated with the resort, ordered by admin_status
+        // Load only non-archived rooms associated with the resort, ordered by admin_status
         $resort->load(['rooms' => function($query) {
-            $query->orderByRaw("FIELD(admin_status, 'pending', 'rejected', 'approved')");
+            $query->where('archived', false)
+                  ->orderByRaw("FIELD(admin_status, 'pending', 'rejected', 'approved')");
         }]);
 
         return view('admin.resort-details-for-admin', compact('resort'));

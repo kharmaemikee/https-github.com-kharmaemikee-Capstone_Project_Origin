@@ -5,6 +5,8 @@
     use App\Http\Controllers\Controller;
     use Illuminate\Http\RedirectResponse;
     use Illuminate\Http\Request;
+    use App\Services\SemaphoreSmsService;
+    use Illuminate\Support\Facades\Cache;
 
     class PhoneVerificationNotificationController extends Controller
     {
@@ -13,22 +15,36 @@
          */
         public function store(Request $request): RedirectResponse
         {
-            // If the user's phone is already verified, redirect to dashboard.
-            if ($request->user()->hasVerifiedPhone()) {
-                return redirect()->intended(route('dashboard', absolute: false));
+            // If admin or already verified, redirect appropriately (admins go to admin dashboard)
+            $role = strtolower(trim((string)$request->user()->role));
+            if ($request->user()->hasVerifiedPhone() || $role === 'admin') {
+                return $role === 'admin'
+                    ? redirect()->route('admin')
+                    : redirect()->route('dashboard');
             }
 
             // Generate a new 6-digit OTP code
             $otpCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
             
-            // Debug: Log the new OTP being generated
-            \Illuminate\Support\Facades\Log::info('Resending OTP for user: ' . $request->user()->id . ', New OTP: ' . $otpCode);
+            // Avoid logging OTP values in production
+            \Illuminate\Support\Facades\Log::info('Resending OTP generated for user: ' . $request->user()->id);
             
-            // Store OTP in phone_verified_at column temporarily
-            $request->user()->update(['phone_verified_at' => $otpCode]);
-            
-            // Debug: Log the updated user's phone_verified_at value
-            \Illuminate\Support\Facades\Log::info('User updated with new phone_verified_at: ' . $request->user()->fresh()->phone_verified_at);
+            // Store OTP in cache for 10 minutes instead of DB
+            Cache::put('otp:verify:' . $request->user()->id, $otpCode, now()->addMinutes(10));
+
+            // Send OTP via Semaphore
+            try {
+                $sms = new SemaphoreSmsService();
+                $message = 'Code: ' . $otpCode;
+                $sent = $sms->send($request->user()->phone, $message);
+                if (!$sent) {
+                    // Surface a user-facing notice if sending failed
+                    return back()->with('status', 'verification-sms-failed');
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send Semaphore SMS for resend: ' . $e->getMessage());
+                return back()->with('status', 'verification-sms-error');
+            }
 
             // Redirect back with a status message.
             return back()->with('status', 'verification-code-sent');

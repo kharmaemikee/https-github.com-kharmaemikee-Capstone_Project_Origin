@@ -212,7 +212,6 @@
                             <th scope="col">Location</th>
                             <th scope="col">Contact</th>
                                 <th scope="col" class="text-center">Owner Status</th>
-                                <th scope="col" class="text-center">Admin Status</th>
                                 <th scope="col" class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -262,28 +261,6 @@
                                             {{ ucfirst($resort->status ?? 'N/A') }}
                                         </span>
                                 </td>
-                                    <td class="admin-status-cell text-center">
-                                    @php
-                                        $adminStatusClass = '';
-                                        switch ($resort->admin_status) {
-                                                case 'pending': $adminStatusClass = 'badge-info'; break;
-                                                case 'approved': $adminStatusClass = 'badge-success'; break;
-                                                case 'rejected': $adminStatusClass = 'badge-danger'; break;
-                                                default: $adminStatusClass = 'badge-secondary'; break;
-                                        }
-                                    @endphp
-                                        <span class="badge {{ $adminStatusClass }} status-badge">
-                                            {{ ucfirst($resort->admin_status ?? 'N/A') }}
-                                        </span>
-                                    @if (($resort->admin_status ?? '') === 'rejected' && $resort->rejection_reason)
-                                            <div class="rejection-reason-small">
-                                                <small class="text-muted">
-                                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                                    {{ Str::limit($resort->rejection_reason, 30) }}
-                                                </small>
-                                            </div>
-                                    @endif
-                                </td>
                                     <td class="actions-cell text-center">
                                         <div class="action-buttons">
                                             <a href="{{ route('admin.resort.show', $resort->id) }}" class="btn btn-sm btn-primary">
@@ -317,7 +294,7 @@
                             </tr>
                         @empty
                             <tr>
-                                    <td colspan="7" class="text-center empty-state-cell">
+                                    <td colspan="6" class="text-center empty-state-cell">
                                         <div class="empty-state">
                                             <i class="fas fa-hotel empty-icon"></i>
                                             <h5 class="empty-title">No Resorts Found</h5>
@@ -929,8 +906,7 @@
         }
 
         /* Status Cells */
-        .status-cell,
-        .admin-status-cell {
+        .status-cell {
             min-width: 100px;
             max-width: 120px;
         }
@@ -1042,8 +1018,7 @@
                 max-width: 100px;
             }
             
-            .status-cell,
-            .admin-status-cell {
+            .status-cell {
                 min-width: 80px;
                 max-width: 100px;
             }

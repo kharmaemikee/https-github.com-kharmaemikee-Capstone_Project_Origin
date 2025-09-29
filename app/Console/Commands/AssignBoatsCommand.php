@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\TouristNotification;
 use App\Models\ResortOwnerNotification;
 use App\Models\BoatOwnerNotification;
+use App\Services\SemaphoreSmsService;
 use Carbon\Carbon;
 
 class AssignBoatsCommand extends Command
@@ -123,6 +124,54 @@ class AssignBoatsCommand extends Command
                         'type' => 'boat_assigned_now',
                         'is_read' => false,
                     ]);
+
+                    // Send SMS notification to boat owner
+                    try {
+                        $boatOwner = $foundBoat->user;
+                        if ($boatOwner && $boatOwner->phone_number) {
+                            $smsService = new SemaphoreSmsService();
+                            
+                            // Format departure/pickup times
+                            $departureTime = '';
+                            $pickupTime = '';
+                            
+                            if ($booking->tour_type === 'day_tour' && $booking->day_tour_departure_time) {
+                                $depTime = $booking->day_tour_departure_time;
+                                if (is_string($depTime) && strpos($depTime, ' ') !== false) {
+                                    $depTime = explode(' ', $depTime)[1];
+                                }
+                                $departureTime = "Departure: " . \Carbon\Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $depTime)->format('M j, Y g:i A');
+                            } elseif ($booking->tour_type === 'overnight' && $booking->overnight_departure_time) {
+                                $departureTime = "Departure: " . \Carbon\Carbon::parse($booking->overnight_departure_time)->format('M j, Y g:i A');
+                            }
+                            
+                            if ($booking->tour_type === 'day_tour' && $booking->day_tour_time_of_pickup) {
+                                $pickTime = $booking->day_tour_time_of_pickup;
+                                if (is_string($pickTime) && strpos($pickTime, ' ') !== false) {
+                                    $pickTime = explode(' ', $pickTime)[1];
+                                }
+                                $pickupTime = "Pickup: " . \Carbon\Carbon::parse($booking->check_in_date->format('Y-m-d') . ' ' . $pickTime)->format('M j, Y g:i A');
+                            } elseif ($booking->tour_type === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                $pickupTime = "Pickup: " . \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('M j, Y g:i A');
+                            }
+                            
+                            $timeInfo = $departureTime . ($pickupTime ? " | " . $pickupTime : "");
+                            
+                            $message = "Hello! Your boat " . $foundBoat->boat_name . " has been assigned to a tourist booking. " . 
+                                     "Tourist: " . ($booking->guest_name ?? 'N/A') . " | " .
+                                     "Resort: " . $booking->name_of_resort . " | " .
+                                     "Room: " . ($booking->room->room_name ?? 'N/A') . " | " .
+                                     $timeInfo . " | " .
+                                     "Contact: " . ($booking->guest_contact_number ?? 'N/A') . ". " .
+                                     "Thank you for your service with Matnog Tourism!";
+                            
+                            $smsService->send($boatOwner->phone_number, $message);
+                            
+                            $this->info("SMS sent to boat owner: " . $boatOwner->phone_number . " for booking " . $booking->id);
+                        }
+                    } catch (\Throwable $e) {
+                        $this->error("Failed to send SMS to boat owner for booking " . $booking->id . ": " . $e->getMessage());
+                    }
                 }
 
             } catch (\Throwable $e) {

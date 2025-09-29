@@ -30,23 +30,36 @@ class AuthenticatedSessionController extends Controller
         // Regenerate the session
         $request->session()->regenerate();
 
+        // Clear any stale intended URL and verification-related session data
+        $request->session()->forget([
+            'url.intended',
+            'password_reset_user_id',
+            'register_step1',
+            'booking_data',
+            'intended_room_id',
+            'current_user_id'
+        ]);
+
         // Get the authenticated user
         $user = Auth::user();
 
-        // Check if user has verified their phone
+        // Immediate admin redirect to admin dashboard view (admin/admin.blade.php)
+        if (strtolower(trim((string)$user->role)) === 'admin') {
+            return redirect()->route('admin');
+        }
+
+        // Enforce phone verification for non-admin users (case-insensitive, trimmed role check)
         if (!$user->hasVerifiedPhone()) {
             return redirect()->route('verification.notice');
         }
 
         // Redirect to the specific dashboard based on user role
-        // It's good practice to encapsulate this logic, e.g., in the User model,
-        // but for now, it's fine here.
-        return match ($user->role) {
-            'admin' => redirect()->route('admin'),
-            'resort_owner' => redirect()->route('resort.owner.dashboard'), // Changed from 'resort' to 'resort.owner.dashboard'
-            'boat_owner' => redirect()->route('boat.owner.dashboard'),     // Changed from 'boat' to 'boat.owner.dashboard'
-            'tourist' => redirect()->route('tourist.tourist'),     // Assuming 'tourist.tourist' is a named route
-            default => redirect()->route('dashboard'),    // Default fallback
+        $role = strtolower(trim((string)$user->role));
+        return match ($role) {
+            'resort_owner' => redirect()->route('resort.owner.dashboard'),
+            'boat_owner' => redirect()->route('boat.owner.dashboard'),
+            'tourist' => redirect()->route('tourist.tourist'),
+            default => redirect()->route('dashboard'),
         };
     }
 

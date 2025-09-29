@@ -24,8 +24,8 @@ class ExploreController extends Controller
                              ->orderBy('resort_name')
                              ->get();
 
-        // Check if the current route is 'tourist.list' and user is authenticated
-        if ($request->routeIs('tourist.list') && Auth::check()) {
+        // Check if the current route is 'tourist.list' and user is authenticated and phone verified
+        if ($request->routeIs('tourist.list') && Auth::check() && Auth::user()->hasVerifiedPhone()) {
             return view('tourist.list', compact('resorts'));
         }
 
@@ -55,12 +55,12 @@ class ExploreController extends Controller
             $query->where('archived', false)->with('images');
         }]);
 
-        // If the user is authenticated and is a 'tourist', render the tourist-specific view.
-        if (Auth::check() && Auth::user()->role === 'tourist') {
+        // If the user is authenticated, is a 'tourist', AND has verified their phone, render the tourist-specific view.
+        if (Auth::check() && Auth::user()->role === 'tourist' && Auth::user()->hasVerifiedPhone()) {
             return view('tourist.showtour', compact('resort'));
         }
 
-        // Otherwise (not authenticated, or not a tourist), use the public explore view.
+        // Otherwise (not authenticated, not a tourist, or not phone verified), use the public explore view.
         return view('explore.showex', compact('resort'));
     }
 }

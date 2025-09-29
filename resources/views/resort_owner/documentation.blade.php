@@ -312,16 +312,12 @@
                                         Tour Type
                                     </th>
                                     <th class="table-header-cell">
-                                        <i class="fas fa-moon me-1"></i>
-                                        Overnight Departure
+                                        <i class="fas fa-sign-in-alt me-1"></i>
+                                        Check-in
                                     </th>
                                     <th class="table-header-cell">
-                                        <i class="fas fa-sun me-1"></i>
-                                        Day Tour Departure
-                                    </th>
-                                    <th class="table-header-cell">
-                                        <i class="fas fa-car me-1"></i>
-                                        Pick-up Time
+                                        <i class="fas fa-sign-out-alt me-1"></i>
+                                        Check-out
                                     </th>
                                     <th class="table-header-cell text-center">
                                         <i class="fas fa-cog me-1"></i>
@@ -354,71 +350,72 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td class="table-cell" data-col="overnight">
+                                        <td class="table-cell" data-col="checkin">
                                             <div class="cell-content">
-                                                <i class="fas fa-moon me-2 text-warning"></i>
+                                                <i class="fas fa-sign-in-alt me-2 text-primary"></i>
                                                 @php
-                                                    $overnightDep = null;
+                                                    $ciText = '—';
                                                     try {
-                                                        if (!empty($booking->overnight_departure_time)) {
-                                                            // Handle both datetime format (2024-01-15T14:30) and time format (14:30)
+                                                        $ciBase = !empty($booking->check_in_date) ? \Carbon\Carbon::parse($booking->check_in_date) : null;
+                                                        $reservationBase = !empty($booking->reservation_date) ? \Carbon\Carbon::parse($booking->reservation_date) : null;
+                                                        // Always start from reservation date for Check-in display
+                                                        $ci = $reservationBase ?: $ciBase;
+                                                        // Check-in should display DEPARTURE time (going to resort)
+                                                        if (($booking->tour_type ?? '') === 'day_tour' && !empty($booking->day_tour_departure_time)) {
+                                                            // If full datetime provided in fill-up, use as-is; else merge time onto check-in date
+                                                            if (strpos($booking->day_tour_departure_time, 'T') !== false || strpos($booking->day_tour_departure_time, ' ') !== false) {
+                                                                $dep = \Carbon\Carbon::parse($booking->day_tour_departure_time);
+                                                                $base = $reservationBase ?: $ciBase;
+                                                                if ($base) { $ci = $base->copy()->setTime($dep->hour, $dep->minute, 0); }
+                                                            } else {
+                                                                // Use reservation date as base for day tours
+                                                                $base = $reservationBase ?: $ciBase;
+                                                                $ci = $base ? $base->copy()->setTimeFromTimeString($booking->day_tour_departure_time) : $ci;
+                                                            }
+                                                        } elseif (($booking->tour_type ?? '') === 'overnight' && !empty($booking->overnight_departure_time)) {
                                                             if (strpos($booking->overnight_departure_time, 'T') !== false) {
-                                                                // Datetime format: extract time part
-                                                                $overnightDep = \Carbon\Carbon::parse($booking->overnight_departure_time)->format('h:i A');
-                                                            } else {
-                                                                // Time format: parse directly
-                                                                $overnightDep = \Carbon\Carbon::createFromFormat('H:i', $booking->overnight_departure_time)->format('h:i A');
+                                                                $dep = \Carbon\Carbon::parse($booking->overnight_departure_time);
+                                                                $base = $reservationBase ?: $ciBase;
+                                                                if ($base) { $ci = $base->copy()->setTime($dep->hour, $dep->minute, 0); }
+                                                            } elseif ($reservationBase ?: $ciBase) {
+                                                                $base = $reservationBase ?: $ciBase;
+                                                                $ci = $base ? $base->copy()->setTimeFromTimeString($booking->overnight_departure_time) : $ci;
                                                             }
                                                         }
-                                                    } catch (\Exception $e) { 
-                                                        $overnightDep = $booking->overnight_departure_time ?? null; 
-                                                    }
-                                                    @endphp
-                                                <span class="time-value">{{ $overnightDep ?? '—' }}</span>
+                                                        if ($ci) { $ciText = $ci->format('h:i A - M d, Y'); }
+                                                    } catch (\Exception $e) { $ciText = '—'; }
+                                                @endphp
+                                                <span class="time-value">{{ $ciText }}</span>
                                             </div>
                                         </td>
-                                        <td class="table-cell" data-col="daytour">
+                                        <td class="table-cell" data-col="checkout">
                                             <div class="cell-content">
-                                                <i class="fas fa-sun me-2 text-warning"></i>
+                                                <i class="fas fa-sign-out-alt me-2 text-danger"></i>
                                                 @php
-                                                    $dayDep = null;
+                                                    $coText = '—';
                                                     try {
-                                                        if (!empty($booking->day_tour_departure_time)) {
-                                                            // Handle both datetime format (2025-09-20 08:00:00) and time format (08:00)
-                                                            if (strpos($booking->day_tour_departure_time, ' ') !== false) {
-                                                                // Datetime format: extract time part
-                                                                $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
-                                                            } elseif (strpos($booking->day_tour_departure_time, 'T') !== false) {
-                                                                // ISO datetime format: extract time part
-                                                                $dayDep = \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
+                                                        $ciBase = !empty($booking->check_in_date) ? \Carbon\Carbon::parse($booking->check_in_date) : null;
+                                                        $coBase = !empty($booking->check_out_date) ? \Carbon\Carbon::parse($booking->check_out_date) : null;
+                                                        $reservationBase = !empty($booking->reservation_date) ? \Carbon\Carbon::parse($booking->reservation_date) : null;
+                                                        $co = $coBase;
+                                                        // Check-out should display PICK-UP time (leaving resort)
+                                                        if (($booking->tour_type ?? '') === 'day_tour' && !empty($booking->day_tour_time_of_pickup)) {
+                                                            // If full datetime provided in fill-up, use as-is; else merge onto reservation date
+                                                            if (strpos($booking->day_tour_time_of_pickup, 'T') !== false || strpos($booking->day_tour_time_of_pickup, ' ') !== false) {
+                                                                $co = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup);
                                                             } else {
-                                                                // Time format: parse directly
-                                                                $dayDep = \Carbon\Carbon::createFromFormat('H:i', $booking->day_tour_departure_time)->format('h:i A');
+                                                                // Use reservation date as base for day tours (ignore booking checkout)
+                                                                $base = $reservationBase ?: $ciBase;
+                                                                $co = $base ? $base->copy()->setTimeFromTimeString($booking->day_tour_time_of_pickup) : $co;
                                                             }
+                                                        } elseif (($booking->tour_type ?? '') === 'overnight' && !empty($booking->overnight_date_time_of_pickup)) {
+                                                            // Likely full datetime
+                                                            $co = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup);
                                                         }
-                                                    } catch (\Exception $e) { 
-                                                        $dayDep = $booking->day_tour_departure_time ?? null; 
-                                                    }
-                                                    @endphp
-                                                <span class="time-value">{{ $dayDep ?? '—' }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="table-cell" data-col="pickup">
-                                            <div class="cell-content">
-                                                <i class="fas fa-car me-2 text-success"></i>
-                                                @php
-                                                    $pickupText = '—';
-                                                    try {
-                                                        if (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
-                                                            $pickupText = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('Y-m-d h:i A');
-                                                        } elseif (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_time_of_pickup) {
-                                                            $pickupText = \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
-                                                            }
-                                                        } catch (\Exception $e) {
-                                                        $pickupText = ($booking->tour_type === 'overnight') ? ($booking->overnight_date_time_of_pickup ?? '—') : ($booking->day_tour_time_of_pickup ?? '—');
-                                                        }
-                                                    @endphp
-                                                <span class="time-value">{{ $pickupText }}</span>
+                                                        if ($co) { $coText = $co->format('h:i A - M d, Y'); }
+                                                    } catch (\Exception $e) { $coText = '—'; }
+                                                @endphp
+                                                <span class="time-value">{{ $coText }}</span>
                                             </div>
                                         </td>
                                         
@@ -446,10 +443,15 @@
                                                         data-extension="{{ ($booking->is_extended ?? false) ? ('+' . ($booking->extension_value ?? '') . ' ' . ($booking->extension_type ?? '')) : '' }}"
                                                         data-check-in="{{ !empty($booking->check_in_date) ? (\Carbon\Carbon::parse($booking->check_in_date)->format('Y-m-d')) : '' }}"
                                                         data-check-out="{{ !empty($booking->check_out_date) ? (\Carbon\Carbon::parse($booking->check_out_date)->format('Y-m-d')) : '' }}"
+                                                        data-tour-type="{{ $booking->tour_type ?? '' }}"
+                                                        data-day-departure="{{ $booking->day_tour_departure_time ?? '' }}"
+                                                        data-overnight-departure="{{ $booking->overnight_departure_time ?? '' }}"
+                                                        data-day-pickup="{{ $booking->day_tour_time_of_pickup ?? '' }}"
+                                                        data-overnight-pickup="{{ $booking->overnight_date_time_of_pickup ?? '' }}"
                                                         data-seniors="{{ $booking->num_senior_citizens ?? '' }}"
                                                         data-pwds="{{ $booking->num_pwds ?? '' }}"
                                                         data-boat-name="{{ $assignedBoat->boat_name ?? '' }}"
-                                                        data-boat-number="{{ $assignedBoat->boat_number ?? '' }}">
+                                                        >
                                                     <i class="fas fa-eye me-1"></i>
                                                     View
                                                 </button>
@@ -458,7 +460,7 @@
                                     </tr>
                                 @empty
                                     <tr class="table-row">
-                                        <td colspan="7" class="table-cell text-center">
+                                        <td colspan="6" class="table-cell text-center">
                                             <div class="empty-state">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                                 <h5 class="text-muted">No bookings found</h5>
@@ -1229,14 +1231,6 @@
                                 </h6>
                                 <div class="info-grid">
                                     <div class="info-item">
-                                        <span class="info-label">Check-in:</span>
-                                        <span class="info-value" id="docCheckIn">—</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Check-out:</span>
-                                        <span class="info-value" id="docCheckOut">—</span>
-                                    </div>
-                                    <div class="info-item">
                                         <span class="info-label">Seniors:</span>
                                         <span class="info-value" id="docSeniors">—</span>
                                     </div>
@@ -1259,10 +1253,7 @@
                                         <span class="info-label">Boat Name:</span>
                                         <span class="info-value" id="docBoatName">N/A</span>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Plate Number:</span>
-                                        <span class="info-value" id="docBoatNumber">N/A</span>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -1366,6 +1357,51 @@
             document.querySelectorAll('.view-details-btn').forEach(function(btn){
                 btn.addEventListener('click', function(){
                     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || 'N/A'; };
+                    // Helpers to mirror admin modal formatting
+                    const isBlankVal = (v) => {
+                        if (v === null || v === undefined) return true;
+                        const s = String(v).trim();
+                        return s === '' || s === 'N/A' || s === '—' || s.toLowerCase() === 'na';
+                    };
+                    const firstNonBlank = (...vals) => { for (const v of vals) { if (!isBlankVal(v)) return v; } return 'N/A'; };
+                    const formatTimeWithDate = (raw, baseDateRaw = null) => {
+                        if (!raw) return raw;
+                        const trimmed = String(raw).trim();
+                        if (trimmed === 'N/A' || trimmed === '—' || trimmed.toLowerCase() === 'na') return trimmed;
+                        const monthAbbr = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+                        let d = new Date(trimmed);
+                        if (isNaN(d.getTime())) {
+                            const normalized = trimmed.replace(' ', 'T');
+                            d = new Date(normalized);
+                        }
+                        if (isNaN(d.getTime())) {
+                            const timeMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+                            if (timeMatch && baseDateRaw) {
+                                let base = new Date(String(baseDateRaw).replace(' ', 'T'));
+                                if (!isNaN(base.getTime())) {
+                                    let hours = parseInt(timeMatch[1], 10);
+                                    const minutes = parseInt(timeMatch[2], 10);
+                                    const ampm = timeMatch[3].toUpperCase();
+                                    if (ampm === 'PM' && hours !== 12) hours += 12;
+                                    if (ampm === 'AM' && hours === 12) hours = 0;
+                                    base.setHours(hours, minutes, 0, 0);
+                                    d = base;
+                                }
+                            }
+                        }
+                        if (isNaN(d.getTime())) return trimmed;
+                        const hh = d.getHours();
+                        const mm = d.getMinutes();
+                        const ampm = hh >= 12 ? 'PM' : 'AM';
+                        const hour12 = hh % 12 === 0 ? 12 : hh % 12;
+                        const mmStr = String(mm).padStart(2, '0');
+                        const timeStr = `${hour12}:${mmStr} ${ampm}`;
+                        const m = d.getMonth();
+                        const day = d.getDate();
+                        const year = d.getFullYear();
+                        const dateStr = `${monthAbbr[m]} ${day}, ${year}`;
+                        return `${timeStr} - ${dateStr}`;
+                    };
                     
                     // Parse guest information and populate table
                     const guestName = this.getAttribute('data-guest-name') || '';
@@ -1505,9 +1541,8 @@
                     setText('docExtended', this.getAttribute('data-extended') || 'No');
                     setText('docExtension', this.getAttribute('data-extension') || '—');
 
-                    // New fields passed via data attributes
-                    setText('docCheckIn', this.getAttribute('data-check-in') || '—');
-                    setText('docCheckOut', this.getAttribute('data-check-out') || '—');
+                    // New fields passed via data attributes (mix departure/pickup into check-in/out like admin)
+                    // Removed check-in/check-out display in modal per request
                     setText('docSeniors', this.getAttribute('data-seniors') || '—');
                     setText('docPwds', this.getAttribute('data-pwds') || '—');
                 });

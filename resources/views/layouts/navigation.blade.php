@@ -55,19 +55,20 @@
         <div class="d-lg-none ms-auto mobile-nav-container"> 
             <div class="dropdown d-inline-block">
                 @auth
-                    @if(Auth::user()->role === 'admin')
-                        {{-- Admin: Show only name without image --}}
-                        <button class="btn modern-user-btn d-flex align-items-center" type="button" id="mobileMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar admin-avatar">
-                                <i class="fas fa-user-shield"></i>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-name">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
-                                <small class="user-role">Administrator</small>
-                            </div>
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
-                        </button>
-                    @elseif(Auth::user()->owner_image_path)
+                    @if(Auth::user()->hasVerifiedPhone())
+                        @if(Auth::user()->role === 'admin')
+                            {{-- Admin: Show only name without image --}}
+                            <button class="btn modern-user-btn d-flex align-items-center" type="button" id="mobileMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar admin-avatar">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
+                                    <small class="user-role">Administrator</small>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                        @elseif(Auth::user()->owner_image_path)
                         {{-- Show image for owners (approved only) or tourist (no approval needed) --}}
                         <button class="btn modern-user-btn d-flex align-items-center" type="button" id="mobileMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="user-avatar">
@@ -106,6 +107,21 @@
                                     @elseif(Auth::user()->role === 'tourist') Tourist
                                     @endif
                                 </small>
+                            </div>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        </button>
+                        @endif
+                    @else
+                        {{-- Show guest mode for unverified users --}}
+                        <button class="btn modern-user-btn d-flex align-items-center" type="button" id="mobileMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                <div class="user-image-fallback">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">Guest</span>
+                                <small class="user-role">Visitor</small>
                             </div>
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                         </button>
@@ -190,19 +206,20 @@
         <div class="d-none d-lg-block ms-auto desktop-nav-container">
             <div class="dropdown d-inline-block">
                 @auth
-                    @if(Auth::user()->role === 'admin')
-                        {{-- Admin: Show only name without image --}}
-                        <a href="#" class="modern-user-link d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar admin-avatar">
-                                <i class="fas fa-user-shield"></i>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-name">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
-                                <small class="user-role">Administrator</small>
-                            </div>
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
-                        </a>
-                    @elseif(Auth::user()->owner_image_path)
+                    @if(Auth::user()->hasVerifiedPhone())
+                        @if(Auth::user()->role === 'admin')
+                            {{-- Admin: Show only name without image --}}
+                            <a href="#" class="modern-user-link d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar admin-avatar">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name">{{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}</span>
+                                    <small class="user-role">Administrator</small>
+                                </div>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </a>
+                        @elseif(Auth::user()->owner_image_path)
                         {{-- Show image only for owners (approved only) or tourist (no approval needed) --}}
                         <a href="#" class="modern-user-link d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="user-avatar">
@@ -244,6 +261,21 @@
                             </div>
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                         </a>
+                        @endif
+                    @else
+                        {{-- Show guest mode for unverified users --}}
+                        <a href="#" class="modern-user-link d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                <div class="user-image-fallback">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">Guest</span>
+                                <small class="user-role">Visitor</small>
+                            </div>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        </a>
                     @endif
             @else
                     <a href="#" class="modern-user-link d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -261,32 +293,33 @@
             @endauth
             <ul class="dropdown-menu dropdown-menu-end modern-dropdown" aria-labelledby="userDropdown">
                 @auth
-                    @if(Auth::user()->role === 'admin')
-                        {{-- Admin dropdown: Include profile option --}}
-                        <li>
-                            <div class="dropdown-header">
-                                <div class="user-header-info">
-                                    <i class="fas fa-user-shield text-primary me-2"></i>
-                                    <div>
-                                        <h6 class="mb-0">Hi {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}!</h6>
-                                        <small class="text-muted">Administrator</small>
+                    @if(Auth::user()->hasVerifiedPhone())
+                        @if(Auth::user()->role === 'admin')
+                            {{-- Admin dropdown: Include profile option --}}
+                            <li>
+                                <div class="dropdown-header">
+                                    <div class="user-header-info">
+                                        <i class="fas fa-user-shield text-primary me-2"></i>
+                                        <div>
+                                            <h6 class="mb-0">Hi {{ trim(Auth::user()->first_name.' '.(Auth::user()->middle_name ? Auth::user()->middle_name.' ' : '').Auth::user()->last_name) }}!</h6>
+                                            <small class="text-muted">Administrator</small>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item modern-dropdown-item" href="{{ route('profile.edit') }}">
-                            <i class="fas fa-user-edit me-2"></i>Profile
-                        </a></li>
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button class="dropdown-item modern-dropdown-item logout-btn" type="submit">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Log Out
-                                </button>
-                            </form>
-                        </li>
-                    @else
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ route('profile.edit') }}">
+                                <i class="fas fa-user-edit me-2"></i>Profile
+                            </a></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button class="dropdown-item modern-dropdown-item logout-btn" type="submit">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Log Out
+                                    </button>
+                                </form>
+                            </li>
+                        @else
                         {{-- Other users dropdown: Include profile option --}}
                         @if(in_array(Auth::user()->role, ['resort_owner', 'boat_owner', 'tourist']))
                             <li>
@@ -318,6 +351,27 @@
                                 </button>
                             </form>
                         </li>
+                        @endif
+                    @else
+                        {{-- Show guest menu for unverified users --}}
+                        <li>
+                            <div class="dropdown-header">
+                                <div class="user-header-info">
+                                    <i class="fas fa-user text-primary me-2"></i>
+                                    <div>
+                                        <h6 class="mb-0">Guest</h6>
+                                        <small class="text-muted">Visitor</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item modern-dropdown-item" href="{{ route('login') }}">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a></li>
+                        <li><a class="dropdown-item modern-dropdown-item" href="{{ route('register') }}">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </a></li>
                     @endif
                 @else
                     <li><a class="dropdown-item modern-dropdown-item" href="{{ route('login') }}">

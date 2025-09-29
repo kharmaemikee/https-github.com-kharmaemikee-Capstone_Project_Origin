@@ -360,9 +360,7 @@
                                         <th class="table-header-cell">
                                             <i class="fas fa-ship me-1"></i>Assigned Boat
                                         </th>
-                                        <th class="table-header-cell">
-                                            <i class="fas fa-hashtag me-1"></i>Boat Number
-                                        </th>
+                                        
                                         <th class="table-header-cell">
                                             <i class="fas fa-user-tie me-1"></i>Boat Captain
                                         </th>
@@ -427,34 +425,7 @@
                                                     <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->boat_name ?? $booking->assigned_boat ?? '—') : '—' }}</span>
                                                 </div>
                                             </td>
-                                            <td class="table-cell">
-                                                <div class="cell-content">
-                                                    @php
-                                                        // reuse $canShowBoat from previous column if available; recompute if not
-                                                        if (!isset($canShowBoat)) {
-                                                            $nowTs = \Carbon\Carbon::now();
-                                                            $canShowBoat = false;
-                                                            try {
-                                                                if (($booking->tour_type ?? '') === 'day_tour' && $booking->check_in_date && $booking->day_tour_departure_time) {
-                                                                    $depTime = $booking->day_tour_departure_time;
-                                                                    if (is_string($depTime) && strpos($depTime, ' ') !== false) {
-                                                                        $parts = explode(' ', $depTime);
-                                                                        $depTime = end($parts);
-                                                                    }
-                                                                    $start = \Carbon\Carbon::parse(optional($booking->check_in_date)->format('Y-m-d') . ' ' . $depTime);
-                                                                    $canShowBoat = $nowTs->greaterThanOrEqualTo($start);
-                                                                } elseif (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
-                                                                    $start = \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup);
-                                                                    $canShowBoat = $nowTs->greaterThanOrEqualTo($start);
-                                                                }
-                                                            } catch (\Exception $e) {
-                                                                $canShowBoat = false;
-                                                            }
-                                                        }
-                                                    @endphp
-                                                    <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->boat_number ?? '—') : '—' }}</span>
-                                                </div>
-                                            </td>
+                                            
                                             <td class="table-cell">
                                                 <div class="cell-content">
                                                     <span class="cell-text">{{ $canShowBoat ? (optional($booking->assignedBoat)->captain_name ?? $booking->boat_captain_crew ?? '—') : '—' }}</span>
@@ -640,14 +611,14 @@
                                 </h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Guest Name</th>
-                                                <th>Age</th>
-                                                <th>Nationality</th>
-                                            </tr>
-                                        </thead>
+                                        <thead class="table-light">
+                                             <tr>
+                                                 <th>#</th>
+                                                 <th>Guest Name</th>
+                                                 <th>Age</th>
+                                                 <th>Nationality</th>
+                                             </tr>
+                                         </thead>
                                         <tbody id="adminGuestTableBody">
                                             <tr>
                                                 <td colspan="4" class="text-center text-muted">No guest information available</td>
@@ -676,35 +647,23 @@
                                 </h6>
                                 <div class="info-grid">
                                     <div class="info-item">
-                                        <span class="info-label">Departure Time — Overnight:</span>
-                                        <span class="info-value" id="docOvernightDeparture">—</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Departure Time — Day tour:</span>
-                                        <span class="info-value" id="docDayTourDeparture">—</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Pick-up (leaving):</span>
-                                        <span class="info-value" id="docPickup">—</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Check-in:</span>
-                                        <span class="info-value" id="docCheckin">N/A</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Check-out:</span>
-                                        <span class="info-value" id="docCheckout">N/A</span>
-                                    </div>
-                                    <div class="info-item">
                                         <span class="info-label">Total Guests:</span>
                                         <span class="info-value" id="docGuestCount">N/A</span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">Seniors:</span>
+                                        <span class="info-label">Check-In:</span>
+                                        <span class="info-value" id="docCheckin">N/A</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Check-Out:</span>
+                                        <span class="info-value" id="docCheckout">N/A</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Senior/s:</span>
                                         <span class="info-value" id="docSeniors">N/A</span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">PWDs:</span>
+                                        <span class="info-label">PWD/s:</span>
                                         <span class="info-value" id="docPWDs">N/A</span>
                                     </div>
                                     <div class="info-item">
@@ -2074,17 +2033,35 @@
         #adminGuestTableBody td {
             vertical-align: middle;
             padding: 0.75rem 0.5rem;
+            color: #212529; /* Ensure guest table cell text is visible on light background */
         }
         
         #adminGuestTableBody .fw-semibold {
-            color: #495057;
+            color: #212529; /* Stronger dark text for emphasis */
         }
         
-        .info-card h6 {
-            color: #495057;
-            font-weight: 600;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 0.5rem;
+        /* Ensure Guest labels/values in Booking Information are dark in the modal */
+        #docViewModal .info-card-title,
+        #docViewModal .info-label,
+        #docViewModal .info-value,
+        #docViewModal #docGuestAddress,
+        #docViewModal #docGuestCount {
+            color: #212529;
+        }
+        
+        /* Keep table header styling intact (dark header), only body text to dark */
+        #docViewModal table thead th {
+            color: #fff;
+        }
+        
+        #docViewModal table tbody td,
+        #docViewModal table tbody th {
+            color: #212529;
+        }
+        
+        /* Ensure Guest Information header text is black */
+        #docViewModal .table thead th {
+            color: #212529 !important;
         }
     </style>
     <script>
@@ -2222,7 +2199,68 @@
                     const pwdId = this.getAttribute('data-pwd-id') || '';
 
                     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-                    
+
+                    // Format date-time like: 09:00 AM - Sept. 29, 2025
+                    const formatTimeWithDate = (raw, baseDateRaw = null) => {
+                        if (!raw) return raw;
+                        const trimmed = String(raw).trim();
+                        if (trimmed === 'N/A' || trimmed === '—' || trimmed.toLowerCase() === 'na') return trimmed;
+                        // Month abbreviations with trailing period as requested
+                        const monthAbbr = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+                        // Try native Date parsing first
+                        let d = new Date(trimmed);
+                        // If native parsing failed, try common formats (YYYY-MM-DD HH:mm, YYYY-MM-DDTHH:mm, etc.)
+                        if (isNaN(d.getTime())) {
+                            // Replace space between date and time with 'T' to help parsing
+                            const normalized = trimmed.replace(' ', 'T');
+                            d = new Date(normalized);
+                        }
+                        // If still invalid, attempt time-only merge onto base date (e.g., "09:00 AM")
+                        if (isNaN(d.getTime())) {
+                            const timeMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+                            if (timeMatch && baseDateRaw) {
+                                let base = new Date(String(baseDateRaw).replace(' ', 'T'));
+                                if (!isNaN(base.getTime())) {
+                                    let hours = parseInt(timeMatch[1], 10);
+                                    const minutes = parseInt(timeMatch[2], 10);
+                                    const ampm = timeMatch[3].toUpperCase();
+                                    if (ampm === 'PM' && hours !== 12) hours += 12;
+                                    if (ampm === 'AM' && hours === 12) hours = 0;
+                                    base.setHours(hours, minutes, 0, 0);
+                                    d = base;
+                                }
+                            }
+                        }
+                        if (isNaN(d.getTime())) {
+                            // Give up and return raw if still invalid
+                            return trimmed;
+                        }
+                        const hh = d.getHours();
+                        const mm = d.getMinutes();
+                        const ampm = hh >= 12 ? 'PM' : 'AM';
+                        const hour12 = hh % 12 === 0 ? 12 : hh % 12;
+                        const mmStr = String(mm).padStart(2, '0');
+                        const timeStr = `${hour12}:${mmStr} ${ampm}`;
+                        const m = d.getMonth();
+                        const day = d.getDate();
+                        const year = d.getFullYear();
+                        const dateStr = `${monthAbbr[m]} ${day}, ${year}`;
+                        return `${timeStr} - ${dateStr}`;
+                    };
+
+                    const isBlankVal = (v) => {
+                        if (v === null || v === undefined) return true;
+                        const s = String(v).trim();
+                        return s === '' || s === 'N/A' || s === '—' || s.toLowerCase() === 'na';
+                    };
+
+                    const firstNonBlank = (...vals) => {
+                        for (const v of vals) {
+                            if (!isBlankVal(v)) return v;
+                        }
+                        return 'N/A';
+                    };
+
                     // Parse guest information and populate table
                     const guestTableBody = document.getElementById('adminGuestTableBody');
                     if (guestTableBody) {
@@ -2279,11 +2317,21 @@
                     
                     setText('docGuestAddress', guestAddress);
                     setText('docPhone', phone);
-                    setText('docOvernightDeparture', overnightDeparture);
-                    setText('docDayTourDeparture', dayTourDeparture);
-                    setText('docPickup', pickup);
-                    setText('docCheckin', checkin);
-                    setText('docCheckout', checkout);
+                    // Check-In shows: checkin OR overnight departure OR daytour departure
+                    const checkinDisplayRaw = firstNonBlank(checkin, overnightDeparture, dayTourDeparture);
+                    const checkinBase = !isBlankVal(checkin) ? checkin : (!isBlankVal(checkout) ? checkout : null);
+                    const checkinFormatted = (!isBlankVal(dayTourDeparture) && isBlankVal(checkin) && isBlankVal(overnightDeparture))
+                        ? formatTimeWithDate(dayTourDeparture, checkinBase)
+                        : formatTimeWithDate(checkinDisplayRaw);
+                    setText('docCheckin', checkinFormatted);
+
+                    // Check-Out shows: checkout OR pickup
+                    const checkoutDisplayRaw = firstNonBlank(checkout, pickup);
+                    const checkoutBase = !isBlankVal(checkout) ? checkout : (!isBlankVal(checkin) ? checkin : null);
+                    const checkoutFormatted = (!isBlankVal(pickup) && isBlankVal(checkout))
+                        ? formatTimeWithDate(pickup, checkoutBase)
+                        : formatTimeWithDate(checkoutDisplayRaw);
+                    setText('docCheckout', checkoutFormatted);
                     setText('docGuestCount', guestCount);
                     setText('docSeniors', seniors);
                     setText('docPWDs', pwds);

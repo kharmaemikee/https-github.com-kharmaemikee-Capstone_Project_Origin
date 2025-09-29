@@ -364,7 +364,7 @@
                     </div>
                 </div>
 
-            @forelse ($resort->rooms as $room)
+            @forelse ($resort->rooms->sortByDesc('created_at') as $room)
                     <div class="room-card mb-4">
                         <div class="card">
                             <div class="card-body">
@@ -393,12 +393,42 @@
                                     <div class="col-lg-6">
                                         <div class="room-details">
                                             <h5 class="room-name">{{ $room->room_name }}</h5>
-                                            <p class="room-description">{{ $room->description }}</p>
+                                            
+                                            {{-- Enhanced Room Description Section --}}
+                                            <div class="room-description-section mb-3">
+                                                <div class="description-header">
+                                                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                                                    <span class="description-label">Room Description</span>
+                                                </div>
+                                                <div class="room-description-content">
+                                                    @if($room->description && trim($room->description) !== '')
+                                                        <div class="room-description">
+                                                            @php
+                                                                // Split description by periods and create bullet points
+                                                                $descriptionItems = array_filter(array_map('trim', explode('.', $room->description)));
+                                                            @endphp
+                                                            @if(count($descriptionItems) > 1)
+                                                                <ul class="description-list">
+                                                                    @foreach($descriptionItems as $item)
+                                                                        @if(!empty($item))
+                                                                            <li>{{ $item }}.</li>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </ul>
+                                                            @else
+                                                                <p>{{ $room->description }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <p class="room-description text-muted fst-italic">No description provided for this room.</p>
+                                                    @endif
+                                                </div>
+                                            </div>
                                             
                                             <div class="room-info-grid">
                                                 <div class="info-item">
                                                     <div class="info-label">
-                                                        <i class="fas fa-dollar-sign me-2"></i>Price per Night
+                                                        <i class="fas fa-peso-sign me-2"></i>Price per stay
                                                     </div>
                                                     <div class="info-value">₱{{ number_format($room->price_per_night, 2) }}</div>
                                                 </div>
@@ -489,25 +519,40 @@
 
     {{-- Unified Admin Action Confirmation Modal (for both resort and room actions) --}}
     <div class="modal fade" id="adminActionModal" tabindex="-1" aria-labelledby="adminActionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modern-modal">
                 <form id="adminActionForm" method="POST">
                     @csrf
                     @method('PATCH') {{-- Both approve and reject will use PATCH --}}
-                    <div class="modal-header">
+                    <div class="modal-header modern-modal-header">
+                        <div class="modal-title-section">
+                            <div class="modal-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
                         <h5 class="modal-title" id="adminActionModalLabel">Confirm Action</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <p id="modalActionMessage"></p>
-                        <div id="rejectionReasonGroup" class="mb-3" style="display: none;">
-                            <label for="rejection_reason" class="form-label">Reason for Rejection</label>
-                            <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="3"></textarea>
+                        <button type="button" class="btn-close modern-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        </div>
+                    <div class="modal-body modern-modal-body">
+                        <div class="action-message">
+                            <p id="modalActionMessage" class="mb-3"></p>
+                    </div>
+                        <div id="rejectionReasonGroup" class="rejection-reason-section" style="display: none;">
+                            <label for="rejection_reason" class="form-label modern-label">
+                                <i class="fas fa-edit me-2"></i>Reason for Rejection
+                            </label>
+                            <textarea class="form-control modern-textarea" id="rejection_reason" name="rejection_reason" rows="3" placeholder="Please provide a detailed reason for rejection..."></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="confirmActionButton" class="btn">Confirm</button>
+                    <div class="modal-footer modern-modal-footer">
+                        <button type="button" class="btn btn-outline-secondary modern-btn" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" id="confirmActionButton" class="btn modern-btn">
+                            <i class="fas fa-check me-2"></i>Confirm
+                        </button>
                     </div>
                 </form>
             </div>
@@ -516,42 +561,295 @@
 
     {{-- Room Images Modal --}}
     <div class="modal fade" id="roomImagesModal" tabindex="-1" aria-labelledby="roomImagesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modern-modal">
+                <div class="modal-header modern-modal-header">
+                    <div class="modal-title-section">
+                        <div class="modal-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
                     <h5 class="modal-title" id="roomImagesModalLabel">Room Images</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="roomImagesEmpty" class="text-muted" style="display:none;">No additional images uploaded for this room.</div>
-                    <div id="roomImagesCarousel" class="carousel slide" data-bs-ride="false" style="display:none;">
+                    <button type="button" class="btn-close modern-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body modern-modal-body">
+                    <div id="roomImagesEmpty" class="empty-images-state" style="display:none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <p class="empty-text">No additional images uploaded for this room.</p>
+                    </div>
+                    <div id="roomImagesCarousel" class="carousel slide modern-carousel" data-bs-ride="false" style="display:none;">
                         <div class="carousel-inner" id="roomImagesCarouselInner"></div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="prev">
+                        <button class="carousel-control-prev modern-carousel-control" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="next">
+                        <button class="carousel-control-next modern-carousel-control" type="button" data-bs-target="#roomImagesCarousel" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer modern-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary modern-btn" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <style>
-        /* Carousel image sizing inside modal */
-        #roomImagesCarousel .carousel-item img {
+        /* Modern Modal Design */
+        .modern-modal {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .modern-modal-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .modal-title-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modal-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .modern-modal-header .modal-title {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .modern-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .modern-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modern-close-btn i {
+            font-size: 1rem;
+            color: white;
+        }
+
+        .modern-modal-body {
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .action-message p {
+            font-size: 1rem;
+            color: #495057;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .rejection-reason-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            margin-top: 1rem;
+        }
+
+        .modern-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .modern-textarea {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        .modern-textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .modern-modal-footer {
+            background: white;
+            border: none;
+            padding: 1.5rem 2rem;
+            gap: 1rem;
+        }
+
+        .modern-btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Room Images Modal Specific Styles */
+        .empty-images-state {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .empty-images-state .empty-icon {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .empty-images-state .empty-text {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .modern-carousel {
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-carousel .carousel-item img {
             width: 100%;
             height: auto;
             max-height: 70vh;
             object-fit: contain;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
+            border-radius: 0;
+            border: none;
+        }
+
+        .modern-carousel-control {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+        }
+
+        .modern-carousel-control:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .modern-carousel-control .carousel-control-prev-icon,
+        .modern-carousel-control .carousel-control-next-icon {
+            background-color: transparent;
+            border-radius: 0;
+            width: 20px;
+            height: 20px;
+        }
+
+        .modern-carousel-control-prev {
+            left: 20px;
+        }
+
+        .modern-carousel-control-next {
+            right: 20px;
+        }
+
+        /* Responsive Modal Design */
+        @media (max-width: 768px) {
+            .modern-modal-header {
+                padding: 1rem;
+            }
+
+            .modern-modal-body {
+                padding: 1.5rem;
+            }
+
+            .modern-modal-footer {
+                padding: 1rem 1.5rem;
+                flex-direction: column;
+            }
+
+            .modern-btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .modal-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .modern-modal-header .modal-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modern-modal {
+                margin: 1rem;
+            }
+
+            .modern-modal-header {
+                padding: 0.75rem;
+            }
+
+            .modern-modal-body {
+                padding: 1rem;
+            }
+
+            .modern-modal-footer {
+                padding: 0.75rem 1rem;
+            }
+
+            .rejection-reason-section {
+                padding: 1rem;
+            }
         }
     </style>
 
@@ -1065,6 +1363,26 @@
                 font-size: 0.9rem;
             }
             
+            .room-description-section {
+                padding: 0.75rem;
+            }
+            
+            .description-label {
+                font-size: 0.8rem;
+            }
+            
+            .room-description-content {
+                padding: 0.5rem;
+            }
+            
+            .room-description-content .room-description {
+                font-size: 0.9rem;
+            }
+            
+            .description-list li {
+                font-size: 0.9rem;
+            }
+            
             .room-info-grid {
                 grid-template-columns: 1fr;
                 gap: 0.5rem;
@@ -1241,6 +1559,26 @@
             }
             
             .room-description {
+                font-size: 0.85rem;
+            }
+            
+            .room-description-section {
+                padding: 0.5rem;
+            }
+            
+            .description-label {
+                font-size: 0.75rem;
+            }
+            
+            .room-description-content {
+                padding: 0.5rem;
+            }
+            
+            .room-description-content .room-description {
+                font-size: 0.85rem;
+            }
+            
+            .description-list li {
                 font-size: 0.85rem;
             }
             
@@ -1673,6 +2011,72 @@
             font-size: 0.95rem;
             margin-bottom: 1rem;
             line-height: 1.5;
+        }
+
+        /* Enhanced Room Description Section */
+        .room-description-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .description-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .description-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .room-description-content {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .room-description-content .room-description {
+            margin: 0;
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Description List Styles */
+        .description-list {
+            margin: 0;
+            padding-left: 1.5rem;
+            list-style: none;
+        }
+
+        .description-list li {
+            position: relative;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .description-list li::before {
+            content: "•";
+            color: #007bff;
+            font-weight: bold;
+            position: absolute;
+            left: -1.5rem;
+            top: 0;
+        }
+
+        .description-list li:last-child {
+            margin-bottom: 0;
         }
 
         .room-info-grid {

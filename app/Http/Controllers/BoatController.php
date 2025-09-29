@@ -26,6 +26,11 @@ class BoatController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Check if user has verified their phone (skip for admin users)
+        // if (!$user->hasVerifiedPhone() && $user->role !== 'admin') {
+        //     return redirect()->route('verification.notice');
+        // }
+
         // Ensure that only boats belonging to the authenticated boat owner are fetched
         // Show oldest first so newly added boats appear at the end
         $boats = $user->boats()->notArchived()->orderBy('created_at', 'asc')->get();
@@ -164,7 +169,8 @@ class BoatController extends Controller
 
         $validated = $request->validate([
             'boat_name' => 'required|string|max:255',
-            'boat_number' => 'required|string|regex:/^[0-9]{11}$/|unique:boats,boat_number,' . $boat->id,
+            // Make boat_number optional on update because the edit form may not include it
+            'boat_number' => 'sometimes|string|regex:/^[0-9]{11}$/|unique:boats,boat_number,' . $boat->id,
             'boat_prices' => 'required|numeric|min:0',
             'boat_capacities' => 'required|integer|min:1',
             'boat_length' => 'nullable|string|max:50',
@@ -179,8 +185,12 @@ class BoatController extends Controller
 
         // Only update basic boat fields here. Status is handled by updateStatus().
         $updateData = $request->only([
-            'boat_name', 'boat_number', 'boat_prices', 'boat_capacities'
+            'boat_name', 'boat_prices', 'boat_capacities'
         ]);
+        // Conditionally include boat_number if it was provided
+        if ($request->has('boat_number')) {
+            $updateData['boat_number'] = $request->input('boat_number');
+        }
         if (Schema::hasColumn('boats', 'boat_length')) {
             $updateData['boat_length'] = $request->input('boat_length');
         }

@@ -280,7 +280,7 @@
                         {{-- Price Icon in Modal --}}
                         <i class="bi bi-currency-dollar me-1"></i> Price: <span id="modalRoomPrice"></span>
                     </p>
-                    <p id="modalRoomDescription" class="mb-3"></p>
+                    <div id="modalRoomDescription" class="mb-3"></div>
                     <p id="modalRoomRehabReason" class="text-danger small mt-0 mb-0"></p>
                 </div>
                 <div class="modal-footer">
@@ -300,8 +300,8 @@
                 <div class="modal-header terms-modal-header">
                     <div class="d-flex flex-column">
                         <h5 class="modal-title m-0 d-flex align-items-center gap-2" id="termsAndConditionsModalLabel">
-                            <i class="fas fa-file-contract"></i>
-                            Terms and Conditions <small class="text-white-50 ms-1">for <span id="roomNameForTerms"></span></small>
+                            <i class="fas fa-bell"></i>
+                         REMINDERS <small class="text-white-50 ms-1">for <span id="roomNameForTerms"></span></small>
                         </h5>
                         <small class="text-white-75 modal-subtitle">Please review before continuing your booking.</small>
                     </div>
@@ -1276,7 +1276,27 @@
 
                 modalRoomMaxGuests.textContent = roomMaxGuests;
                 modalRoomPrice.textContent = roomPrice;
+                // Render description as bullet list split by periods
+                if (modalRoomDescription) {
+                    modalRoomDescription.innerHTML = '';
+                    if (roomDescription && roomDescription.trim() !== '') {
+                        var items = roomDescription.split('.').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+                        if (items.length > 0) {
+                            var ul = document.createElement('ul');
+                            ul.style.paddingLeft = '1.25rem';
+                            items.forEach(function(it){
+                                var li = document.createElement('li');
+                                var b = document.createElement('strong');
+                                b.textContent = it + '.';
+                                li.appendChild(b);
+                                ul.appendChild(li);
+                            });
+                            modalRoomDescription.appendChild(ul);
+                        } else {
                 modalRoomDescription.textContent = roomDescription;
+                        }
+                    }
+                }
 
                 if (roomRehabReason) {
                     modalRoomRehabReason.textContent = roomRehabReason;

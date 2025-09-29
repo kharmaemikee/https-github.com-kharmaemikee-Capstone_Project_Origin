@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
+use App\Services\SemaphoreSmsService;
+use Illuminate\Support\Facades\Cache;
 
 class RegisteredUserController extends Controller
 {
@@ -155,18 +157,34 @@ class RegisteredUserController extends Controller
 
             // Generate a 6-digit OTP code for phone verification
             $otpCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-            
-            // Store OTP in phone_verified_at column temporarily
-            $userData['phone_verified_at'] = $otpCode;
-            
-            // Debug: Log the OTP being generated
-            Log::info('Generated OTP for user registration: ' . $otpCode);
 
             $user = User::create($userData);
             
-            // Debug: Log the created user's phone_verified_at value
-            Log::info('User created with phone_verified_at: ' . $user->phone_verified_at);
+            // Debug: Don't log OTP/timestamp values in production
+            Log::info('User created; phone verification pending', ['user_id' => $user->id]);
             Log::info('User created successfully with ID: ' . $user->id);
+
+            // Send OTP via Semaphore (skip for admin users)
+            if ($request->role !== 'admin') {
+                try {
+                    $sms = new SemaphoreSmsService();
+                    $message = 'Code: ' . $otpCode;
+                    // Cache OTP for 10 minutes; do not store in DB
+                    Cache::put('otp:verify:' . $user->id, $otpCode, now()->addMinutes(10));
+                    $sent = $sms->send($step1['phone'], $message);
+                    if (!$sent) {
+                        // Let the user know the SMS failed; they can use Resend
+                        Session::flash('status', 'verification-sms-failed');
+                    }
+                } catch (\Throwable $e) {
+                    Log::error('Failed to send Semaphore SMS for registration: ' . $e->getMessage());
+                    Session::flash('status', 'verification-sms-error');
+                }
+            } else {
+                // For admin users, mark phone as verified immediately
+                $user->update(['phone_verified_at' => now()]);
+                Log::info('Admin user created - phone marked as verified automatically', ['user_id' => $user->id]);
+            }
 
             // If an image was uploaded, save it to public path and store relative path for all user types (except admin)
             if ($request->hasFile('owner_image') && $request->role !== 'admin') {
@@ -201,7 +219,8 @@ class RegisteredUserController extends Controller
                 ]);
             }
             
-            Auth::login($user);
+            // DO NOT auto-login the user - they must verify phone first
+            // Auth::login($user); // REMOVED - user must verify phone before login
 
         } catch (\Throwable $e) {
             Log::error("User creation failed in RegisteredUserController: " . $e->getMessage() . " on line " . $e->getLine() . " in " . $e->getFile());
@@ -219,10 +238,14 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         // Debug: Log before redirect
-        Log::info('Redirecting to verification notice for user: ' . $user->id);
+        Log::info('Redirecting to login with verification message for user: ' . $user->id);
         
-        // Redirect to phone verification for all users
-        return redirect()->route('verification.notice')->with('success', 'Registration successful! Please verify your phone number to continue.');
+        // Redirect to login with appropriate message based on user role
+        if ($request->role === 'admin') {
+            return redirect()->route('login')->with('success', 'Admin registration successful! You can login directly.');
+        } else {
+            return redirect()->route('login')->with('success', 'Registration successful! Please login and verify your phone number to continue.');
+        }
     }
 }
 

@@ -108,10 +108,6 @@
                                         <i class="fas fa-chart-line"></i>
                                         <span>{{ $resort->visit_count ?? 0 }} visits</span>
                                     </div>
-                                    <div class="stat-item">
-                                        <i class="fas fa-star" style="color:#ffc107;"></i>
-                                        <span>{{ number_format($resort->ratings_avg ?? ($resort->average_rating ?? 0), 1) }} / 5</span>
-                                    </div>
                                 </div>
                                 <a href="{{ route('explore.show', $resort->id) }}" class="resort-btn">
                                     <i class="fas fa-eye me-2"></i>
@@ -814,10 +810,6 @@
             color: #007bff;
         }
 
-        /* Yellow star for ratings in Most Visited Resorts */
-        .most-visited-section .stat-item .fa-star {
-            color: #f1c40f;
-        }
 
         .resort-btn {
             display: inline-flex;

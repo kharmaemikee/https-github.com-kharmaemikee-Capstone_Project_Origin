@@ -649,6 +649,9 @@
 
             .info-content {
                 flex: 1;
+                display: flex;              /* align label and value in a row */
+                align-items: baseline;      /* align text baselines for neatness */
+                gap: 0.5rem;                /* spacing between label and value */
             }
 
             .info-label {
@@ -658,6 +661,7 @@
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 margin: 0 0 0.25rem 0;
+                min-width: 140px;          /* fixed label width so values align */
             }
 
             .info-value {
@@ -665,6 +669,60 @@
                 color: #2c3e50;
                 font-weight: 600;
                 margin: 0;
+            }
+
+            /* Guest chips styling (to mirror resort owner guest list look) */
+            .guest-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .guest-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                background: linear-gradient(135deg, #f1f3f5 0%, #e9ecef 100%);
+                color: #212529;
+                border: 1px solid rgba(0,0,0,0.08);
+                padding: 0.35rem 0.75rem;
+                border-radius: 999px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            }
+
+            .guest-chip i {
+                color: #0d6efd;
+                font-size: 0.9rem;
+            }
+
+            /* Cleaner styling for the Name row in Tourist Information */
+            .name-label {
+                text-transform: none;       /* normal case for cleaner look */
+                letter-spacing: 0;          /* remove extra spacing */
+                color: #495057;             /* slightly darker for readability */
+                min-width: 80px;            /* reduce left space for Name row */
+            }
+
+            .name-value {
+                font-size: 1.05rem;         /* slightly larger for emphasis */
+                font-weight: 400;           /* normal weight for details */
+                color: #212529;             /* strong readable color */
+                word-break: break-word;     /* handle long names */
+                white-space: normal;        /* allow wrapping */
+            }
+
+            .name-line {
+                display: block;             /* each name on its own line */
+            }
+
+            .name-strong {
+                font-weight: 700;           /* only the name is bold */
+            }
+
+            .name-meta {
+                font-weight: 400;           /* age/nationality normal weight */
             }
 
             /* Status Badge */
@@ -1358,12 +1416,12 @@
 
             {{-- Main Booking Card --}}
             <div class="booking-card">
-                <div class="booking-header">
+                <!-- <div class="booking-header">
                     <h2 class="booking-title">
                         <i class="fas fa-hashtag"></i>
                         Booking Reference: #{{ $booking->id }}
                     </h2>
-                </div>
+                </div> -->
                 <div class="booking-content">
                     {{-- Booking Information Section --}}
                     <div class="info-section">
@@ -1436,39 +1494,51 @@
                                 </div>
                             </div>
 
+                            @php
+                                $ci = null; $co = null; $ciTime = null; $coTime = null;
+                                try { $ci = \Carbon\Carbon::parse((string)$booking->check_in_date); } catch (\Exception $e) { $ci = null; }
+                                try { $co = $booking->check_out_date ? \Carbon\Carbon::parse((string)$booking->check_out_date) : null; } catch (\Exception $e) { $co = null; }
+                                if (($booking->tour_type ?? '') === 'day_tour') {
+                                    try { $ciTime = $booking->day_tour_departure_time ? \Carbon\Carbon::parse((string)$booking->check_in_date.' '.(string)$booking->day_tour_departure_time) : null; } catch (\Exception $e) { $ciTime = null; }
+                                    try { $coTime = ($booking->day_tour_time_of_pickup ?? null) ? \Carbon\Carbon::parse((string)($co?->toDateString() ?: $ci?->toDateString()).' '.(string)$booking->day_tour_time_of_pickup) : null; } catch (\Exception $e) { $coTime = null; }
+                                } else {
+                                    try { $ciTime = $booking->overnight_date_time_of_departure ? \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_departure) : ($booking->overnight_departure_time ? \Carbon\Carbon::parse((string)$booking->overnight_departure_time) : null); } catch (\Exception $e) { $ciTime = null; }
+                                    try { $coTime = $booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_pickup) : null; } catch (\Exception $e) { $coTime = null; }
+                                }
+                                $ciDateStr = $ci ? $ci->format('M d, Y') : ($booking->check_in_date ?? '');
+                                $coDateStr = ($co ?: $ci) ? ($co ?: $ci)->format('M d, Y') : ($booking->check_out_date ?? $booking->check_in_date ?? '');
+                                $ciTimeStr = $ciTime ? $ciTime->format('h:i A') : null;
+                                $coTimeStr = $coTime ? $coTime->format('h:i A') : null;
+                                if (!$ciTimeStr) {
+                                    if (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_departure_time) {
+                                        try { $ciTimeStr = \Carbon\Carbon::parse((string)$booking->day_tour_departure_time)->format('h:i A'); } catch (\Exception $e) { $ciTimeStr = (string)$booking->day_tour_departure_time; }
+                                    } elseif (($booking->tour_type ?? '') === 'overnight' && ($booking->overnight_date_time_of_departure ?? $booking->overnight_departure_time)) {
+                                        try { $ciTimeStr = \Carbon\Carbon::parse((string)($booking->overnight_date_time_of_departure ?? $booking->overnight_departure_time))->format('h:i A'); } catch (\Exception $e) { $ciTimeStr = (string)($booking->overnight_date_time_of_departure ?? $booking->overnight_departure_time); }
+                                    }
+                                }
+                                if (!$coTimeStr) {
+                                    if (($booking->tour_type ?? '') === 'day_tour' && ($booking->day_tour_time_of_pickup ?? null)) {
+                                        try { $coTimeStr = \Carbon\Carbon::parse((string)$booking->day_tour_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { $coTimeStr = (string)$booking->day_tour_time_of_pickup; }
+                                    } elseif (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                        try { $coTimeStr = \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { $coTimeStr = (string)$booking->overnight_date_time_of_pickup; }
+                                    }
+                                }
+                            @endphp
+
                             <div class="info-item">
-                                <i class="fas fa-calendar-check"></i>
+                                <i class="fas fa-calendar-plus"></i>
                                 <div class="info-content">
-                                    <p class="info-label">Check-in Date</p>
-                                    <p class="info-value">
-                                        @php
-                                            try {
-                                                echo \Carbon\Carbon::parse($booking->check_in_date)->format('M d, Y');
-                                            } catch(\Exception $e) {
-                                                echo $booking->check_in_date;
-                                            }
-                                        @endphp
-                                    </p>
+                                    <p class="info-label">Check-In</p>
+                                    <p class="info-value">{{ ($ciTimeStr ? ($ciTimeStr.' - ') : '') . $ciDateStr }}</p>
                                 </div>
                             </div>
-
-                            @if ($booking->tour_type === 'overnight' && $booking->check_out_date)
-                                <div class="info-item">
-                                    <i class="fas fa-calendar-times"></i>
-                                    <div class="info-content">
-                                        <p class="info-label">Check-out Date</p>
-                                        <p class="info-value">
-                                            @php
-                                                try {
-                                                    echo \Carbon\Carbon::parse($booking->check_out_date)->format('M d, Y');
-                                                } catch(\Exception $e) {
-                                                    echo $booking->check_out_date;
-                                                }
-                                            @endphp
-                                        </p>
-                                    </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar-times"></i>
+                                <div class="info-content">
+                                    <p class="info-label">Check-Out</p>
+                                    <p class="info-value">{{ ($coTimeStr ? ($coTimeStr.' - ') : '') . $coDateStr }}</p>
                                 </div>
-                            @endif
+                            </div>
 
                             <div class="info-item">
                                 <i class="fas fa-users"></i>
@@ -1550,71 +1620,7 @@
                         </div>
                     </div>
 
-                    {{-- Tour Specifics Section --}}
-                    @if ($booking->tour_type === 'day_tour')
-                        <div class="info-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-sun"></i>
-                                Day Tour Details
-                            </h3>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <i class="fas fa-plane-departure"></i>
-                                    <div class="info-content">
-                                        <p class="info-label">Departure Time</p>
-                                        <p class="info-value">
-                                            @php
-                                                try {
-                                                    echo \Carbon\Carbon::parse($booking->day_tour_departure_time)->format('h:i A');
-                                                } catch(\Exception $e) {
-                                                    echo $booking->day_tour_departure_time;
-                                                }
-                                            @endphp
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="info-item">
-                                    <i class="fas fa-car"></i>
-                                    <div class="info-content">
-                                        <p class="info-label">Pickup Time</p>
-                                        <p class="info-value">
-                                            @php
-                                                try {
-                                                    echo \Carbon\Carbon::parse($booking->day_tour_time_of_pickup)->format('h:i A');
-                                                } catch(\Exception $e) {
-                                                    echo $booking->day_tour_time_of_pickup;
-                                                }
-                                            @endphp
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @elseif ($booking->tour_type === 'overnight')
-                        <div class="info-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-moon"></i>
-                                Overnight Details
-                            </h3>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <i class="fas fa-car"></i>
-                                    <div class="info-content">
-                                        <p class="info-label">Pickup Date/Time</p>
-                                        <p class="info-value">
-                                            @php
-                                                try {
-                                                    echo \Carbon\Carbon::parse($booking->overnight_date_time_of_pickup)->format('M d, Y h:i A');
-                                                } catch(\Exception $e) {
-                                                    echo $booking->overnight_date_time_of_pickup;
-                                                }
-                                            @endphp
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    {{-- Tour Specifics removed to avoid duplicate times; consolidated above. --}}
 
                     {{-- Tourist Information Section --}}
                     <div class="info-section">
@@ -1626,17 +1632,55 @@
                             <div class="info-item">
                                 <i class="fas fa-id-card"></i>
                                 <div class="info-content">
-                                    <p class="info-label">Name</p>
-                                    <p class="info-value">{{ $booking->guest_name }}</p>
+                                    <p class="info-label name-label">Name</p>
+                                    <p class="info-value name-value">
+                                        @php
+                                            $raw = $booking->guest_name ?? '';
+                                            $segments = $raw !== '' ? preg_split('/(;|,|\r?\n)\s*/', $raw, -1, PREG_SPLIT_NO_EMPTY) : [];
+                                            $fallbackNat = trim($booking->guest_nationality ?? '');
+                                        @endphp
+                                        @if(!empty($segments))
+                                            @foreach($segments as $idx => $seg)
+                                                @php
+                                                    $seg = trim($seg);
+                                                    $name = $seg; $ageNum = ''; $natLine = '';
+                                                    if (preg_match('/^\s*(.*?)\s*(?:\((\d{1,3})(?:\s*y\/o)?\))?\s*(?:-\s*(.+))?$/i', $seg, $m)) {
+                                                        $name   = trim($m[1] ?? '');
+                                                        $ageNum = isset($m[2]) ? trim($m[2]) : '';
+                                                        $natLine= isset($m[3]) ? trim($m[3]) : '';
+                                                    }
+                                                    // If nationality absent on line, use booking nationality for first line only
+                                                    if ($natLine === '' && $idx === 0 && $fallbackNat !== '') {
+                                                        $natLine = $fallbackNat;
+                                                    }
+                                                @endphp
+                                                <span class="name-line">
+                                                    <span class="name-strong">{{ $name }}</span>
+                                                    @if($ageNum !== '') <span class="name-meta"> ({{ $ageNum }}y/o)</span>@endif
+                                                    @if($natLine !== '') <span class="name-meta"> - {{ $natLine }}</span>@endif
+                                                </span>
+                                            @endforeach
+                                        @else
+                                            @php
+                                                $seg = trim($booking->guest_name ?? '');
+                                                $name = $seg; $ageNum = ''; $natLine = '';
+                                                if (preg_match('/^\s*(.*?)\s*(?:\((\d{1,3})(?:\s*y\/o)?\))?\s*(?:-\s*(.+))?$/i', $seg, $m)) {
+                                                    $name   = trim($m[1] ?? '');
+                                                    $ageNum = isset($m[2]) ? trim($m[2]) : '';
+                                                    $natLine= isset($m[3]) ? trim($m[3]) : '';
+                                                }
+                                                if ($natLine === '' && $fallbackNat !== '') { $natLine = $fallbackNat; }
+                                            @endphp
+                                            <span class="name-line">
+                                                <span class="name-strong">{{ $name }}</span>
+                                                @if($ageNum !== '') <span class="name-meta"> ({{ $ageNum }}y/o)</span>@endif
+                                                @if($natLine !== '') <span class="name-meta"> - {{ $natLine }}</span>@endif
+                                            </span>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
-                            <div class="info-item">
-                                <i class="fas fa-birthday-cake"></i>
-                                <div class="info-content">
-                                    <p class="info-label">Age</p>
-                                    <p class="info-value">{{ $booking->guest_age }}</p>
-                                </div>
-                            </div>
+                            
                             <div class="info-item">
                                 <i class="fas fa-venus-mars"></i>
                                 <div class="info-content">
@@ -1692,31 +1736,6 @@
                         </div>
                     @endif
 
-                    {{-- Account Information Section --}}
-                    @if ($booking->user)
-                        <div class="info-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-user-circle"></i>
-                                Account Information
-                            </h3>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <i class="fas fa-user"></i>
-                                    <div class="info-content">
-                                        <p class="info-label">Booked By User</p>
-                                        <p class="info-value">{{ $booking->user->name }}</p>
-                                    </div>
-                                </div>
-                                <div class="info-item">
-                                    <i class="fas fa-phone"></i>
-                                    <div class="info-content">
-                                        <p class="info-label">Contact Number</p>
-                                        <p class="info-value">{{ $booking->user->phone }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
 
                     {{-- Resort Information Section --}}
                     @if ($booking->room && $booking->room->resort)
@@ -1805,11 +1824,7 @@
                                         <span class="boat-label">Boat Name</span>
                                         <span class="boat-value">{{ $booking->assignedBoat->boat_name }}</span>
                                     </div>
-                                    <div class="boat-item">
-                                        <i class="fas fa-hashtag"></i>
-                                        <span class="boat-label">Boat Number</span>
-                                        <span class="boat-value">{{ $booking->assignedBoat->boat_number }}</span>
-                                    </div>
+                                    
                                     <div class="boat-item">
                                         <i class="fas fa-tag"></i>
                                         <span class="boat-label">Boat Price</span>

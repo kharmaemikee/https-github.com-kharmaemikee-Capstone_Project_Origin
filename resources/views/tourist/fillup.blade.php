@@ -203,16 +203,18 @@
                                             @error('downpayment_receipt')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label"></label>
+                                            <label class="form-label">
                                                 <i class="fas fa-id-card"></i>
                                                 Send Valid ID (Type)
                                             </label>
                                             <select class="form-control @error('valid_id_type') is-invalid @enderror" name="valid_id_type" id="validIdType">
                                                 <option value="">Select ID Type</option>
-                                                <option value="National I.D">National I.D</option>
-                                                <option value="Passport">Passport</option>
-                                                <option value="License">License</option>
-                                                <option value="Other Valid I.D">Other Valid I.D</option>
+                                                <option value="Philippine Passport (DFA)">Philippine Passport (DFA)</option>
+                                                <option value="Philippine National ID (PhilSys ID / ePhilID) (PSA)">Philippine National ID (PhilSys ID / ePhilID) (PSA)</option>
+                                                <option value="Driver’s License (LTO)">Driver’s License (LTO)</option>
+                                                <option value="Unified Multi-Purpose ID (UMID) (SSS/GSIS/Pag-IBIG/PhilHealth)">Unified Multi-Purpose ID (UMID) (SSS/GSIS/Pag-IBIG/PhilHealth)</option>
+                                                <option value="Professional Regulation Commission (PRC) ID">Professional Regulation Commission (PRC) ID</option>
+                                                <option value="Voter’s ID or Voter’s Certificate (COMELEC)">Voter’s ID or Voter’s Certificate (COMELEC)</option>
                                             </select>
                                             @error('valid_id_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>

@@ -17,6 +17,11 @@ class TouristController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // // Check if user has verified their phone (skip for admin users)
+        // if (!Auth::user()->hasVerifiedPhone() && Auth::user()->role !== 'admin') {
+        //     return redirect()->route('verification.notice');
+        // }
+
         // Fetch notifications for the current authenticated tourist
         $touristNotifications = TouristNotification::where('user_id', Auth::id())
                                                     ->latest()
@@ -24,8 +29,7 @@ class TouristController extends Controller
 
         // --- ADDED LOGIC FOR MOST VISITED RESORTS ---
         // Fetch the most visited resorts, ordered by visit_count in descending order
-        $mostVisitedResorts = Resort::withAvg('ratings as ratings_avg', 'stars')
-                                    ->orderByDesc('visit_count')
+        $mostVisitedResorts = Resort::orderByDesc('visit_count')
                                     ->where('admin_status', 'approved') // Only show approved resorts
                                     ->whereIn('status', ['open', 'closed', 'maintenance']) // Show all relevant statuses for display
                                     ->take(8) // Limit to top 8, adjust as needed

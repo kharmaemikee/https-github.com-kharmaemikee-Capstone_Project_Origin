@@ -19,6 +19,11 @@ class ResortController extends Controller
         if (Auth::user()->role !== 'resort_owner') {
             abort(403, 'Unauthorized');
         }
+
+        // Check if user has verified their phone (skip for admin users)
+        // if (!Auth::user()->hasVerifiedPhone() && Auth::user()->role !== 'admin') {
+        //     return redirect()->route('verification.notice');
+        // }
         
         $resort = Auth::user()->resorts()->first();
         

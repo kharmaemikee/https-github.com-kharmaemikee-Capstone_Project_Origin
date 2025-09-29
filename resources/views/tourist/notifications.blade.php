@@ -133,7 +133,7 @@
                                             } elseif ($type === 'booking_completed') {
                                                 $title = 'Booking Completed';
                                             } elseif ($type === 'rating_request') {
-                                                $title = 'Rate Your Stay';
+                                                $title = 'Booking Completed';
                                             } elseif ($type === 'extension_requested') {
                                                 $title = 'Extension Requested';
                                             } elseif ($type === 'extension_approved') {
@@ -146,7 +146,7 @@
                                         @elseif($type === 'booking_completed')
                                             <div class="text-muted small">Your booking has been marked as completed.</div>
                                         @elseif($type === 'rating_request')
-                                            <div class="text-muted small">Please submit your 1–5 star rating for your stay.</div>
+                                            <div class="text-muted small">Your booking has been completed successfully.</div>
                                         @elseif($type === 'extension_requested')
                                             <div class="text-muted small">Your extension request has been sent to the resort owner for approval.</div>
                                         @elseif($type === 'extension_approved')
@@ -173,14 +173,11 @@
                                                 <span class="info-value">{{ $notification->booking->room->room_name }}</span>
                                             </div>
                                             <div class="info-item">
-                                                <span class="info-label">Max Capacity:</span>
+                                                <span class="info-label">Guest/s:</span>
                                                 <span class="info-value">{{ $notification->booking->room->max_guests }} guests</span>
                                             </div>
                                         @endif
-                                        <div class="info-item">
-                                            <span class="info-label">Number of Guests:</span>
-                                            <span class="info-value">{{ $notification->booking->number_of_guests }}</span>
-                                        </div>
+                                       
                                         @if($notification->booking->num_senior_citizens > 0)
                                             <div class="info-item">
                                                 <span class="info-label">Senior Citizens:</span>
@@ -193,26 +190,60 @@
                                                 <span class="info-value">{{ $notification->booking->num_pwds }}</span>
                                             </div>
                                         @endif
+                                        @php
+                                            $ci = null; $co = null; $ciTime = null; $coTime = null; $ciDateStr = null; $coDateStr = null; $ciTimeStr = null; $coTimeStr = null;
+                                            try { $ci = \Carbon\Carbon::parse((string)$notification->booking->check_in_date); } catch (\Exception $e) { $ci = null; }
+                                            try { $co = $notification->booking->check_out_date ? \Carbon\Carbon::parse((string)$notification->booking->check_out_date) : null; } catch (\Exception $e) { $co = null; }
+                                            // Determine times by tour type without changing backend
+                                            if (($notification->booking->tour_type ?? '') === 'day_tour') {
+                                                try { $ciTime = $notification->booking->day_tour_departure_time ? \Carbon\Carbon::parse((string)$notification->booking->check_in_date.' '.(string)$notification->booking->day_tour_departure_time) : null; } catch (\Exception $e) { $ciTime = null; }
+                                                // For day tour, treat checkout as same day with pick-up time if present; fallback to check-out date
+                                                try {
+                                                    $coTime = ($notification->booking->day_tour_time_of_pickup ?? null) ? \Carbon\Carbon::parse((string)($co?->toDateString() ?: $ci?->toDateString()).' '.(string)$notification->booking->day_tour_time_of_pickup) : null;
+                                                } catch (\Exception $e) { $coTime = null; }
+                                            } else { // overnight
+                                                try {
+                                                    $ciTime = $notification->booking->overnight_date_time_of_departure
+                                                        ? \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_departure)
+                                                        : ($notification->booking->overnight_departure_time
+                                                            ? \Carbon\Carbon::parse((string)$notification->booking->overnight_departure_time)
+                                                            : null);
+                                                } catch (\Exception $e) { $ciTime = null; }
+                                                try { $coTime = $notification->booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup) : null; } catch (\Exception $e) { $coTime = null; }
+                                            }
+                                            $ciDateStr = $ci ? $ci->format('M d, Y') : ($notification->booking->check_in_date ?? '');
+                                            $coDateStr = ($co ?: $ci) ? ($co ?: $ci)->format('M d, Y') : ($notification->booking->check_out_date ?? $notification->booking->check_in_date ?? '');
+                                            $ciTimeStr = $ciTime ? $ciTime->format('h:i A') : null;
+                                            $coTimeStr = $coTime ? $coTime->format('h:i A') : null;
+                                            // Fallbacks if parsing failed but raw times exist
+                                            if (!$ciTimeStr) {
+                                                if (($notification->booking->tour_type ?? '') === 'day_tour' && $notification->booking->day_tour_departure_time) {
+                                                    try { $ciTimeStr = \Carbon\Carbon::parse((string)$notification->booking->day_tour_departure_time)->format('h:i A'); } catch (\Exception $e) { $ciTimeStr = (string)$notification->booking->day_tour_departure_time; }
+                                                } elseif (($notification->booking->tour_type ?? '') === 'overnight' && $notification->booking->overnight_date_time_of_departure) {
+                                                    try { $ciTimeStr = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_departure)->format('h:i A'); } catch (\Exception $e) { $ciTimeStr = (string)$notification->booking->overnight_date_time_of_departure; }
+                                                }
+                                            }
+                                            if (!$coTimeStr) {
+                                                if (($notification->booking->tour_type ?? '') === 'day_tour' && ($notification->booking->day_tour_time_of_pickup ?? null)) {
+                                                    try { $coTimeStr = \Carbon\Carbon::parse((string)$notification->booking->day_tour_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { $coTimeStr = (string)$notification->booking->day_tour_time_of_pickup; }
+                                                } elseif (($notification->booking->tour_type ?? '') === 'overnight' && $notification->booking->overnight_date_time_of_pickup) {
+                                                    try { $coTimeStr = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { $coTimeStr = (string)$notification->booking->overnight_date_time_of_pickup; }
+                                                }
+                                            }
+                                        @endphp
+
                                         <div class="info-item">
-                                            <span class="info-label">Check-in Date:</span>
-                                            <span class="info-value">
-                                                @php
-                                                    try { echo \Carbon\Carbon::parse($notification->booking->check_in_date)->format('M d, Y'); }
-                                                    catch(\Exception $e) { echo $notification->booking->check_in_date; }
-                                                @endphp
-                                            </span>
+                                            <span class="info-label">Check-In:</span>
+                                            <span class="info-value">{{ ($ciTimeStr ? ($ciTimeStr.' - ') : '') . $ciDateStr }}</span>
                                         </div>
-                                        @if ($notification->booking->tour_type === 'overnight' && $notification->booking->check_out_date)
-                                            <div class="info-item">
-                                                <span class="info-label">Check-out Date:</span>
-                                                <span class="info-value">
-                                                    @php
-                                                        try { echo \Carbon\Carbon::parse($notification->booking->check_out_date)->format('M d, Y'); }
-                                                        catch(\Exception $e) { echo $notification->booking->check_out_date; }
-                                                    @endphp
-                                                </span>
-                                            </div>
-                                        @endif
+                                        <div class="info-item">
+                                            <span class="info-label">Check-Out:</span>
+                                            <span class="info-value">{{ ($coTimeStr ? ($coTimeStr.' - ') : '') . $coDateStr }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Tour Type:</span>
+                                            <span class="info-value">{{ ucwords(str_replace('_',' ', $notification->booking->tour_type ?? '')) }}</span>
+                                        </div>
                                     </div>
                                     
                                     {{-- Pricing Breakdown --}}
@@ -399,7 +430,7 @@
                                             <i class="fas fa-clock-rotate-left"></i>
                                             <h6>Booking Completed</h6>
                                         </div>
-                                        <div class="mb-2 text-muted small">Thank you for visiting. You can request an extension below or rate your stay from your bookings page.</div>
+                                        <div class="mb-2 text-muted small">Thank you for visiting. You can request an extension below if needed.</div>
                                         <form action="{{ route('bookings.requestExtension', $booking->id) }}" method="POST" class="row g-2 align-items-end">
                                             @csrf
                                             <div class="col-12 col-md-4">
@@ -441,56 +472,6 @@
                             @endif
 
                                 {{-- Rating Request (visible when booking is completed or notification asks for rating) --}}
-                            @if ($notification->booking)
-                                @php
-                                    $booking = $notification->booking;
-                                    $isCompleted = ($booking->status === 'completed');
-                                    if (!$isCompleted && method_exists($booking, 'isCompleted')) {
-                                        try { $isCompleted = $booking->isCompleted(); } catch (\Throwable $e) { $isCompleted = false; }
-                                    }
-                                    $shouldShowRating = ($type === 'rating_request') || $isCompleted;
-                                    $alreadyRated = false;
-                                    try { $alreadyRated = \App\Models\Rating::where('booking_id', $booking->id)->exists(); } catch (\Throwable $e) { $alreadyRated = false; }
-                                @endphp
-                                @if ($shouldShowRating && !$alreadyRated)
-                                    <div class="boat-info-section">
-                                        <div class="boat-info-header" style="color:#ffc107; border-color:#ffc107;">
-                                            <i class="fas fa-star"></i>
-                                            <h6>Rate Your Stay</h6>
-                                        </div>
-                                        <div class="mb-2 text-muted small">Please rate your experience (1–5 stars).</div>
-                                        <form method="POST" action="{{ route('tourist.bookings.rating.store', $booking->id) }}" class="d-flex flex-column gap-2">
-                                            @csrf
-                                            <div class="d-flex gap-2 align-items-center flex-wrap">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    <div>
-                                                        <input type="radio" class="btn-check" name="stars" id="notif_rate_{{ $booking->id }}_{{ $i }}" value="{{ $i }}" autocomplete="off" {{ $i==5 ? 'checked' : '' }}>
-                                                        <label class="btn btn-outline-warning btn-sm" for="notif_rate_{{ $booking->id }}_{{ $i }}">
-                                                            <i class="fas fa-star"></i> {{ $i }}
-                                                        </label>
-                                                    </div>
-                                                @endfor
-                                            </div>
-                                            <div>
-                                                <textarea name="comment" class="form-control" rows="2" placeholder="Optional comment"></textarea>
-                                            </div>
-                                            <div>
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="fas fa-paper-plane me-1"></i>Submit Rating
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                @elseif($shouldShowRating && $alreadyRated)
-                                    <div class="boat-info-section">
-                                        <div class="boat-info-header" style="color:#28a745;">
-                                            <i class="fas fa-check"></i>
-                                            <h6>Thanks for your rating</h6>
-                                        </div>
-                                        <div class="text-muted small">Your feedback has been recorded.</div>
-                                    </div>
-                                @endif
-                            @endif
 
                                 {{-- Action Buttons --}}
                                 <div class="notification-actions">

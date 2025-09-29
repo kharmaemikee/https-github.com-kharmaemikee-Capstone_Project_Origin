@@ -225,7 +225,7 @@
                                     <div class="form-group">
                                         <label for="price_per_night" class="form-label" id="priceLabel">
                                             <i class="fas fa-money-bill-wave me-1"></i>
-                                            Price Per Night (₱)
+                                            Price Per Stay (₱)
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text">₱</span>

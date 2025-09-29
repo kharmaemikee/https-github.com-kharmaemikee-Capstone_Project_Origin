@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phone Verification - Matnog Tourism</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/tourism.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('image/tourism.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/js/app.js'])
@@ -455,12 +457,24 @@
             <h3>Phone Verification</h3>
             
             <div class="mb-3 text-white">
-                <small>Thanks for signing up! Please verify your phone number by entering the OTP code. Check the database for the code in the phone_verified_at column.</small>
+                <small>Thanks for signing up! Please verify your phone number by entering the 6-digit code sent to your phone.</small>
             </div>
 
             @if (session('status') == 'verification-code-sent')
                 <div class="mb-3 text-primary">
-                    <small><i class="fas fa-check-circle"></i> A new verification code has been generated. Check the database phone_verified_at column for the code.</small>
+                    <small><i class="fas fa-check-circle"></i> A new verification code has been sent to your phone.</small>
+                </div>
+            @endif
+
+            @if (session('status') == 'verification-sms-failed')
+                <div class="mb-3 text-warning">
+                    <small><i class="fas fa-exclamation-triangle"></i> Failed to send SMS. Please try resending the code.</small>
+                </div>
+            @endif
+
+            @if (session('status') == 'verification-sms-error')
+                <div class="mb-3 text-danger">
+                    <small><i class="fas fa-exclamation-circle"></i> SMS service error. Please try again later.</small>
                 </div>
             @endif
 

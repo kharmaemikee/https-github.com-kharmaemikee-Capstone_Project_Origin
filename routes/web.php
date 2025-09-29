@@ -27,36 +27,88 @@ use App\Models\BoatOwnerNotification;
 
 // Set Login Page as the First Page
 Route::get('/', function () {
-    return view('auth.login');
+	return view('auth.login');
 })->name('login');
 
 // Test route to check if verification works
 Route::get('/test-verification', function () {
-    return view('auth.verify-phone');
+	return view('auth.verify-phone');
 })->name('test.verification');
 
+// Test route to check SMS service
+Route::get('/test-sms', function () {
+	try {
+		$sms = new \App\Services\SemaphoreSmsService();
+		$result = $sms->send('09930996014', 'Test SMS from Matnog Tourism System');
+		
+		if ($result) {
+			return response()->json(['status' => 'success', 'message' => 'SMS sent successfully']);
+		} else {
+			return response()->json(['status' => 'failed', 'message' => 'SMS failed to send']);
+		}
+	} catch (\Exception $e) {
+		return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+	}
+})->name('test.sms');
 
-// Admin Dashboard Route
+// Debug route to check admin user status
+Route::get('/debug-admin', function () {
+	$adminExists = App\Models\User::where('role', 'admin')->exists();
+	$adminUrl = route('admin');
+	return ['admin_exists' => $adminExists, 'admin_url' => $adminUrl];
+})->name('debug.admin');
+
+
+// Admin Dashboard Route - Direct access without middleware
 Route::get('/admin/admin', function () {
-    if (Auth::user()->role !== 'admin') {
-        abort(403, 'Unauthorized');
-    }
-    // Updated: Pass totalForeigners and totalFilipinos data to the view
-    $totalForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->count();
-    $totalFilipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->count();
-    
-    // Add tour type statistics for bar graph
-    $dayTourCount = \App\Models\Booking::where('tour_type', 'day_tour')->where('status', '!=', 'rejected')->count();
-    $overnightCount = \App\Models\Booking::where('tour_type', 'overnight')->where('status', '!=', 'rejected')->count();
-    
-    
-    return view('admin.admin', compact(
-        'totalForeigners', 
-        'totalFilipinos', 
-        'dayTourCount', 
-        'overnightCount'
-    ));
-})->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('admin');
+	if (!Auth::check()) {
+		return redirect()->route('login');
+	}
+	if (strtolower(trim((string)Auth::user()->role)) !== 'admin') {
+		abort(403, 'Unauthorized');
+	}
+	
+	// Updated: Pass totalForeigners and totalFilipinos data to the view
+	$totalForeigners = User::whereRaw('LOWER(nationality) != ?', ['filipino'])->count();
+	$totalFilipinos = User::whereRaw('LOWER(nationality) = ?', ['filipino'])->count();
+	
+	// Add guest nationality counts (from bookings) - count individual guests from guest_name field
+	$allBookings = \App\Models\Booking::whereNotNull('guest_name')
+		->where('guest_name', '!=', '')
+		->get();
+	
+	$foreignGuests = 0;
+	$filipinoGuests = 0;
+	
+	foreach ($allBookings as $booking) {
+		// Parse guest names to extract individual nationalities
+		$guestNames = explode(';', $booking->guest_name);
+		foreach ($guestNames as $guestName) {
+			// Extract nationality from format: "Name (Age) - Nationality"
+			if (preg_match('/\s-\s([^-]+)$/', trim($guestName), $matches)) {
+				$nationality = trim($matches[1]);
+				if (strtolower($nationality) === 'filipino') {
+					$filipinoGuests++;
+				} else {
+					$foreignGuests++;
+				}
+			}
+		}
+	}
+	
+	// Add tour type statistics for bar graph
+	$dayTourCount = \App\Models\Booking::where('tour_type', 'day_tour')->where('status', '!=', 'rejected')->count();
+	$overnightCount = \App\Models\Booking::where('tour_type', 'overnight')->where('status', '!=', 'rejected')->count();
+	
+	return view('admin.admin', compact(
+		'totalForeigners', 
+		'totalFilipinos', 
+		'foreignGuests',
+		'filipinoGuests',
+		'dayTourCount', 
+		'overnightCount'
+	));
+})->name('admin');
 
 
 // Tourist Dashboard
@@ -71,7 +123,7 @@ Route::get('/resort_owner/resort', function () {
         abort(403, 'Unauthorized');
     }
     return redirect()->route('resort.owner.information');
-})->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('resort');
+})->middleware(['auth'])->name('resort');
 
 
 // Resort Owner Information Page (will display the list of resorts)
@@ -110,21 +162,21 @@ Route::get('/resort_owner/resorts/{resort}/rooms', function (Resort $resort) {
     }
     // Redirect legacy rooms index to consolidated resort information page
     return redirect()->route('resort.owner.information');
-})->middleware(['auth'])->name('resort.owner.rooms.index');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.index');
 
 Route::get('/resort_owner/resorts/{resort}/rooms/create', function (Resort $resort) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
     return (new RoomController())->create($resort);
-})->middleware(['auth'])->name('resort.owner.rooms.create');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.create');
 
 Route::post('/resort_owner/resorts/{resort}/rooms', function (Request $request, Resort $resort) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
     return (new RoomController())->store($request, $resort);
-})->middleware(['auth'])->name('resort.owner.rooms.store');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.store');
 
 // Room routes that do not need the resort context in the URL for editing/deleting a specific room
 Route::get('/resort_owner/rooms/{room}/edit', function (App\Models\Room $room) {
@@ -132,14 +184,14 @@ Route::get('/resort_owner/rooms/{room}/edit', function (App\Models\Room $room) {
         abort(403, 'Unauthorized');
     }
     return (new RoomController())->edit($room);
-})->middleware(['auth'])->name('resort.owner.rooms.edit');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.edit');
 
 Route::put('/resort_owner/rooms/{room}', function (Request $request, App\Models\Room $room) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
     return (new RoomController())->update($request, $room);
-})->middleware(['auth'])->name('resort.owner.rooms.update');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.update');
 
 Route::delete('/resort_owner/rooms/{roomId}', function ($roomId) {
     if (Auth::user()->role !== 'resort_owner') {
@@ -153,7 +205,7 @@ Route::delete('/resort_owner/rooms/{roomId}', function ($roomId) {
     }
     
     return (new RoomController())->destroy($room);
-})->middleware(['auth'])->name('resort.owner.rooms.destroy');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.destroy');
 
 // Archive room routes
 Route::put('/resort_owner/rooms/{roomId}/archive', function ($roomId) {
@@ -168,7 +220,7 @@ Route::put('/resort_owner/rooms/{roomId}/archive', function ($roomId) {
     }
     
     return (new RoomController())->archive($room);
-})->middleware(['auth'])->name('resort.owner.rooms.archive');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.archive');
 
 Route::put('/resort_owner/rooms/restore/{roomId}', function ($roomId) {
     if (Auth::user()->role !== 'resort_owner') {
@@ -186,19 +238,19 @@ Route::put('/resort_owner/rooms/restore/{roomId}', function ($roomId) {
     }
     
     return (new App\Http\Controllers\RoomController())->restore($room);
-})->middleware(['auth'])->name('resort.owner.rooms.restore');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.restore');
 
 Route::get('/resort_owner/rooms/{resort}/archive', function (App\Models\Resort $resort) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
     return (new RoomController())->archiveIndex($resort);
-})->middleware(['auth'])->name('resort.owner.rooms.archive.index');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.archive.index');
 
 // Paginated room images fragment
 Route::get('/resort_owner/rooms/{room}/images', function (App\Models\Room $room) {
     return (new RoomController())->images($room);
-})->middleware(['auth'])->name('resort.owner.rooms.images');
+})->middleware(['auth', 'auth'])->name('resort.owner.rooms.images');
 
 
 // END NEW ROOM MANAGEMENT ROUTES
@@ -209,6 +261,11 @@ Route::get('/resort_owner/dashboard', function (Request $request) {
     if (Auth::user()->role !== 'resort_owner') {
         abort(403, 'Unauthorized');
     }
+
+    // // Check if user has verified their phone (skip for admin users)
+    // if (!Auth::user()->hasVerifiedPhone() && strtolower(trim((string)Auth::user()->role)) !== 'admin') {
+    //     return redirect()->route('dashboard');
+    // }
 
     // ADDED: Logic to fetch booking data through rooms
     $resortIds = Auth::user()->resorts()->pluck('id');
@@ -385,7 +442,7 @@ Route::get('/resort_owner/dashboard', function (Request $request) {
                                                         ->where('is_read', false)
                                                         ->count();
     return view('resort_owner.dashboard', compact('labels', 'data', 'totalBookings', 'activeBookings', 'totalGuests', 'totalRevenue', 'unreadCount', 'revenueFilterLabel', 'revenueBreakdown'));
-})->middleware(['auth'])->name('resort.owner.dashboard');
+})->middleware(['auth', 'auth'])->name('resort.owner.dashboard');
 
 Route::get('/resort_owner/verified', function () {
     if (Auth::user()->role !== 'resort_owner') {
@@ -395,7 +452,7 @@ Route::get('/resort_owner/verified', function () {
                                             ->where('is_read', false)
                                             ->count();
     return view('resort_owner.verified', compact('unreadCount'));
-})->middleware(['auth'])->name('resort.owner.verified');
+})->middleware(['auth', 'auth'])->name('resort.owner.verified');
 
 // Resort Owner Permit Upload Route
             Route::post('/resort_owner/upload-permits', function (Request $request) {
@@ -448,7 +505,7 @@ Route::get('/resort_owner/verified', function () {
                     $lastUploadedLabel = 'Business Permit';
                 }
                 
-                if ($request->hasFile('owner_image') && $user->role !== 'admin') {
+                if ($request->hasFile('owner_image') && strtolower(trim((string)$user->role)) !== 'admin') {
                     $file = $request->file('owner_image');
                     $filename = 'owner_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/permits/owner_images'), $filename);
@@ -482,11 +539,11 @@ Route::get('/resort_owner/verified', function () {
                 }
                 
                 return redirect()->route('resort.owner.verified');
-            })->middleware(['auth'])->name('resort.owner.upload-permits');
+            })->middleware(['auth', 'auth'])->name('resort.owner.upload-permits');
 
 // Resort Owner Notification Page
 Route::get('/resort_owner/notification', [BookingController::class, 'showNotifications'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('resort.owner.notification');
 
 // NEW: Resort Owner Booking Actions
@@ -517,19 +574,19 @@ Route::delete('/resort_owner/notifications', function() {
     if (Auth::user()->role !== 'resort_owner') { abort(403, 'Unauthorized'); }
     ResortOwnerNotification::where('user_id', Auth::id())->delete();
     return response()->json(['success' => true]);
-})->middleware(['auth'])->name('resort.owner.notifications.destroyAll');
+})->middleware(['auth', 'auth'])->name('resort.owner.notifications.destroyAll');
 
 
 Route::get('/resort_owner/documentation', [\App\Http\Controllers\ResortOwner\DocumentationController::class, 'index'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('resort.owner.documentation');
 
 Route::get('/resort_owner/documentation/export', [\App\Http\Controllers\ResortOwner\DocumentationController::class, 'export'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('resort.owner.documentation.export');
 
 Route::get('/resort_owner/documentation/export-pdf', [\App\Http\Controllers\ResortOwner\DocumentationController::class, 'exportPdf'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('resort.owner.documentation.export_pdf');
 
 
@@ -538,22 +595,22 @@ Route::middleware(['auth'])->group(function () {
     // Boat Information page for owner
     Route::get('/boat_owner/boat', [BoatController::class, 'index'])
         ->name('boat')
-        ->middleware('can:access-boat-features');
+        ->middleware(['auth', 'can:access-boat-features']);
 
     // Add Boat form
-    Route::get('/add-boat', [BoatController::class, 'create'])->name('boat.owner.add');
+    Route::get('/add-boat', [BoatController::class, 'create'])->middleware(['auth'])->name('boat.owner.add');
     // Store new boat
     Route::post('/boats', [BoatController::class, 'store'])->name('boats.store');
 
     // Edit Boat form
-    Route::get('/boats/{boat}/edit', [BoatController::class, 'edit'])->name('boat.edit');
+    Route::get('/boats/{boat}/edit', [BoatController::class, 'edit'])->middleware(['auth'])->name('boat.edit');
     // Update existing boat
     Route::put('/boats/{boat}', [BoatController::class, 'update'])->name('boat.update');
 
     // Archive boat (repurposed delete)
     Route::delete('/boats/{boat}', [BoatController::class, 'destroy'])->name('boat.destroy');
     // Archived boats list
-    Route::get('/boat_owner/archive', [BoatController::class, 'archiveIndex'])->name('boat.owner.archive');
+    Route::get('/boat_owner/archive', [BoatController::class, 'archiveIndex'])->middleware(['auth'])->name('boat.owner.archive');
     // Restore archived boat
     Route::put('/boat_owner/archive/{boat}/restore', [BoatController::class, 'restore'])->name('boat.owner.archive.restore');
     // Permanently delete archived boat
@@ -570,6 +627,11 @@ Route::middleware(['auth'])->group(function () {
         if (Auth::user()->role !== 'boat_owner') {
             abort(403, 'Unauthorized');
         }
+
+        // // Check if user has verified their phone (skip for admin users)
+        // if (!Auth::user()->hasVerifiedPhone() && strtolower(trim((string)Auth::user()->role)) !== 'admin') {
+        //     return redirect()->route('verification.notice');
+        // }
 
         $userId = Auth::id();
         
@@ -727,7 +789,7 @@ Route::middleware(['auth'])->group(function () {
             'revenueFilterLabel',
             'revenueBreakdown'
         ));
-    })->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->name('boat.owner.dashboard');
+    })->middleware(['auth', 'auth'])->name('boat.owner.dashboard');
 
     // Boat Owner Verified Page (if role-based verified status is used)
     Route::get('/boat_owner/verified', function () {
@@ -793,7 +855,7 @@ Route::middleware(['auth'])->group(function () {
             $lastUploadedLabel = 'Business Permit';
         }
         
-        if ($request->hasFile('owner_image') && $user->role !== 'admin') {
+        if ($request->hasFile('owner_image') && strtolower(trim((string)$user->role)) !== 'admin') {
             $file = $request->file('owner_image');
             $filename = 'owner_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/permits/owner_images'), $filename);
@@ -853,6 +915,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Boat Owner Notification Page
     Route::get('/boat_owner/notification', [NotificationController::class, 'showBoatOwnerNotifications'])
+        ->middleware(['auth'])
         ->name('boat.owner.notification');
 
     // NEW: Boat Owner Mark Notification as Read
@@ -877,18 +940,24 @@ Route::middleware(['auth'])->group(function () {
 
 
 // Redirect users to their correct dashboard based on their role
-Route::middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])->group(function () {
-    Route::get('/dashboard', function () {
-        $user = Auth::user();
+Route::middleware(['auth'])->group(function () {
+	Route::get('/dashboard', function () {
+		$user = Auth::user();
 
-        return match ($user->role) {
-            'admin' => redirect()->route('admin'),
-            'resort_owner' => redirect()->route('resort.owner.dashboard'), // Changed from 'resort' to 'resort.owner.dashboard'
-            'boat_owner' => redirect()->route('boat.owner.dashboard'),     // Changed from 'boat' to 'boat.owner.dashboard'
-            'tourist' => redirect()->route('tourist.tourist'),
-            default => abort(403, 'Unauthorized'),
-        };
-    })->name('dashboard');
+		// Enforce phone verification for non-admin users (admin bypasses OTP)
+		if (strtolower(trim((string)$user->role)) !== 'admin' && !$user->hasVerifiedPhone()) {
+			return redirect()->route('verification.notice');
+		}
+
+		// Redirect to the specific dashboard based on user role
+		return match (strtolower(trim((string)$user->role))) {
+			'admin' => redirect()->route('admin'),
+			'resort_owner' => redirect()->route('resort.owner.dashboard'),
+			'boat_owner' => redirect()->route('boat.owner.dashboard'),
+			'tourist' => redirect()->route('tourist.tourist'),
+			default => abort(403, 'Unauthorized'),
+		};
+	})->name('dashboard');
 });
 
 // Admin filtered users
@@ -900,7 +969,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 // Profile Routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -912,18 +981,18 @@ Route::middleware('auth')->group(function () {
 
 // NEW: Tourist Reminders Page (intermediary page, loads a static view)
 Route::get('/tourist/reminders', [TouristController::class, 'showReminders'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('tourist.reminders');
 
 
 // Route for the fill-up form, passing the room ID
 Route::get('/tourist/fillup/{room}', [BookingController::class, 'showFillupForm'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('tourist.fillup');
 
 // Route for the second step of the fill-up form
 Route::get('/tourist/fillup2', [BookingController::class, 'showFillupForm2'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('tourist.fillup2');
 
 // Step 1 POST handler for fillup form (named route)
@@ -937,12 +1006,9 @@ Route::post('/tourist/fillup/{room}', [BookingController::class, 'handleFillupSt
     ->name('tourist.fillup.step1.post.fallback');
 
 // Secure file streaming for resort owner to view/download booking files
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'auth'])->group(function () {
     Route::get('/resort_owner/bookings/{booking}/file/{which}', [BookingController::class, 'viewBookingFile'])
         ->name('resort.owner.booking.file.view');
-    // Tourist submit rating for a completed booking
-    Route::post('/tourist/bookings/{booking}/rating', [\App\Http\Controllers\Tourist\RatingController::class, 'store'])
-        ->name('tourist.bookings.rating.store');
     Route::get('/resort_owner/bookings/{booking}/file/{which}/download', [BookingController::class, 'downloadBookingFile'])
         ->name('resort.owner.booking.file.download');
 });
@@ -955,7 +1021,7 @@ Route::get('/tourist/handle-post-login-booking', [BookingController::class, 'han
 
 // 'tourist.list' should continue to use ExploreController@index for consistency
 Route::get('/tourist/list', [ExploreController::class, 'index'])
-    ->middleware(['auth'])
+    ->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])
     ->name('tourist.list');
 
 // (Removed tourist spot route)
@@ -964,12 +1030,12 @@ Route::get('/tourist/list', [ExploreController::class, 'index'])
 // This route previously returned a static view without data.
 // Kukunin nito ngayon ang bookings at notifications sa BookingController@myBookings
 Route::get('/tourist/visit', [BookingController::class, 'myBookings'])
-    ->middleware(['auth'])
+    ->middleware(['auth', \App\Http\Middleware\AuthenticateWithPhone::class])
     ->name('tourist.visit');
 
 Route::get('/tourist/notifications', function () {
     return view('tourist.notifications');
-})->middleware(['auth'])->name('tourist.notifications');
+})->middleware(['auth', 'auth'])->name('tourist.notifications');
 
 
 // These static /tourist/booknow/* routes are problematic for dynamic data.
@@ -1046,13 +1112,13 @@ Route::delete('/tourist/notifications', [NotificationController::class, 'destroy
 
 // NEW: Route for AJAX loading of Tourist Notifications
 Route::get('/tourist/notifications/ajax', [NotificationController::class, 'getTouristNotificationsAjax'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('tourist.notifications.ajax');
 
 // --- NEW TOURIST BOOKING EDIT/DELETE ROUTES ---
 // Removed 'role:tourist' middleware as per your existing authorization logic in controllers
 Route::get('/tourist/bookings/{booking}/edit', [BookingController::class, 'edit'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'auth'])
     ->name('tourist.bookings.edit');
 
 Route::put('/tourist/bookings/{booking}', [BookingController::class, 'update'])
@@ -1077,10 +1143,10 @@ Route::get('/explore/{resort}', [ExploreController::class, 'show'])
 
 
 // Admin Routes (Grouped under 'admin' prefix with authentication and role check)
-Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('admin')->middleware(['auth'])->group(function () {
     // Admin Dashboard
     Route::get('/dashboard', function () {
-        if (Auth::user()->role !== 'admin') {
+        if (strtolower(trim((string)Auth::user()->role)) !== 'admin') {
             abort(403, 'Unauthorized');
         }
         // Updated: Pass totalForeigners and totalFilipinos data to the view
@@ -1177,4 +1243,11 @@ require __DIR__ . '/auth.php';
 Route::get('/test/update-booking-statuses', function() {
     \Illuminate\Support\Facades\Artisan::call('bookings:update-statuses');
     return response()->json(['message' => 'Booking statuses updated successfully']);
-})->middleware(['auth'])->name('test.update-booking-statuses');
+})->middleware(['auth', 'auth'])->name('test.update-booking-statuses');
+
+// Test Semaphore account status (remove in production)
+Route::get('/test/semaphore-status', function() {
+    $smsService = new \App\Services\SemaphoreSmsService();
+    $status = $smsService->checkAccountStatus();
+    return response()->json($status);
+})->middleware(['auth', 'auth'])->name('test.semaphore-status');

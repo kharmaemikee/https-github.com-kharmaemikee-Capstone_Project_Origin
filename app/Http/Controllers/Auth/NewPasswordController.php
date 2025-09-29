@@ -46,19 +46,19 @@ class NewPasswordController extends Controller
                 return redirect()->route('password.request');
             }
 
-            // Update password
+            // Update password only - do NOT auto-verify phone
             $user->update([
                 'password' => Hash::make($request->password),
-                'phone_verified_at' => now(), // Mark phone as verified
+                // phone_verified_at should remain null - user must verify phone after login
             ]);
 
             // Clear session
             session()->forget('password_reset_user_id');
 
-            // Log the user in automatically
-            auth()->login($user);
+            // DO NOT auto-login the user - they must verify phone first
+            // auth()->login($user); // REMOVED - user must verify phone before login
 
-            return redirect()->route('dashboard')->with('status', 'Password has been reset successfully!');
+            return redirect()->route('login')->with('status', 'Password has been reset successfully! Please login and verify your phone number.');
         }
 
         // Handle traditional token-based password reset

@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use App\Services\SemaphoreSmsService;
+use Illuminate\Support\Facades\Cache;
 
 class PhonePasswordResetController extends Controller
 {
@@ -38,14 +40,32 @@ class PhonePasswordResetController extends Controller
                          ->withErrors(['phone_number' => 'No user found with this phone number.']);
         }
 
-        // Generate a 6-digit OTP code for password reset
+        // Skip OTP verification for admin users - they can reset password directly
+        if ($user->role === 'admin') {
+            // Store user ID in session for password reset (bypass OTP verification)
+            session(['password_reset_user_id' => $user->id]);
+            return redirect()->route('password.reset.confirm');
+        }
+
+        // Generate a 6-digit OTP code for password reset (for non-admin users)
         $otpCode = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-        
-        // Store OTP in phone_verified_at column temporarily
-        $user->update(['phone_verified_at' => $otpCode]);
-        
-        // Debug: Log the OTP being generated
-        Log::info('Password reset OTP for user: ' . $user->id . ', OTP: ' . $otpCode);
+        // Store OTP in cache for 10 minutes
+        Cache::put('otp:reset:' . $user->id, $otpCode, now()->addMinutes(10));
+        // Optional debug: avoid logging OTP values in production
+        Log::info('Password reset OTP generated for user: ' . $user->id);
+
+        // Send OTP via Semaphore
+        try {
+            $sms = new SemaphoreSmsService();
+            $message = 'Code: ' . $otpCode;
+            $sent = $sms->send($user->phone, $message);
+            if (!$sent) {
+                return redirect()->route('password.reset.verify')->with('status', 'password-reset-sms-failed');
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed to send Semaphore SMS for password reset: ' . $e->getMessage());
+            return redirect()->route('password.reset.verify')->with('status', 'password-reset-sms-error');
+        }
 
         return redirect()->route('password.reset.verify')->with('status', 'verification-code-sent');
     }
@@ -74,13 +94,22 @@ class PhonePasswordResetController extends Controller
             return back()->withErrors(['phone_number' => 'No user found with this phone number.']);
         }
 
-        // Check if the provided code matches the stored OTP
-        if ($request->input('code') !== $user->phone_verified_at) {
+        // Skip OTP verification for admin users (safety measure)
+        if ($user->role === 'admin') {
+            // Store user ID in session for password reset (bypass OTP verification)
+            session(['password_reset_user_id' => $user->id]);
+            return redirect()->route('password.reset.confirm');
+        }
+
+        // Check if the provided code matches the cached OTP (for non-admin users)
+        $expected = Cache::get('otp:reset:' . $user->id);
+        if ($request->input('code') !== $expected) {
             return back()->withErrors(['code' => 'The provided verification code is invalid.']);
         }
 
         // Store user ID in session for password reset
         session(['password_reset_user_id' => $user->id]);
+        Cache::forget('otp:reset:' . $user->id);
 
         return redirect()->route('password.reset.confirm');
     }
@@ -88,7 +117,7 @@ class PhonePasswordResetController extends Controller
     /**
      * Show password change confirmation.
      */
-    public function showConfirmForm(): View
+    public function showConfirmForm(): View|RedirectResponse
     {
         if (!session('password_reset_user_id')) {
             return redirect()->route('password.request');

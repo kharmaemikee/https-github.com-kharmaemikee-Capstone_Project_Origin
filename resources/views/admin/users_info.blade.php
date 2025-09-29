@@ -245,7 +245,15 @@
                             <tr>
                                 <th class="user-info-col">
                                     <i class="fas fa-user"></i>
-                                    Tourist Information
+                                    @if(($userType ?? 'All Users') === 'Tourist Users')
+                                        Tourist Information
+                                    @elseif(($userType ?? 'All Users') === 'Resort Users')
+                                        Resorts Name
+                                    @elseif(($userType ?? 'All Users') === 'Boat Users')
+                                        Boat Owner Name
+                                    @else
+                                        User Information
+                                    @endif
                                 </th>
                                 @if(($userType ?? 'All Users') === 'Tourist Users')
                                     <th class="contact-col">
@@ -297,6 +305,10 @@
                                     <div class="user-details">
                                         <h6 class="user-name">
                                             @if(($userType ?? 'All Users') === 'Tourist Users')
+                                                {{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }}
+                                            @elseif(($userType ?? 'All Users') === 'Resort Users')
+                                                {{ optional($user->resorts->first())->resort_name ?? $user->username }}
+                                            @elseif(($userType ?? 'All Users') === 'Boat Users')
                                                 {{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }}
                                             @else
                                                 {{ $user->username }}

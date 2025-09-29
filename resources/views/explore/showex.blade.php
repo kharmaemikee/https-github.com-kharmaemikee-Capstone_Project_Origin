@@ -154,22 +154,14 @@
                                     @if($room->description)
                                         <div class="amenities-section">
                                             <h6>Amenities:</h6>
-                                            <div class="amenities-list">
+                                            <ul class="amenities-bullets">
                                                 @php
-                                                    $amenities = explode('•', $room->description);
+                                                    $parts = array_filter(array_map('trim', explode('.', $room->description)));
                                                 @endphp
-                                                @foreach ($amenities as $amenity)
-                                                    @php
-                                                        $amenity = trim($amenity);
-                                                    @endphp
-                                                    @if (!empty($amenity))
-                                                        <div class="amenity-item">
-                                                            <i class="fas fa-check me-1"></i>
-                                                            {{ $amenity }}
-                                                        </div>
-                                                    @endif
+                                                @foreach ($parts as $part)
+                                                    <li><strong>{{ $part }}.</strong></li>
                                                 @endforeach
-                                            </div>
+                                            </ul>
                                         </div>
                                     @endif
 
@@ -197,9 +189,17 @@
                                         @endphp
                                         @if ($canBook)
                                             @auth
-                                                <a href="{{ route('booking.create', $room->id) }}" class="btn btn-primary accommodation-btn">
-                                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
-                                                </a>
+                                                @if(Auth::user()->hasVerifiedPhone())
+                                                    <a href="{{ route('booking.create', $room->id) }}" class="btn btn-primary accommodation-btn">
+                                                        <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                                    </a>
+                                                @else
+                                                    <a href="#" class="btn btn-primary accommodation-btn"
+                                                       data-bs-toggle="modal" data-bs-target="#loginRequiredModal"
+                                                       data-room-id="{{ $room->id }}" data-room-name="{{ $room->room_name }}">
+                                                        <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                                    </a>
+                                                @endif
                                             @else
                                                 <a href="#" class="btn btn-primary accommodation-btn"
                                                    data-bs-toggle="modal" data-bs-target="#loginRequiredModal"
@@ -778,6 +778,17 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    /* Bulleted amenities for explore page */
+    .amenities-bullets {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+    .amenities-bullets li {
+        color: #2c3e50;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
     }
 
     .amenity-item {

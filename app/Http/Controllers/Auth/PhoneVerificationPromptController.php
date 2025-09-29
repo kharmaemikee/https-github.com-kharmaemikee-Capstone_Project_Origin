@@ -14,10 +14,17 @@
          */
         public function __invoke(Request $request): RedirectResponse|View
         {
-            // If the user's phone is already verified, redirect to dashboard.
-            return $request->user()->hasVerifiedPhone()
-                            ? redirect()->intended(route('dashboard', absolute: false))
-                            : view('auth.verify-phone'); // We will create this view
+        // If the user's phone is already verified or user is admin, redirect to appropriate dashboard.
+        $role = strtolower(trim((string)$request->user()->role));
+        
+        if ($request->user()->hasVerifiedPhone() || $role === 'admin') {
+            if ($role === 'admin') {
+                return redirect()->route('admin');
+            }
+            return redirect()->route('dashboard');
+        }
+        
+        return view('auth.verify-phone');
         }
     }
     

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matnog Tourism</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/tourism.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('image/tourism.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/js/app.js'])
@@ -472,6 +474,19 @@
         </div>
         <div class="login-card text-center">
             <h3 class="text-white">Login</h3>
+            
+            @if (session('success'))
+                <div class="mb-3 text-success">
+                    <small><i class="fas fa-check-circle"></i> {{ session('success') }}</small>
+                </div>
+            @endif
+
+            @if (session('status'))
+                <div class="mb-3 text-info">
+                    <small><i class="fas fa-info-circle"></i> {{ session('status') }}</small>
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="mb-3 input-group flex-wrap"> {{-- Added flex-wrap for error message --}}

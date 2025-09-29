@@ -95,33 +95,51 @@
                                 </div>
 
                                 <div class="booking-content">
+                                    @php
+                                        $ci = null; $co = null; $ciTime = null; $coTime = null;
+                                        try { $ci = \Carbon\Carbon::parse((string)$booking->check_in_date); } catch (\Exception $e) { $ci = null; }
+                                        try { $co = $booking->check_out_date ? \Carbon\Carbon::parse((string)$booking->check_out_date) : null; } catch (\Exception $e) { $co = null; }
+                                        if (($booking->tour_type ?? '') === 'day_tour') {
+                                            try { $ciTime = $booking->day_tour_departure_time ? \Carbon\Carbon::parse((string)$booking->check_in_date.' '.(string)$booking->day_tour_departure_time) : null; } catch (\Exception $e) { $ciTime = null; }
+                                            try { $coTime = ($booking->day_tour_time_of_pickup ?? null) ? \Carbon\Carbon::parse((string)($co?->toDateString() ?: $ci?->toDateString()).' '.(string)$booking->day_tour_time_of_pickup) : null; } catch (\Exception $e) { $coTime = null; }
+                                        } else {
+                                            try { $ciTime = $booking->overnight_date_time_of_departure ? \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_departure) : ($booking->overnight_departure_time ? \Carbon\Carbon::parse((string)$booking->overnight_departure_time) : null); } catch (\Exception $e) { $ciTime = null; }
+                                            try { $coTime = $booking->overnight_date_time_of_pickup ? \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_pickup) : null; } catch (\Exception $e) { $coTime = null; }
+                                        }
+                                        $ciDateStr = $ci ? $ci->format('M d, Y') : ($booking->check_in_date ?? '');
+                                        $coDateStr = ($co ?: $ci) ? ($co ?: $ci)->format('M d, Y') : ($booking->check_out_date ?? $booking->check_in_date ?? '');
+                                        $ciTimeStr = $ciTime ? $ciTime->format('h:i A') : null;
+                                        $coTimeStr = $coTime ? $coTime->format('h:i A') : null;
+                                        if (!$ciTimeStr) {
+                                            if (($booking->tour_type ?? '') === 'day_tour' && $booking->day_tour_departure_time) {
+                                                try { $ciTimeStr = \Carbon\Carbon::parse((string)$booking->day_tour_departure_time)->format('h:i A'); } catch (\Exception $e) { $ciTimeStr = (string)$booking->day_tour_departure_time; }
+                                            } elseif (($booking->tour_type ?? '') === 'overnight' && ($booking->overnight_date_time_of_departure ?? $booking->overnight_departure_time)) {
+                                                try { $ciTimeStr = \Carbon\Carbon::parse((string)($booking->overnight_date_time_of_departure ?? $booking->overnight_departure_time))->format('h:i A'); } catch (\Exception $e) { $ciTimeStr = (string)($booking->overnight_date_time_of_departure ?? $booking->overnight_departure_time); }
+                                            }
+                                        }
+                                        if (!$coTimeStr) {
+                                            if (($booking->tour_type ?? '') === 'day_tour' && ($booking->day_tour_time_of_pickup ?? null)) {
+                                                try { $coTimeStr = \Carbon\Carbon::parse((string)$booking->day_tour_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { $coTimeStr = (string)$booking->day_tour_time_of_pickup; }
+                                            } elseif (($booking->tour_type ?? '') === 'overnight' && $booking->overnight_date_time_of_pickup) {
+                                                try { $coTimeStr = \Carbon\Carbon::parse((string)$booking->overnight_date_time_of_pickup)->format('h:i A'); } catch (\Exception $e) { $coTimeStr = (string)$booking->overnight_date_time_of_pickup; }
+                                            }
+                                        }
+                                    @endphp
                                     <div class="booking-dates">
                                         <div class="date-item">
                                             <i class="fas fa-calendar-plus"></i>
                                             <div class="date-info">
-                                                <span class="date-label">Check-in</span>
-                                                <span class="date-value">
-                                                    @php
-                                                        try { echo \Carbon\Carbon::parse($booking->check_in_date)->format('M d, Y'); }
-                                                        catch(\Exception $e) { echo $booking->check_in_date; }
-                                                    @endphp
-                                                </span>
+                                                <span class="date-label">Check-In</span>
+                                                <span class="date-value">{{ ($ciTimeStr ? ($ciTimeStr.' - ') : '') . $ciDateStr }}</span>
                                             </div>
                                         </div>
-                                        @if ($booking->tour_type === 'overnight' && $booking->check_out_date)
-                                            <div class="date-item">
-                                                <i class="fas fa-calendar-minus"></i>
-                                                <div class="date-info">
-                                                    <span class="date-label">Check-out</span>
-                                                    <span class="date-value">
-                                                        @php
-                                                            try { echo \Carbon\Carbon::parse($booking->check_out_date)->format('M d, Y'); }
-                                                            catch(\Exception $e) { echo $booking->check_out_date; }
-                                                        @endphp
-                                                    </span>
-                                                </div>
+                                        <div class="date-item">
+                                            <i class="fas fa-calendar-minus"></i>
+                                            <div class="date-info">
+                                                <span class="date-label">Check-Out</span>
+                                                <span class="date-value">{{ ($coTimeStr ? ($coTimeStr.' - ') : '') . $coDateStr }}</span>
                                             </div>
-                                        @endif
+                                        </div>
                                     </div>
 
                                     @if($booking->room)
@@ -232,7 +250,7 @@
                                         </div>
                                     @endif
 
-                                    {{-- Tour Details --}}
+                                    <!-- {{-- Tour Details --}}
                                     @if ($booking->tour_type === 'day_tour')
                                         <div class="booking-tour">
                                             <h6 class="tour-title">
@@ -291,7 +309,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @endif
+                                    @endif -->
 
                                     {{-- Total Price --}}
                                     @php
@@ -418,55 +436,10 @@
                                                     Delete
                                                 </button>
                                             @endif
-                                            @if ($booking->display_status === 'completed')
-                                                <button type="button" class="action-btn" data-bs-toggle="modal" data-bs-target="#rateModal{{ $booking->id }}">
-                                                    <i class="fas fa-star me-1"></i>
-                                                    Rate
-                                                </button>
-                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            {{-- Rate Modal --}}
-                            @if ($booking->display_status === 'completed')
-                            <div class="modal fade" id="rateModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Rate your stay</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form method="POST" action="{{ route('tourist.bookings.rating.store', $booking->id) }}">
-                                            @csrf
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Stars</label>
-                                                    <div class="d-flex gap-2 align-items-center">
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            <div>
-                                                                <input type="radio" class="btn-check" name="stars" id="rate{{ $booking->id }}_{{ $i }}" value="{{ $i }}" autocomplete="off" {{ $i==5 ? 'checked' : '' }}>
-                                                                <label class="btn btn-outline-warning" for="rate{{ $booking->id }}_{{ $i }}">
-                                                                    <i class="fas fa-star"></i> {{ $i }}
-                                                                </label>
-                                                            </div>
-                                                        @endfor
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Comment (optional)</label>
-                                                    <textarea name="comment" class="form-control" rows="3" placeholder="Share your experience"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Submit Rating</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
                         @endforeach
                     </div>
                     

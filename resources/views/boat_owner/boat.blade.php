@@ -116,12 +116,13 @@
                                 <div class="boat-content">
                                     <div class="boat-header">
                                         <h6 class="boat-name">{{ $boat->boat_name }}</h6>
-                                        <span class="boat-number">#{{ $boat->boat_number }}</span>
+                                        <span class="boat-number">Boat No.: #{{ $loop->iteration }}</span>
                                     </div>
                                     
                                     <div class="boat-details">
+                                       
                                         <div class="detail-item">
-                                            <i class="fas fa-dollar-sign detail-icon"></i>
+                                            <i class="fas fa-peso-sign detail-icon"></i>
                                             <span class="detail-label">Price:</span>
                                             <span class="detail-value">₱{{ number_format($boat->boat_prices, 2) }}</span>
                                         </div>
@@ -280,7 +281,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $boat->boat_name }}</td>
-                                <td>{{ $boat->boat_number }}</td>
+                                <td>-</td>
                                 <td>₱{{ number_format($boat->boat_prices, 2) }}</td>
                                 <td>{{ $boat->boat_capacities }} pax</td>
                                 <td>{{ $boat->boat_length ?? 'N/A' }}</td>

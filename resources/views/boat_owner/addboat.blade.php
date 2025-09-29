@@ -36,28 +36,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="boat_number" class="form-label">Boat Number</label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="boat_number" 
-                                           name="boat_number" 
-                                           placeholder="e.g., 09123456789" 
-                                           value="{{ old('boat_number') }}" 
-                                           pattern="[0-9]{11}" 
-                                           maxlength="11" 
-                                           minlength="11"
-                                           title="Please enter exactly 11 digits for the boat number." 
-                                           inputmode="numeric"
-                                           oninput="validateBoatNumber(this)"
-                                           required>
-                                    <div id="boat_number_error" class="text-danger mt-1" style="display: none;">
-                                        The boat number must be exactly 11 digits.
-                                    </div>
-                                    @error('boat_number')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                
                             </div>
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -158,29 +137,6 @@
     </style>
 
     <script>
-        // Function to validate boat number input
-        function validateBoatNumber(input) {
-            const value = input.value;
-            const errorDiv = document.getElementById('boat_number_error');
-            
-            // Remove any non-digit characters
-            const digitsOnly = value.replace(/\D/g, '');
-            
-            // Update the input value to only contain digits
-            if (value !== digitsOnly) {
-                input.value = digitsOnly;
-            }
-            
-            // Check if the length is exactly 11 digits
-            if (digitsOnly.length > 0 && digitsOnly.length !== 11) {
-                errorDiv.style.display = 'block';
-                input.classList.add('is-invalid');
-            } else {
-                errorDiv.style.display = 'none';
-                input.classList.remove('is-invalid');
-            }
-        }
-
         // Function to validate captain contact input
         function validateCaptainContact(input) {
             const value = input.value;

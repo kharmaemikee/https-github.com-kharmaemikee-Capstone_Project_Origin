@@ -63,10 +63,7 @@
                                                     <i class="fas fa-ship me-1"></i>
                                                     Boat Name
                                                 </th>
-                                                <th scope="col">
-                                                    <i class="fas fa-id-card me-1"></i>
-                                                    Plate Number
-                                                </th>
+                                                
                                                 <th scope="col">
                                                     <i class="fas fa-tag me-1"></i>
                                                     Price
@@ -105,9 +102,7 @@
                                                     <td class="boat-name-cell">
                                                         <div class="boat-name">{{ $boat->boat_name }}</div>
                                                     </td>
-                                                    <td class="plate-cell">
-                                                        <span class="plate-number">{{ $boat->boat_number }}</span>
-                                                    </td>
+                                                    
                                                     <td class="price-cell">
                                                         <span class="price-amount">₱{{ number_format($boat->boat_prices, 2) }}</span>
                                                     </td>

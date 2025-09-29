@@ -11,6 +11,7 @@ use App\Models\BoatOwnerNotification;
 use App\Models\Setting;
 use App\Models\Resort; // <--- ADDED: Import the Resort model
 use App\Services\PricingCalculationService;
+use App\Services\SemaphoreSmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -142,7 +143,7 @@ class BookingController extends Controller
             'num_nights' => 'required|integer|min:1',
             'num_guests' => 'required|integer|min:1',
             'downpayment_receipt' => 'required|image|max:5120',
-            'valid_id_type' => 'required|string|in:National I.D,Passport,License,Other Valid I.D',
+            'valid_id_type' => 'required|string|in:Philippine Passport (DFA),Philippine National ID (PhilSys ID / ePhilID) (PSA),Driver’s License (LTO),Unified Multi-Purpose ID (UMID) (SSS/GSIS/Pag-IBIG/PhilHealth),Professional Regulation Commission (PRC) ID,Voter’s ID or Voter’s Certificate (COMELEC)',
             'valid_id_image' => 'required|image|max:5120',
             'valid_id_number' => 'required|string|max:255',
             'senior_id_images' => 'nullable|required_if:num_senior_citizens,>0',
@@ -646,6 +647,27 @@ class BookingController extends Controller
                 'is_read' => false,
             ]);
 
+            // Send SMS notification to tourist about booking approval
+            try {
+                $tourist = $booking->user;
+                if ($tourist && $tourist->phone_number) {
+                    $smsService = new SemaphoreSmsService();
+                    $message = "Hello! Your booking for " . ($booking->room->room_name ?? 'a room') . " at " . $booking->name_of_resort . " has been APPROVED by the resort owner. A boat will be assigned on your booking date. Thank you for choosing Matnog Tourism!";
+                    $smsService->send($tourist->phone_number, $message);
+                    Log::info('SMS sent to tourist for booking approval', [
+                        'tourist_id' => $tourist->id,
+                        'booking_id' => $booking->id,
+                        'phone' => $tourist->phone_number
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::error('Failed to send SMS for booking approval', [
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+
             // Inform each party that assignment will happen on the booking's departure time
             ResortOwnerNotification::create([
                 'user_id' => $booking->resort_owner_id,
@@ -953,6 +975,27 @@ class BookingController extends Controller
                 'is_read' => false,
             ]);
 
+            // Send SMS notification to tourist about extension approval
+            try {
+                $tourist = $booking->user;
+                if ($tourist && $tourist->phone_number) {
+                    $smsService = new SemaphoreSmsService();
+                    $message = "Hello! Your booking extension has been APPROVED by the resort owner: +" . ($booking->extension_value ?? 'N/A') . " " . ($booking->extension_type ?? '') . ". Your booking remains approved. Thank you for choosing Matnog Tourism!";
+                    $smsService->send($tourist->phone_number, $message);
+                    Log::info('SMS sent to tourist for extension approval', [
+                        'tourist_id' => $tourist->id,
+                        'booking_id' => $booking->id,
+                        'phone' => $tourist->phone_number
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::error('Failed to send SMS for extension approval', [
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+
             // Notify the assigned boat owner, if there is one, that the tourist has extended
             if ($booking->assigned_boat_id && $booking->assignedBoat) {
                 try {
@@ -1150,14 +1193,6 @@ class BookingController extends Controller
                 'is_read' => false,
             ]);
 
-            // Prompt tourist to rate the resort (1-5 stars)
-            TouristNotification::create([
-                'user_id' => $booking->user_id,
-                'booking_id' => $booking->id,
-                'message' => 'Please rate your stay at ' . ($booking->name_of_resort ?? optional(optional($booking->room)->resort)->resort_name ?? 'the resort') . ' (1-5 stars).',
-                'type' => 'rating_request',
-                'is_read' => false,
-            ]);
 
             // If a boat was assigned, notify the boat owner that the booking is completed
             if ($booking->assigned_boat_id && $booking->assignedBoat) {
@@ -1238,6 +1273,8 @@ class BookingController extends Controller
             'num_pwds' => 'nullable|integer|min:0',
             'special_requests' => 'nullable|string|max:1000',
             'downpayment_receipt' => 'nullable|image|max:5120',
+            // Accept the same Valid ID list used in step 1
+            'valid_id_type' => 'sometimes|string|in:Philippine Passport (DFA),Philippine National ID (PhilSys ID / ePhilID) (PSA),Driver’s License (LTO),Unified Multi-Purpose ID (UMID) (SSS/GSIS/Pag-IBIG/PhilHealth),Professional Regulation Commission (PRC) ID,Voter’s ID or Voter’s Certificate (COMELEC)',
         ], [
             'contact_number.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);

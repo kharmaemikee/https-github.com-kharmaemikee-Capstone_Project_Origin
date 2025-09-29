@@ -206,10 +206,9 @@
                     <table class="table modern-table">
                         <thead class="table-header">
                         <tr>
-                                <th scope="col">Assign No</th>
+                                <th scope="col">Boat Number</th>
                                 <th scope="col" class="text-center">Image</th>
                             <th scope="col">Boat Name</th>
-                            <th scope="col">Boat No</th>
                             <th scope="col">Price</th>
                             <th scope="col">Capacity</th>
                             <th scope="col">Length</th>
@@ -238,12 +237,7 @@
                                     <td class="boat-name-cell">
                                         <div class="boat-name">{{ $boat->boat_name }}</div>
                                     </td>
-                                    <td class="boat-number-cell">
-                                        <div class="boat-number">
-                                            <i class="fas fa-hashtag text-primary me-1"></i>
-                                            {{ $boat->boat_number }}
-                                        </div>
-                                    </td>
+                                    
                                     <td class="price-cell">
                                         <div class="price-info">
                                             <i class="fas fa-tag text-success me-1"></i>
@@ -333,7 +327,7 @@
                                                 data-boat-length="{{ $boat->boat_length ?? '' }}"
                                                 data-captain-name="{{ $boat->captain_name ?? 'N/A' }}"
                                                 data-captain-contact="{{ $boat->captain_contact ?? 'N/A' }}"
-                                                data-boat-number="{{ $boat->boat_number }}"
+                                                
                                                 data-boat-image="{{ $boat->image_path ? asset($boat->image_path) : asset('images/default_boat.png') }}">
                                             <i class="fas fa-eye me-1"></i>
                                             View
@@ -382,25 +376,40 @@
 
     {{-- Reject Boat Modal --}}
     <div class="modal fade" id="rejectBoatModal" tabindex="-1" aria-labelledby="rejectBoatModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modern-modal">
+                <div class="modal-header modern-modal-header">
+                    <div class="modal-title-section">
+                        <div class="modal-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
                     <h5 class="modal-title" id="rejectBoatModalLabel">Reject Boat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <button type="button" class="btn-close modern-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 <form id="rejectBoatForm" method="POST" action="">
                     @csrf
-                    <div class="modal-body">
+                    <div class="modal-body modern-modal-body">
+                        <div class="action-message">
                         <p>Are you sure you want to reject the boat: <strong id="modalRejectBoatName"></strong>?</p>
-                        <div class="mb-3">
-                            <label for="rejection_reason" class="form-label">Reason for Rejection (Required)</label>
-                            <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="3" required></textarea>
-                            <div class="text-danger mt-1" id="rejectionReasonError"></div>
                         </div>
+                        <div class="rejection-reason-section">
+                            <label for="rejection_reason" class="form-label modern-label">
+                                <i class="fas fa-edit me-2"></i>Reason for Rejection (Required)
+                            </label>
+                            <textarea class="form-control modern-textarea" id="rejection_reason" name="rejection_reason" rows="3" required placeholder="Please provide a detailed reason for rejection..."></textarea>
+                            <div class="text-danger mt-2" id="rejectionReasonError"></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger rounded-pill">Reject</button>
+                    </div>
+                    <div class="modal-footer modern-modal-footer">
+                        <button type="button" class="btn btn-outline-secondary modern-btn" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger modern-btn">
+                            <i class="fas fa-times me-2"></i>Reject
+                        </button>
                     </div>
                 </form>
             </div>
@@ -409,49 +418,66 @@
 
     {{-- View Boat Modal --}}
     <div class="modal fade" id="viewBoatModal" tabindex="-1" aria-labelledby="viewBoatModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modern-modal">
+                <div class="modal-header modern-modal-header">
+                    <div class="modal-title-section">
+                        <div class="modal-icon">
+                            <i class="fas fa-ship"></i>
+                        </div>
                     <h5 class="modal-title" id="viewBoatModalLabel">Boat Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row g-3 align-items-start">
+                    <button type="button" class="btn-close modern-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body modern-modal-body">
+                    <div class="row g-4 align-items-start">
                         <div class="col-12 col-md-6 text-center">
-                            <img id="viewBoatImage" src="" alt="Boat" style="width:100%; max-height:60vh; object-fit:contain; border-radius:10px; border:1px solid #e9ecef; box-shadow:0 6px 20px rgba(0,0,0,.1);" />
+                            <div class="boat-image-container">
+                                <img id="viewBoatImage" src="" alt="Boat" class="boat-detail-image" />
+                            </div>
                         </div>
                         <div class="col-12 col-md-6">
-                            <div class="d-flex flex-column gap-3">
-                                <div>
-                                    <div class="text-muted small">Boat Name</div>
-                                    <div class="fw-bold" id="viewBoatName">N/A</div>
+                            <div class="boat-details-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-ship me-2"></i>Boat Name
                                 </div>
-                                <div>
-                                    <div class="text-muted small">Assignment No</div>
-                                    <div class="fw-semibold" id="viewAssignNo">N/A</div>
+                                    <div class="detail-value" id="viewBoatName">N/A</div>
                                 </div>
-                                <div>
-                                    <div class="text-muted small">Boat Length</div>
-                                    <div class="fw-semibold" id="viewBoatLength">N/A</div>
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-hashtag me-2"></i>Assignment No
                                 </div>
-                                <div>
-                                    <div class="text-muted small">Boat Number</div>
-                                    <div class="fw-semibold" id="viewBoatNumber">N/A</div>
+                                    <div class="detail-value" id="viewAssignNo">N/A</div>
                                 </div>
-                                <div>
-                                    <div class="text-muted small">Captain</div>
-                                    <div class="fw-semibold" id="viewCaptainName">N/A</div>
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-ruler-horizontal me-2"></i>Boat Length
                                 </div>
-                                <div>
-                                    <div class="text-muted small">Captain Contact</div>
-                                    <div class="fw-semibold" id="viewCaptainContact">N/A</div>
+                                    <div class="detail-value" id="viewBoatLength">N/A</div>
+                            </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-user-tie me-2"></i>Captain
+                        </div>
+                                    <div class="detail-value" id="viewCaptainName">N/A</div>
+                    </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-phone me-2"></i>Captain Contact
+                </div>
+                                    <div class="detail-value" id="viewCaptainContact">N/A</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer modern-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary modern-btn" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -1600,15 +1626,265 @@
             box-shadow: 0 2px 8px rgba(52, 58, 64, 0.2) !important;
         }
 
-        /* Modal Footer Buttons */
-        #rejectBoatModal .modal-footer .btn-secondary {
-            border-radius: 25px !important; /* Apply rounded pill to Cancel button */
-            padding: 8px 20px;
+        /* Modern Modal Design */
+        .modern-modal {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
 
-        #rejectBoatModal .modal-footer .btn-danger {
-            border-radius: 25px !important; /* Apply rounded pill to Reject button */
-            padding: 8px 20px;
+        .modern-modal-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .modal-title-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modal-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .modern-modal-header .modal-title {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .modern-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .modern-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modern-close-btn i {
+            font-size: 1rem;
+            color: white;
+        }
+
+        .modern-modal-body {
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .action-message p {
+            font-size: 1rem;
+            color: #495057;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .rejection-reason-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            margin-top: 1rem;
+        }
+
+        .modern-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .modern-textarea {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        .modern-textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .modern-modal-footer {
+            background: white;
+            border: none;
+            padding: 1.5rem 2rem;
+            gap: 1rem;
+        }
+
+        .modern-btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Boat Details Modal Specific Styles */
+        .boat-image-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .boat-detail-image {
+            width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .boat-details-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Responsive Modal Design */
+        @media (max-width: 768px) {
+            .modern-modal-header {
+                padding: 1rem;
+            }
+
+            .modern-modal-body {
+                padding: 1.5rem;
+            }
+
+            .modern-modal-footer {
+                padding: 1rem 1.5rem;
+                flex-direction: column;
+            }
+
+            .modern-btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .modal-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .modern-modal-header .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .boat-details-grid {
+                gap: 1rem;
+            }
+
+            .detail-item {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modern-modal {
+                margin: 1rem;
+            }
+
+            .modern-modal-header {
+                padding: 0.75rem;
+            }
+
+            .modern-modal-body {
+                padding: 1rem;
+            }
+
+            .modern-modal-footer {
+                padding: 0.75rem 1rem;
+            }
+
+            .rejection-reason-section {
+                padding: 1rem;
+            }
+
+            .boat-details-grid {
+                gap: 0.75rem;
+            }
+
+            .detail-item {
+                padding: 0.75rem;
+            }
+
+            .detail-label {
+                font-size: 0.8rem;
+            }
+
+            .detail-value {
+                font-size: 1rem;
+            }
         }
     </style>
     <script>
