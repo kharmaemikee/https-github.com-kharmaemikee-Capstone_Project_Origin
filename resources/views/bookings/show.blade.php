@@ -1528,14 +1528,14 @@
                             <div class="info-item">
                                 <i class="fas fa-calendar-plus"></i>
                                 <div class="info-content">
-                                    <p class="info-label">Check-In</p>
+                                    <p class="info-label">DEPARTURE TIME & DATE</p>
                                     <p class="info-value">{{ ($ciTimeStr ? ($ciTimeStr.' - ') : '') . $ciDateStr }}</p>
                                 </div>
                             </div>
                             <div class="info-item">
                                 <i class="fas fa-calendar-times"></i>
                                 <div class="info-content">
-                                    <p class="info-label">Check-Out</p>
+                                    <p class="info-label">PICK UP TIME & DATE</p>
                                     <p class="info-value">{{ ($coTimeStr ? ($coTimeStr.' - ') : '') . $coDateStr }}</p>
                                 </div>
                             </div>

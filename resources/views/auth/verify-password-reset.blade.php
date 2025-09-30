@@ -24,20 +24,7 @@
             justify-content: center;
         }
 
-        .header {
-            background: url("{{ asset('images/subiclogo1.png') }}") no-repeat center center/cover;
-            height: 60px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
+        .header { display:none; }
 
         .overlay {
             position: absolute;
@@ -95,19 +82,7 @@
             width: 100%;
         }
 
-        .footer {
-            background: url("{{ asset('images/subiclogo2.png') }}") no-repeat center center/cover;
-            height: 60px;
-            width: 100%;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-        }
+        .footer { display:none; }
 
         .text-danger {
             color: #dc3545;

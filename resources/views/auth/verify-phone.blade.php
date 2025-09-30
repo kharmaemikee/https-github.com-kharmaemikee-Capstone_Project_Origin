@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/js/app.js'])
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kolker+Brush&display=swap');
         body {
             background: url("{{ asset('images/subiclogo.png') }}") no-repeat center center fixed;
             background-size: cover;
@@ -66,10 +67,8 @@
         .welcome-text h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: 'Kolker Brush', cursive;
+            color: #fff;
         }
 
         .welcome-text h2 {
@@ -77,6 +76,7 @@
             font-weight: 600;
             color: #e3f2fd;
             margin: 0;
+            font-family: 'Kolker Brush', cursive;
         }
 
         .verification-card {
