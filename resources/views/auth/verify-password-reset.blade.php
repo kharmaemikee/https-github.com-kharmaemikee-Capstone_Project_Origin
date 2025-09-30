@@ -24,7 +24,7 @@
             justify-content: center;
         }
 
-        .header { display:none; }
+        /* removed header */
 
         .overlay {
             position: absolute;
@@ -82,7 +82,7 @@
             width: 100%;
         }
 
-        .footer { display:none; }
+        /* removed footer */
 
         .text-danger {
             color: #dc3545;
@@ -125,7 +125,7 @@
     </style>
 </head>
 <body>
-    <div class="header"></div>
+    
     <div class="overlay"></div>
     <div class="container">
         <div class="welcome-section">
@@ -224,7 +224,7 @@
             </div>
         </div>
     </div>
-    <div class="footer">&copy; 2025 Matnog Tourism</div>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

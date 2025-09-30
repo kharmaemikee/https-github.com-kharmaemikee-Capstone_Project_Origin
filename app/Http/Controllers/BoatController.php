@@ -76,7 +76,6 @@ class BoatController extends Controller
 
         $validated = $request->validate([
             'boat_name' => 'required|string|max:255',
-            'boat_number' => 'required|string|regex:/^[0-9]{11}$/|unique:boats',
             'boat_prices' => 'required|numeric|min:0',
             'boat_capacities' => 'required|integer|min:1',
             'boat_length' => 'nullable|string|max:50',
@@ -84,7 +83,6 @@ class BoatController extends Controller
             'captain_name' => 'nullable|string|max:255',
             'captain_contact' => 'nullable|string|regex:/^[0-9]{11}$/',
         ], [
-            'boat_number.regex' => 'The boat number must be exactly 11 digits.',
             'captain_contact.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
 
@@ -102,7 +100,6 @@ class BoatController extends Controller
 
         $createData = [
             'boat_name' => $validated['boat_name'],
-            'boat_number' => $validated['boat_number'],
             'boat_prices' => $validated['boat_prices'],
             'boat_capacities' => $validated['boat_capacities'],
             'image_path' => $imagePath,
@@ -169,8 +166,6 @@ class BoatController extends Controller
 
         $validated = $request->validate([
             'boat_name' => 'required|string|max:255',
-            // Make boat_number optional on update because the edit form may not include it
-            'boat_number' => 'sometimes|string|regex:/^[0-9]{11}$/|unique:boats,boat_number,' . $boat->id,
             'boat_prices' => 'required|numeric|min:0',
             'boat_capacities' => 'required|integer|min:1',
             'boat_length' => 'nullable|string|max:50',
@@ -179,7 +174,6 @@ class BoatController extends Controller
             'captain_name' => 'nullable|string|max:255',
             'captain_contact' => 'nullable|string|regex:/^[0-9]{11}$/',
         ], [
-            'boat_number.regex' => 'The boat number must be exactly 11 digits.',
             'captain_contact.regex' => 'The number is not enough. Please enter exactly 11 digits.',
         ]);
 
@@ -187,10 +181,6 @@ class BoatController extends Controller
         $updateData = $request->only([
             'boat_name', 'boat_prices', 'boat_capacities'
         ]);
-        // Conditionally include boat_number if it was provided
-        if ($request->has('boat_number')) {
-            $updateData['boat_number'] = $request->input('boat_number');
-        }
         if (Schema::hasColumn('boats', 'boat_length')) {
             $updateData['boat_length'] = $request->input('boat_length');
         }
