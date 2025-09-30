@@ -623,13 +623,8 @@ class BookingController extends Controller
 
         DB::beginTransaction();
         try {
-            // Set approved only; defer boat assignment to the actual departure time via scheduler
+            // Mark as approved. Preserve any boat details already attached to the booking
             $booking->status = 'approved';
-            // Clear any pre-filled boat fields to avoid showing reservations
-            $booking->assigned_boat_id = null;
-            $booking->assigned_boat = null;
-            $booking->boat_captain_crew = null;
-            $booking->boat_contact_number = null;
             $booking->save();
 
             // Mark associated resort owner notification as read
@@ -638,33 +633,49 @@ class BookingController extends Controller
                                     ->whereIn('type', ['new_booking', 'booking_updated']) // Mark both new booking and updated booking notifications as read
                                     ->update(['is_read' => true]);
 
-            // Notify Tourist: booking approved, boat will be assigned on booking date at departure time
+            // Notify Tourist in-app
             TouristNotification::create([
                 'user_id' => $booking->user_id,
                 'booking_id' => $booking->id,
-                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . $booking->name_of_resort . ' has been APPROVED. A boat will be assigned on your booking date at the departure time.',
+                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . $booking->name_of_resort . ' has been APPROVED.',
                 'type' => 'booking_approved_pending_assignment',
                 'is_read' => false,
             ]);
 
-            // Send SMS notification to tourist about booking approval
+            // Send SMS notification to tourist about booking approval (boat details will follow)
             try {
-                $tourist = $booking->user;
-                if ($tourist && $tourist->phone_number) {
-                    $smsService = new SemaphoreSmsService();
-                    $message = "Hello! Your booking for " . ($booking->room->room_name ?? 'a room') . " at " . $booking->name_of_resort . " has been APPROVED by the resort owner. A boat will be assigned on your booking date. Thank you for choosing Matnog Tourism!";
-                    $smsService->send($tourist->phone_number, $message);
-                    Log::info('SMS sent to tourist for booking approval', [
-                        'tourist_id' => $tourist->id,
-                        'booking_id' => $booking->id,
-                        'phone' => $tourist->phone_number
-                    ]);
-                }
+                $touristName = trim(($booking->user->first_name ?? '') . ' ' . ($booking->user->last_name ?? '')) ?: ($booking->user->name ?? 'Guest');
+                $resortName = $booking->name_of_resort ?? ($booking->room->resort->resort_name ?? 'Resort');
+                $dateStr = '';
+                $timeStr = '';
+                try {
+                    if (($booking->tour_type ?? '') === 'day_tour') {
+                        $dateStr = \Carbon\Carbon::parse((string)$booking->check_in_date)->format('M j, Y');
+                        if ($booking->day_tour_departure_time) {
+                            $dep = \Carbon\Carbon::parse((string)$booking->day_tour_departure_time);
+                            $timeStr = $dep->format('g:i A');
+                        }
+                    } else {
+                        $dateStr = \Carbon\Carbon::parse((string)$booking->check_in_date)->format('M j, Y');
+                        if ($booking->overnight_departure_time) {
+                            $dep = \Carbon\Carbon::parse((string)$booking->overnight_departure_time);
+                            $timeStr = $dep->format('g:i A');
+                        }
+                    }
+                } catch (\Throwable $e) { /* ignore */ }
+
+                $contactNumber = \App\Models\Setting::get('support_phone', null) ?? ($booking->room->resort->contact_number ?? null) ?? 'N/A';
+
+                $smsText = 'Hi ' . $touristName . ', your booking at ' . $resortName . ' for ' . ($dateStr ?: 'your date')
+                    . ' at ' . ($timeStr ?: 'your time') . ' has been confirmed. '
+                    . 'Boat assignment details will be sent closer to your scheduled departure time. '
+                    . "You'll receive a message once a boat has been assigned. "
+                    . 'For any inquiries, feel free to contact us at ' . $contactNumber . '. Thank you!';
+
+                $sms = new \App\Services\SemaphoreSmsService();
+                $sms->send($booking->user->phone, $smsText);
             } catch (\Throwable $e) {
-                Log::error('Failed to send SMS for booking approval', [
-                    'booking_id' => $booking->id,
-                    'error' => $e->getMessage()
-                ]);
+                \Log::error('Failed sending approval SMS', ['booking_id' => $booking->id, 'error' => $e->getMessage()]);
             }
 
 

@@ -396,7 +396,7 @@
                                 <hr class="my-2">
                                 <h6>Booking Details:</h6>
                                 <p class="mb-1">Booking Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
-                                <p class="mb-1">Check-in: <strong>
+                                <p class="mb-1">Departure Date & Time: <strong>
                                     @php
                                         try {
                                             $base = \Carbon\Carbon::parse($notification->booking->reservation_date);
@@ -425,7 +425,7 @@
                                     @endphp
                                     {{ $checkInText }}
                                 </strong></p>
-                                <p class="mb-1">Check-out: <strong>
+                                <p class="mb-1">Pick Up Date & Time: <strong>
                                     @php
                                         try {
                                             $base = \Carbon\Carbon::parse($notification->booking->reservation_date);

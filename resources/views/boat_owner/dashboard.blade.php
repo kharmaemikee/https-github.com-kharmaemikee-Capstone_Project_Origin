@@ -187,74 +187,7 @@
                     </div>
                 </div>
 
-                {{-- Revenue Filter --}}
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <form method="GET" action="{{ route('boat.owner.dashboard') }}" class="row g-3 align-items-end">
-                            <div class="col-12 col-md-3">
-                                <label for="filter_type" class="form-label">Filter Type</label>
-                                <select id="filter_type" name="filter_type" class="form-select" onchange="toggleRevenueInputs()">
-                                    <option value="" {{ request('filter_type')==='' ? 'selected' : '' }}>All Time</option>
-                                    <option value="day" {{ request('filter_type')==='day' ? 'selected' : '' }}>By Day</option>
-                                    <option value="month" {{ request('filter_type')==='month' ? 'selected' : '' }}>By Month</option>
-                                    <option value="date_range" {{ request('filter_type')==='date_range' ? 'selected' : '' }}>By Date Range</option>
-                                    <option value="month_range" {{ request('filter_type')==='month_range' ? 'selected' : '' }}>By Month Range</option>
-                                    <option value="year" {{ request('filter_type')==='year' ? 'selected' : '' }}>By Year</option>
-                                    <option value="year_range" {{ request('filter_type')==='year_range' ? 'selected' : '' }}>By Year Range</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3" id="dayInput" style="display:none;">
-                                <label for="date" class="form-label">Select Date</label>
-                                <input type="date" id="date" name="date" value="{{ request('date') }}" class="form-control" />
-                            </div>
-                            <div class="col-12 col-md-3" id="monthInput" style="display:none;">
-                                <label for="month" class="form-label">Select Month</label>
-                                <input type="month" id="month" name="month" value="{{ request('month') }}" class="form-control" />
-                            </div>
-                            <div class="col-12 col-md-6" id="monthRangeInput" style="display:none;">
-                                <label class="form-label">Select Month Range</label>
-                                <div class="row g-2">
-                                    <div class="col-12 col-md-6">
-                                        <input type="month" name="month_start" value="{{ request('month_start') }}" class="form-control" />
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <input type="month" name="month_end" value="{{ request('month_end') }}" class="form-control" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6" id="dateRangeInput" style="display:none;">
-                                <label class="form-label">Select Date Range</label>
-                                <div class="row g-2">
-                                    <div class="col-12 col-md-6">
-                                        <input type="date" name="date_start" value="{{ request('date_start') }}" class="form-control" />
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <input type="date" name="date_end" value="{{ request('date_end') }}" class="form-control" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-3" id="yearInput" style="display:none;">
-                                <label for="year" class="form-label">Select Year</label>
-                                <input type="number" min="1900" max="2100" step="1" id="year" name="year" value="{{ request('year') }}" class="form-control" />
-                            </div>
-                            <div class="col-12 col-md-6" id="yearRangeInput" style="display:none;">
-                                <label class="form-label">Select Year Range</label>
-                                <div class="row g-2">
-                                    <div class="col-12 col-md-6">
-                                        <input type="number" min="1900" max="2100" step="1" name="year_start" value="{{ request('year_start') }}" class="form-control" />
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <input type="number" min="1900" max="2100" step="1" name="year_end" value="{{ request('year_end') }}" class="form-control" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-auto d-flex gap-2">
-                                <button type="submit" class="btn btn-primary flex-shrink-0">Apply</button>
-                                <a href="{{ route('boat.owner.dashboard') }}" class="btn btn-secondary flex-shrink-0">Reset</a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                {{-- Revenue Filter (removed - filtering handled via modal) --}}
 
                 {{-- Charts Section --}}
                 <div class="row">
@@ -1059,70 +992,7 @@
         }
         // --- End JavaScript ---
 
-        // Revenue filter input toggling
-        function toggleRevenueInputs() {
-            var typeSelect = document.getElementById('filter_type');
-            var dayInput = document.getElementById('dayInput');
-            var monthInput = document.getElementById('monthInput');
-            var monthRangeInput = document.getElementById('monthRangeInput');
-            var yearInput = document.getElementById('yearInput');
-            var yearRangeInput = document.getElementById('yearRangeInput');
-            var dateRangeInput = document.getElementById('dateRangeInput');
-            if (!typeSelect || !dayInput || !monthInput) { return; }
-            var val = typeSelect.value;
-            if (val === 'day') {
-                dayInput.style.display = '';
-                monthInput.style.display = 'none';
-                if (monthRangeInput) monthRangeInput.style.display = 'none';
-                if (yearInput) yearInput.style.display = 'none';
-                if (yearRangeInput) yearRangeInput.style.display = 'none';
-                if (dateRangeInput) dateRangeInput.style.display = 'none';
-            } else if (val === 'month') {
-                dayInput.style.display = 'none';
-                monthInput.style.display = '';
-                if (monthRangeInput) monthRangeInput.style.display = 'none';
-                if (yearInput) yearInput.style.display = 'none';
-                if (yearRangeInput) yearRangeInput.style.display = 'none';
-                if (dateRangeInput) dateRangeInput.style.display = 'none';
-            } else if (val === 'month_range') {
-                dayInput.style.display = 'none';
-                monthInput.style.display = 'none';
-                if (monthRangeInput) monthRangeInput.style.display = '';
-                if (yearInput) yearInput.style.display = 'none';
-                if (yearRangeInput) yearRangeInput.style.display = 'none';
-                if (dateRangeInput) dateRangeInput.style.display = 'none';
-            } else if (val === 'date_range') {
-                dayInput.style.display = 'none';
-                monthInput.style.display = 'none';
-                if (monthRangeInput) monthRangeInput.style.display = 'none';
-                if (yearInput) yearInput.style.display = 'none';
-                if (yearRangeInput) yearRangeInput.style.display = 'none';
-                if (dateRangeInput) dateRangeInput.style.display = '';
-            } else if (val === 'year') {
-                dayInput.style.display = 'none';
-                monthInput.style.display = 'none';
-                if (monthRangeInput) monthRangeInput.style.display = 'none';
-                if (yearInput) yearInput.style.display = '';
-                if (yearRangeInput) yearRangeInput.style.display = 'none';
-                if (dateRangeInput) dateRangeInput.style.display = 'none';
-            } else if (val === 'year_range') {
-                dayInput.style.display = 'none';
-                monthInput.style.display = 'none';
-                if (monthRangeInput) monthRangeInput.style.display = 'none';
-                if (yearInput) yearInput.style.display = 'none';
-                if (yearRangeInput) yearRangeInput.style.display = '';
-                if (dateRangeInput) dateRangeInput.style.display = 'none';
-            } else {
-                dayInput.style.display = 'none';
-                monthInput.style.display = 'none';
-                if (monthRangeInput) monthRangeInput.style.display = 'none';
-                if (yearInput) yearInput.style.display = 'none';
-                if (yearRangeInput) yearRangeInput.style.display = 'none';
-                if (dateRangeInput) dateRangeInput.style.display = 'none';
-            }
-        }
-        toggleRevenueInputs();
-        window.toggleRevenueInputs = toggleRevenueInputs;
+        // Inline revenue filters removed (use modal filters instead)
 
         // Modal filter toggling for boat
         function toggleBoatRevenueInputsModal() {

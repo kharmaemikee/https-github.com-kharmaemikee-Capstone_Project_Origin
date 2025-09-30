@@ -35,14 +35,13 @@ class SemaphoreSmsService
                 $normalized = '63' . ltrim($normalized, '0');
             }
 
+            // Semaphore v4 expects 'number' (single) not 'numbers'
             $payload = [
                 'apikey' => $apiKey,
-                'numbers' => $normalized,
+                'number' => $normalized,
                 'message' => $message,
+                'sendername' => 'MatnogTRSM',
             ];
-
-            // Use MatnogTRSM as sender name
-            $payload['sendername'] = 'MatnogTRSM';
             
             Log::info('Semaphore SMS attempt with MatnogTRSM', [
                 'raw_to' => $toPhoneNumber,
@@ -50,21 +49,33 @@ class SemaphoreSmsService
                 'sendername' => 'MatnogTRSM',
             ]);
 
-            // Try with 'numbers' parameter first
+            // Primary attempt with 'number'
             $response = Http::timeout(30)->asForm()->post('https://api.semaphore.co/api/v4/messages', $payload);
 
+            // Treat JSON validation responses as failures even if HTTP 200
             if ($response->successful()) {
                 $responseData = $response->json();
-                Log::info('Semaphore SMS sent successfully with MatnogTRSM', [
-                    'to' => $normalized,
-                    'method' => 'numbers_param',
-                    'sendername' => 'MatnogTRSM',
-                    'response_body' => $response->body(),
-                    'response_data' => $responseData,
-                    'message_id' => $responseData[0]['messageId'] ?? 'unknown',
-                    'status' => $responseData[0]['status'] ?? 'unknown',
-                ]);
-                return true;
+                $body = $response->body();
+                $hasValidationError = false;
+                if (is_array($responseData)) {
+                    // Common validation shape: { "number": ["The number field is required."] }
+                    if (isset($responseData['number']) && is_array($responseData['number'])) {
+                        $hasValidationError = true;
+                    }
+                    if (isset($responseData['error']) || isset($responseData['errors'])) {
+                        $hasValidationError = true;
+                    }
+                }
+                if (!$hasValidationError) {
+                    Log::info('Semaphore SMS request accepted', [
+                        'to' => $normalized,
+                        'sendername' => 'MatnogTRSM',
+                        'response_body' => $body,
+                        'response_data' => $responseData,
+                    ]);
+                    return true;
+                }
+                // fall-through to retry logic below
             }
 
             // Check if it's a sender name error
@@ -83,7 +94,7 @@ class SemaphoreSmsService
                     $responseData2 = $response2->json();
                     Log::info('Semaphore SMS sent successfully without sender name (MatnogTRSM pending approval)', [
                         'to' => $normalized,
-                        'method' => 'numbers_param_no_sender',
+                        'method' => 'number_param_no_sender',
                         'response_body' => $response2->body(),
                         'response_data' => $responseData2,
                         'message_id' => $responseData2[0]['messageId'] ?? 'unknown',
@@ -92,16 +103,14 @@ class SemaphoreSmsService
                     return true;
                 }
                 
-                // Try with 'number' parameter as final fallback
-                unset($payload['numbers']);
-                $payload['number'] = $normalized;
-                $response3 = Http::timeout(30)->asForm()->post('https://api.semaphore.co/api/v4/messages', $payload);
+                // Final fallback already uses 'number'; just log the failure
+                $response3 = $response2;
                 
                 if ($response3->successful()) {
                     $responseData3 = $response3->json();
                     Log::info('Semaphore SMS sent successfully without sender name (MatnogTRSM pending approval)', [
                         'to' => $normalized,
-                        'method' => 'number_param_no_sender',
+                        'method' => 'number_param_no_sender_dup',
                         'response_body' => $response3->body(),
                         'response_data' => $responseData3,
                         'message_id' => $responseData3[0]['messageId'] ?? 'unknown',
@@ -114,10 +123,7 @@ class SemaphoreSmsService
             Log::error('Semaphore SMS failed', [
                 'first_status' => $response->status(),
                 'first_body' => $response->body(),
-                'second_status' => $response2->status() ?? 'not_attempted',
-                'second_body' => $response2->body() ?? 'not_attempted',
-                'third_status' => $response3->status() ?? 'not_attempted',
-                'third_body' => $response3->body() ?? 'not_attempted',
+                // secondary attempts may not have been issued
             ]);
             return false;
         } catch (\Throwable $e) {

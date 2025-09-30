@@ -6,7 +6,6 @@
             <a class="nav-link d-inline-block {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                 <div class="welcome-content">
                     <h5 class="m-0 welcome-text">
-                        <i class="fas fa-home me-2 text-primary d-none d-md-inline"></i>
                         @auth
                             @if(Auth::user()->hasVerifiedPhone())
                                 @if(Auth::user()->role === 'admin')

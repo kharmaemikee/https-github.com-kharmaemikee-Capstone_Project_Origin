@@ -168,7 +168,7 @@ class RegisteredUserController extends Controller
             if ($request->role !== 'admin') {
                 try {
                     $sms = new SemaphoreSmsService();
-                    $message = 'Code: ' . $otpCode;
+                    $message = 'Matnog Tourism — Code: ' . $otpCode . '. Do not share this code.';
                     // Cache OTP for 10 minutes; do not store in DB
                     Cache::put('otp:verify:' . $user->id, $otpCode, now()->addMinutes(10));
                     $sent = $sms->send($step1['phone'], $message);

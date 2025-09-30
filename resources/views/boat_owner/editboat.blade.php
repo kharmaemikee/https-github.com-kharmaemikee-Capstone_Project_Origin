@@ -84,7 +84,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="boat_prices" class="form-label">
-                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    <i class="fas fa-peso-sign me-1"></i>
                                     Price
                                 </label>
                                 <input type="number" class="form-control modern-input" id="boat_prices" name="boat_prices" value="{{ old('boat_prices', $boat->boat_prices) }}" step="0.01" required>

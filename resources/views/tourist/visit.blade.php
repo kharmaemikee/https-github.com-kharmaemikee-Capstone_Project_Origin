@@ -129,14 +129,14 @@
                                         <div class="date-item">
                                             <i class="fas fa-calendar-plus"></i>
                                             <div class="date-info">
-                                                <span class="date-label">Check-In</span>
+                                                <span class="date-label">Departure Time & Date</span>
                                                 <span class="date-value">{{ ($ciTimeStr ? ($ciTimeStr.' - ') : '') . $ciDateStr }}</span>
                                             </div>
                                         </div>
                                         <div class="date-item">
                                             <i class="fas fa-calendar-minus"></i>
                                             <div class="date-info">
-                                                <span class="date-label">Check-Out</span>
+                                                <span class="date-label">Pick Up Time & Date</span>
                                                 <span class="date-value">{{ ($coTimeStr ? ($coTimeStr.' - ') : '') . $coDateStr }}</span>
                                             </div>
                                         </div>

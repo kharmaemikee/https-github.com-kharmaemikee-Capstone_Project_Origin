@@ -206,99 +206,89 @@
                                             <p class="mb-1">Number of Guests: <strong>{{ $notification->booking->number_of_guests }}</strong></p>
                                             
                                             <p class="mb-1">Tour Type: <strong>{{ ucfirst(str_replace('_', ' ', $notification->booking->tour_type)) }}</strong></p>
-                                            @php
-                                                // Always use reservation date as base
-                                                $baseDate = null;
-                                                try { $baseDate = \Carbon\Carbon::parse($notification->booking->reservation_date); }
-                                                catch(\Exception $e) { $baseDate = null; }
-                                            @endphp
                                             @if ($notification->booking->tour_type === 'day_tour')
                                                 @php
-                                                    // Check-in uses Departure time merged onto reservation date
+                                                    // Check-in: use the departure datetime if available; otherwise combine time with check-in date
                                                     $checkInDisplay = null;
                                                     try {
-                                                        $depRaw = (string)$notification->booking->day_tour_departure_time;
-                                                        $dep = null;
-                                                        try { $dep = \Carbon\Carbon::parse($depRaw); } catch(\Exception $e) { $dep = null; }
-                                                        if ($baseDate) {
-                                                            if ($dep) { $checkInDisplay = $baseDate->copy()->setTime($dep->hour, $dep->minute, 0); }
-                                                            else { $checkInDisplay = $baseDate->copy()->setTimeFromTimeString($depRaw); }
+                                                        $depRaw = $notification->booking->day_tour_departure_time;
+                                                        if ($depRaw instanceof \Carbon\Carbon) {
+                                                            $checkInDisplay = $depRaw->copy();
                                                         } else {
-                                                            $checkInDisplay = $dep ?: null;
+                                                            $depStr = (string)$depRaw;
+                                                            $dep = null;
+                                                            try { $dep = \Carbon\Carbon::parse($depStr); } catch(\Exception $e) { $dep = null; }
+                                                            $dateBase = null;
+                                                            try { $dateBase = $notification->booking->check_in_date ? \Carbon\Carbon::parse((string)$notification->booking->check_in_date) : null; } catch(\Exception $e) { $dateBase = null; }
+                                                            if ($dep && $dateBase) { $checkInDisplay = $dateBase->copy()->setTime($dep->hour, $dep->minute, 0); }
+                                                            elseif ($dateBase && !empty($depStr)) { $checkInDisplay = $dateBase->copy()->setTimeFromTimeString($depStr); }
                                                         }
                                                     } catch(\Exception $e) { $checkInDisplay = null; }
 
-                                                    // Check-out uses Pick-up time merged onto reservation date
+                                                    // Check-out: use pickup datetime if available; otherwise combine time with check-out date (or check-in date fallback)
                                                     $checkOutDisplay = null;
                                                     try {
-                                                        $pickRaw = (string)$notification->booking->day_tour_time_of_pickup;
-                                                        $pick = null;
-                                                        try { $pick = \Carbon\Carbon::parse($pickRaw); } catch(\Exception $e) { $pick = null; }
-                                                        if ($baseDate) {
-                                                            if ($pick) { $checkOutDisplay = $baseDate->copy()->setTime($pick->hour, $pick->minute, 0); }
-                                                            else { $checkOutDisplay = $baseDate->copy()->setTimeFromTimeString($pickRaw); }
+                                                        $pickRaw = $notification->booking->day_tour_time_of_pickup;
+                                                        if ($pickRaw instanceof \Carbon\Carbon) {
+                                                            $checkOutDisplay = $pickRaw->copy();
                                                         } else {
-                                                            $checkOutDisplay = $pick ?: null;
+                                                            $pickStr = (string)$pickRaw;
+                                                            $pick = null;
+                                                            try { $pick = \Carbon\Carbon::parse($pickStr); } catch(\Exception $e) { $pick = null; }
+                                                            $dateBase = null;
+                                                            // Prefer explicit check_out_date if present, else fall back to check_in_date
+                                                            try {
+                                                                if (!empty($notification->booking->check_out_date)) {
+                                                                    $dateBase = \Carbon\Carbon::parse((string)$notification->booking->check_out_date);
+                                                                } elseif (!empty($notification->booking->check_in_date)) {
+                                                                    $dateBase = \Carbon\Carbon::parse((string)$notification->booking->check_in_date);
+                                                                }
+                                                            } catch(\Exception $e) { $dateBase = null; }
+                                                            if ($pick && $dateBase) { $checkOutDisplay = $dateBase->copy()->setTime($pick->hour, $pick->minute, 0); }
+                                                            elseif ($dateBase && !empty($pickStr)) { $checkOutDisplay = $dateBase->copy()->setTimeFromTimeString($pickStr); }
                                                         }
                                                     } catch(\Exception $e) { $checkOutDisplay = null; }
                                                 @endphp
-                                                @php
-                                                    // Ensure Check-out is not earlier than Check-in
-                                                    try {
-                                                        if ($checkInDisplay && $checkOutDisplay && $checkOutDisplay->lt($checkInDisplay)) {
-                                                            $targetBase = null;
-                                                            try { $targetBase = \Carbon\Carbon::parse((string)$notification->booking->check_out_date); } catch(\Exception $e) { $targetBase = null; }
-                                                            if (!$targetBase) {
-                                                                $nights = (int)($notification->booking->number_of_nights ?? 0);
-                                                                if ($baseDate && $nights > 0) { $targetBase = $baseDate->copy()->addDays($nights); }
-                                                            }
-                                                            if ($targetBase) {
-                                                                $checkOutDisplay = $targetBase->copy()->setTime($checkOutDisplay->hour, $checkOutDisplay->minute, 0);
-                                                            }
-                                                        }
-                                                    } catch(\Exception $e) {}
-                                                @endphp
-                                                <p class="mb-1">Check-in: <strong>{{ $checkInDisplay ? $checkInDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
-                                                <p class="mb-1">Check-out: <strong>{{ $checkOutDisplay ? $checkOutDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
+                                                <p class="mb-1">Check-in: <strong>{{ $checkInDisplay ? $checkInDisplay->format('h:i A - M d, Y') : 'N/A' }}</strong></p>
+                                                <p class="mb-1">Check-out: <strong>{{ $checkOutDisplay ? $checkOutDisplay->format('h:i A - M d, Y') : 'N/A' }}</strong></p>
                                             @elseif ($notification->booking->tour_type === 'overnight')
                                                 @php
-                                                    // Check-in uses Overnight departure time's time merged onto reservation date
+                                                    // Check-in: use overnight departure datetime if available; otherwise combine time with check-in date
                                                     $checkInDisplay = null;
                                                     try {
-                                                        $depRaw = (string)$notification->booking->overnight_departure_time;
-                                                        $dep = null;
-                                                        try { $dep = \Carbon\Carbon::parse($depRaw); } catch(\Exception $e) { $dep = null; }
-                                                        if ($baseDate) {
-                                                            if ($dep) { $checkInDisplay = $baseDate->copy()->setTime($dep->hour, $dep->minute, 0); }
-                                                            else { $checkInDisplay = $baseDate->copy()->setTimeFromTimeString($depRaw); }
+                                                        $depRaw = $notification->booking->overnight_departure_time;
+                                                        if ($depRaw instanceof \Carbon\Carbon) {
+                                                            $checkInDisplay = $depRaw->copy();
                                                         } else {
-                                                            $checkInDisplay = $dep ?: null;
+                                                            $depStr = (string)$depRaw;
+                                                            $dep = null;
+                                                            try { $dep = \Carbon\Carbon::parse($depStr); } catch(\Exception $e) { $dep = null; }
+                                                            $dateBase = null;
+                                                            try { $dateBase = $notification->booking->check_in_date ? \Carbon\Carbon::parse((string)$notification->booking->check_in_date) : null; } catch(\Exception $e) { $dateBase = null; }
+                                                            if ($dep && $dateBase) { $checkInDisplay = $dateBase->copy()->setTime($dep->hour, $dep->minute, 0); }
+                                                            elseif ($dateBase && !empty($depStr)) { $checkInDisplay = $dateBase->copy()->setTimeFromTimeString($depStr); }
                                                         }
                                                     } catch(\Exception $e) { $checkInDisplay = null; }
 
-                                                    // Check-out uses full overnight pickup datetime if provided
+                                                    // Check-out: use full overnight pickup datetime if provided; fallback to combine with check_out_date
                                                     $checkOutDisplay = null;
-                                                    try { $checkOutDisplay = \Carbon\Carbon::parse((string)$notification->booking->overnight_date_time_of_pickup); }
-                                                    catch(\Exception $e) { $checkOutDisplay = null; }
-                                                @endphp
-                                                @php
-                                                    // Ensure Check-out is not earlier than Check-in
                                                     try {
-                                                        if ($checkInDisplay && $checkOutDisplay && $checkOutDisplay->lt($checkInDisplay)) {
-                                                            $targetBase = null;
-                                                            try { $targetBase = \Carbon\Carbon::parse((string)$notification->booking->check_out_date); } catch(\Exception $e) { $targetBase = null; }
-                                                            if (!$targetBase && $baseDate) {
-                                                                $nights = (int)($notification->booking->number_of_nights ?? 0);
-                                                                if ($nights > 0) { $targetBase = $baseDate->copy()->addDays($nights); }
-                                                            }
-                                                            if ($targetBase) {
-                                                                $checkOutDisplay = $targetBase->copy()->setTime($checkOutDisplay->hour, $checkOutDisplay->minute, 0);
-                                                            }
+                                                        $pickRaw = $notification->booking->overnight_date_time_of_pickup;
+                                                        if ($pickRaw instanceof \Carbon\Carbon) {
+                                                            $checkOutDisplay = $pickRaw->copy();
+                                                        } else {
+                                                            $pickStr = (string)$pickRaw;
+                                                            $pick = null;
+                                                            try { $pick = \Carbon\Carbon::parse($pickStr); } catch(\Exception $e) { $pick = null; }
+                                                            $dateBase = null;
+                                                            try { $dateBase = $notification->booking->check_out_date ? \Carbon\Carbon::parse((string)$notification->booking->check_out_date) : null; } catch(\Exception $e) { $dateBase = null; }
+                                                            if ($pick && $dateBase) { $checkOutDisplay = $dateBase->copy()->setTime($pick->hour, $pick->minute, 0); }
+                                                            elseif ($dateBase && !empty($pickStr)) { $checkOutDisplay = $dateBase->copy()->setTimeFromTimeString($pickStr); }
                                                         }
-                                                    } catch(\Exception $e) {}
+                                                    } catch(\Exception $e) { $checkOutDisplay = null; }
                                                 @endphp
-                                                <p class="mb-1">Check-in: <strong>{{ $checkInDisplay ? $checkInDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
-                                                <p class="mb-1">Check-out: <strong>{{ $checkOutDisplay ? $checkOutDisplay->format('h:i A - M d, Y') : ($notification->booking->reservation_date ? (\Carbon\Carbon::parse($notification->booking->reservation_date)->format('M d, Y')) : 'N/A') }}</strong></p>
+                                                <p class="mb-1">Check-in: <strong>{{ $checkInDisplay ? $checkInDisplay->format('h:i A - M d, Y') : 'N/A' }}</strong></p>
+                                                <p class="mb-1">Check-out: <strong>{{ $checkOutDisplay ? $checkOutDisplay->format('h:i A - M d, Y') : 'N/A' }}</strong></p>
                                             @endif
 
                                             {{-- Show assigned boat & captain if available --}}

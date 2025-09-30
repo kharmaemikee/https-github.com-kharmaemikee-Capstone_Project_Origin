@@ -313,11 +313,11 @@
                                     </th>
                                     <th class="table-header-cell">
                                         <i class="fas fa-sign-in-alt me-1"></i>
-                                        Check-in
+                                        Departure Time & Date
                                     </th>
                                     <th class="table-header-cell">
                                         <i class="fas fa-sign-out-alt me-1"></i>
-                                        Check-out
+                                        Pick Up Time & Date
                                     </th>
                                     <th class="table-header-cell text-center">
                                         <i class="fas fa-cog me-1"></i>

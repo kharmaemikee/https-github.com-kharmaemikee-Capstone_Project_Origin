@@ -651,11 +651,11 @@
                                         <span class="info-value" id="docGuestCount">N/A</span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">Check-In:</span>
+                                        <span class="info-label">Departure Time & Date:</span>
                                         <span class="info-value" id="docCheckin">N/A</span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">Check-Out:</span>
+                                        <span class="info-label">Pick Up Time & Date:</span>
                                         <span class="info-value" id="docCheckout">N/A</span>
                                     </div>
                                     <div class="info-item">

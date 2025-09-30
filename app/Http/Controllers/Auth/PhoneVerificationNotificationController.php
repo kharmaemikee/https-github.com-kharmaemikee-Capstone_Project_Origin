@@ -35,7 +35,7 @@
             // Send OTP via Semaphore
             try {
                 $sms = new SemaphoreSmsService();
-                $message = 'Code: ' . $otpCode;
+                $message = 'Matnog Tourism — Code: ' . $otpCode . '. Do not share this code.';
                 $sent = $sms->send($request->user()->phone, $message);
                 if (!$sent) {
                     // Surface a user-facing notice if sending failed

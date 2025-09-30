@@ -57,7 +57,7 @@ class PhonePasswordResetController extends Controller
         // Send OTP via Semaphore
         try {
             $sms = new SemaphoreSmsService();
-            $message = 'Code: ' . $otpCode;
+            $message = 'Matnog Tourism — Code: ' . $otpCode . '. Do not share this code.';
             $sent = $sms->send($user->phone, $message);
             if (!$sent) {
                 return redirect()->route('password.reset.verify')->with('status', 'password-reset-sms-failed');
