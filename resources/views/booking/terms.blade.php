@@ -1,7 +1,5 @@
 {{-- resources/views/booking/terms.blade.php --}}
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container mt-5">
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
@@ -40,4 +38,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-app-layout>

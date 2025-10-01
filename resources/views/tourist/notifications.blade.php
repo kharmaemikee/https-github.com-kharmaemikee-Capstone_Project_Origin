@@ -76,6 +76,19 @@
                     ->with(['booking.room.resort'])
                     ->orderBy('created_at', 'desc')
                     ->get();
+                    
+                // Get completed bookings that can be rated
+                $userId = Auth::id();
+                $completedBookings = \App\Models\Booking::where('user_id', $userId)
+                    ->where('status', 'completed')
+                    ->with(['room.resort', 'ratings' => function($query) use ($userId) {
+                        $query->where('user_id', $userId);
+                    }])
+                    ->orderBy('updated_at', 'desc')
+                    ->get()
+                    ->filter(function($booking) use ($userId) {
+                        return !$booking->ratings->where('user_id', $userId)->count();
+                    });
             @endphp
 
             {{-- Notifications Section --}}
@@ -132,6 +145,8 @@
                                                 $title = 'Boat Assigned';
                                             } elseif ($type === 'booking_completed') {
                                                 $title = 'Booking Completed';
+                                            } elseif ($type === 'booking_completed_rating_request') {
+                                                $title = 'Rate Your Experience';
                                             } elseif ($type === 'rating_request') {
                                                 $title = 'Booking Completed';
                                             } elseif ($type === 'extension_requested') {
@@ -145,6 +160,8 @@
                                             <div class="text-muted small">Your boat has been assigned for your trip.</div>
                                         @elseif($type === 'booking_completed')
                                             <div class="text-muted small">Your booking has been marked as completed.</div>
+                                        @elseif($type === 'booking_completed_rating_request')
+                                            <div class="text-muted small">Please rate your experience to help other travelers.</div>
                                         @elseif($type === 'rating_request')
                                             <div class="text-muted small">Your booking has been completed successfully.</div>
                                         @elseif($type === 'extension_requested')
@@ -471,7 +488,6 @@
                                 @endif
                             @endif
 
-                                {{-- Rating Request (visible when booking is completed or notification asks for rating) --}}
 
                                 {{-- Action Buttons --}}
                                 <div class="notification-actions">
@@ -484,15 +500,193 @@
                                             </button>
                                     </form>
                                 @endunless
+                                
+                                {{-- Rating Section for Completed Bookings --}}
+                                @if($notification->booking && $notification->booking->status === 'completed')
+                                    @php
+                                        $hasRated = \App\Models\Rating::where('user_id', Auth::id())
+                                            ->where('booking_id', $notification->booking->id)
+                                            ->exists();
+                                    @endphp
+                                    @unless($hasRated)
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="toggleRatingForm({{ $notification->booking->id }})">
+                                            <i class="fas fa-star me-1"></i>Rate Experience
+                                        </button>
+                                    @else
+                                        <span class="btn btn-success btn-sm disabled">
+                                            <i class="fas fa-check me-1"></i>Rated
+                                        </span>
+                                    @endunless
+                                @endif
+                                
                                 <button type="button" class="btn btn-outline-danger btn-sm delete-notification-btn" data-notification-id="{{ $notification->id }}">
                                         <i class="fas fa-trash me-1"></i>Delete
                                 </button>
                             </div>
+                            
+                            {{-- Inline Rating Form for Completed Bookings --}}
+                            @if($notification->booking && $notification->booking->status === 'completed')
+                                @php
+                                    $hasRated = \App\Models\Rating::where('user_id', Auth::id())
+                                        ->where('booking_id', $notification->booking->id)
+                                        ->exists();
+                                @endphp
+                                @unless($hasRated)
+                                    <div id="rating-form-{{ $notification->booking->id }}" class="rating-form-container" style="display: none;">
+                                        <div class="rating-form">
+                                            <div class="rating-form-header">
+                                                <h6><i class="fas fa-star me-2"></i>Rate Your Experience</h6>
+                                                <button type="button" class="btn-close" onclick="toggleRatingForm({{ $notification->booking->id }})"></button>
+                                            </div>
+                                            
+                                            <form class="rating-form-content" onsubmit="submitRating(event, {{ $notification->booking->id }})">
+                                                @csrf
+                                                <input type="hidden" name="booking_id" value="{{ $notification->booking->id }}">
+                                                
+                                                <div class="rating-stars-section">
+                                                    <label class="form-label">Rating *</label>
+                                                    <div class="rating-stars">
+                                                        @for($i = 1; $i <= 5; $i++)
+                                                            <span class="star" data-rating="{{ $i }}" onclick="setRating({{ $i }}, {{ $notification->booking->id }})">
+                                                                <i class="far fa-star"></i>
+                                                            </span>
+                                                        @endfor
+                                                    </div>
+                                                    <input type="hidden" name="rating" id="rating-input-{{ $notification->booking->id }}" value="" required>
+                                                    <div class="rating-text" id="rating-text-{{ $notification->booking->id }}">Click on a star to rate</div>
+                                                </div>
+                                                
+                                                <div class="rating-comment-section">
+                                                    <label for="comment-{{ $notification->booking->id }}" class="form-label">Comment (Optional)</label>
+                                                    <textarea name="comment" id="comment-{{ $notification->booking->id }}" class="form-control" rows="3" placeholder="Share your experience with other travelers..."></textarea>
+                                                </div>
+                                                
+                                                <div class="rating-form-actions">
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleRatingForm({{ $notification->booking->id }})">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary btn-sm" id="submit-rating-{{ $notification->booking->id }}" disabled>Submit Rating</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endunless
+                            @endif
                         </div>
                     @endforeach
                 </div>
             @endif
         </div>
+        
+        {{-- Completed Bookings Section --}}
+        @if($completedBookings->count() > 0)
+            <div class="completed-bookings-section">
+                <div class="section-header">
+                    <div class="header-info">
+                        <h2 class="section-title">
+                            <i class="fas fa-star me-2"></i>
+                            Rate Your Completed Bookings
+                        </h2>
+                        <p class="section-subtitle">Help other travelers by rating your experiences</p>
+                    </div>
+                </div>
+                
+                <div class="completed-bookings-list">
+                    @foreach($completedBookings as $booking)
+                        <div class="booking-card">
+                            <div class="booking-header">
+                                <div class="booking-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="booking-content">
+                                    <h5 class="booking-title">Completed Booking</h5>
+                                    <div class="text-muted small">Your booking has been completed successfully.</div>
+                                    <p class="booking-time">{{ $booking->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            
+                            {{-- Booking Details --}}
+                            @if($booking->room)
+                                <div class="booking-details-section">
+                                    <div class="booking-details-header">
+                                        <i class="fas fa-info-circle"></i>
+                                        <h6>Booking Details</h6>
+                                    </div>
+                                    <div class="booking-details-grid">
+                                        <div class="info-item">
+                                            <span class="info-label">Resort:</span>
+                                            <span class="info-value">{{ $booking->name_of_resort }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Room:</span>
+                                            <span class="info-value">{{ $booking->room->room_name }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Check-in:</span>
+                                            <span class="info-value">{{ \Carbon\Carbon::parse($booking->check_in_date)->format('M d, Y') }}</span>
+                                        </div>
+                                        @if($booking->check_out_date)
+                                            <div class="info-item">
+                                                <span class="info-label">Check-out:</span>
+                                                <span class="info-value">{{ \Carbon\Carbon::parse($booking->check_out_date)->format('M d, Y') }}</span>
+                                            </div>
+                                        @endif
+                                        <div class="info-item">
+                                            <span class="info-label">Guests:</span>
+                                            <span class="info-value">{{ $booking->number_of_guests }} guest{{ $booking->number_of_guests > 1 ? 's' : '' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            {{-- Rating Action --}}
+                            <div class="booking-actions">
+                                <button type="button" class="btn btn-warning" onclick="toggleRatingForm({{ $booking->id }})">
+                                    <i class="fas fa-star me-1"></i>Rate Experience
+                                </button>
+                            </div>
+                            
+                            {{-- Inline Rating Form for Completed Bookings --}}
+                            <div id="rating-form-{{ $booking->id }}" class="rating-form-container" style="display: none;">
+                                <div class="rating-form">
+                                    <div class="rating-form-header">
+                                        <h6><i class="fas fa-star me-2"></i>Rate Your Experience</h6>
+                                        <button type="button" class="btn-close" onclick="toggleRatingForm({{ $booking->id }})"></button>
+                                    </div>
+                                    
+                                    <form class="rating-form-content" onsubmit="submitRating(event, {{ $booking->id }})">
+                                        @csrf
+                                        <input type="hidden" name="booking_id" value="{{ $booking->id }}">
+                                        
+                                        <div class="rating-stars-section">
+                                            <label class="form-label">Rating *</label>
+                                            <div class="rating-stars">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    <span class="star" data-rating="{{ $i }}" onclick="setRating({{ $i }}, {{ $booking->id }})">
+                                                        <i class="far fa-star"></i>
+                                                    </span>
+                                                @endfor
+                                            </div>
+                                            <input type="hidden" name="rating" id="rating-input-{{ $booking->id }}" value="" required>
+                                            <div class="rating-text" id="rating-text-{{ $booking->id }}">Click on a star to rate</div>
+                                        </div>
+                                        
+                                        <div class="rating-comment-section">
+                                            <label for="comment-{{ $booking->id }}" class="form-label">Comment (Optional)</label>
+                                            <textarea name="comment" id="comment-{{ $booking->id }}" class="form-control" rows="3" placeholder="Share your experience with other travelers..."></textarea>
+                                        </div>
+                                        
+                                        <div class="rating-form-actions">
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleRatingForm({{ $booking->id }})">Cancel</button>
+                                            <button type="submit" class="btn btn-primary btn-sm" id="submit-rating-{{ $booking->id }}" disabled>Submit Rating</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+        
         </div>
     </div>
 
@@ -511,6 +705,38 @@
         /* Hide hamburger button by default on larger screens */
         .hamburger-btn {
             display: none !important;
+        }
+
+        /* Hamburger Button Styles */
+        .hamburger-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hamburger-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .hamburger-btn:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+            color: white;
+        }
+
+        .hamburger-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
         }
 
         /* Modern Sidebar Styling - Dark Theme */
@@ -734,6 +960,209 @@
             background: transparent;
             min-height: 100vh;
             overflow-y: auto;
+        }
+
+        /* Completed Bookings Section */
+        .completed-bookings-section {
+            margin-top: 2rem;
+        }
+
+        .completed-bookings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .booking-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 123, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+        }
+
+        .booking-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .booking-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .booking-content {
+            flex: 1;
+        }
+
+        .booking-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .booking-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .booking-details-section {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 123, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .booking-details-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .booking-details-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .booking-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .booking-actions {
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .booking-actions .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .booking-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        /* Inline Rating Form Styles */
+        .rating-form-container {
+            margin-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            padding-top: 1rem;
+        }
+
+        .rating-form {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .rating-form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .rating-form-header h6 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .rating-form-header .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rating-form-header .btn-close:hover {
+            color: #dc3545;
+        }
+
+        .rating-stars-section {
+            margin-bottom: 1rem;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+            margin: 0.5rem 0;
+        }
+
+        .rating-stars .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .rating-stars .star:hover,
+        .rating-stars .star.active {
+            color: #ffc107;
+        }
+
+        .rating-stars .star:hover ~ .star {
+            color: #ddd;
+        }
+
+        .rating-text {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .rating-comment-section {
+            margin-bottom: 1rem;
+        }
+
+        .rating-form-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .rating-form-actions .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
         }
 
         @media (max-width: 767.98px) {
@@ -1799,6 +2228,31 @@
             box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
         }
 
+        /* Rating Section Styles */
+        .rating-section {
+            margin: 1rem 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+            border-radius: 12px;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 2px 10px rgba(255, 152, 0, 0.1);
+        }
+
+        .rating-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #ff9800;
+        }
+
+        .rating-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+
         /* Custom styles for status badges */
         .status-badge {
             display: inline-block;
@@ -2085,6 +2539,10 @@
             /* Ensure hamburger button is visible */
             .hamburger-btn {
                 display: block !important;
+                width: 40px;
+                height: 40px;
+                padding: 8px 12px;
+                font-size: 1.1rem;
             }
             
             .modern-navbar {
@@ -2101,6 +2559,13 @@
             .modern-mobile-sidebar {
                 width: 90vw !important;
             }
+            
+            .hamburger-btn {
+                width: 36px;
+                height: 36px;
+                padding: 6px 10px;
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 320px) {
@@ -2112,6 +2577,12 @@
                 width: 95vw !important;
             }
             
+            .hamburger-btn {
+                width: 32px;
+                height: 32px;
+                padding: 4px 8px;
+                font-size: 0.9rem;
+            }
             
             .mobile-brand-title {
                 font-size: 1rem;
@@ -2339,6 +2810,7 @@
                 });
             });
 
+
             // Handle Delete All Notifications
             const deleteAllBtn = document.getElementById('deleteAllNotificationsBtn');
             if (deleteAllBtn) {
@@ -2422,5 +2894,124 @@
                 window.addEventListener('resize', hideOffcanvasOnDesktop);
             }
         });
+
+        // Inline Rating Functions
+        function toggleRatingForm(bookingId) {
+            const form = document.getElementById(`rating-form-${bookingId}`);
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                // Close any other open rating forms
+                document.querySelectorAll('.rating-form-container').forEach(container => {
+                    if (container.id !== `rating-form-${bookingId}`) {
+                        container.style.display = 'none';
+                    }
+                });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        function setRating(rating, bookingId) {
+            const stars = document.querySelectorAll(`#rating-form-${bookingId} .star`);
+            const ratingInput = document.getElementById(`rating-input-${bookingId}`);
+            const ratingText = document.getElementById(`rating-text-${bookingId}`);
+            const submitBtn = document.getElementById(`submit-rating-${bookingId}`);
+            
+            const ratingTexts = {
+                1: 'Poor - 1 star',
+                2: 'Fair - 2 stars',
+                3: 'Good - 3 stars',
+                4: 'Very Good - 4 stars',
+                5: 'Excellent - 5 stars'
+            };
+
+            // Update star display
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.querySelector('i').className = 'fas fa-star';
+                } else {
+                    star.classList.remove('active');
+                    star.querySelector('i').className = 'far fa-star';
+                }
+            });
+            
+            // Update hidden input and text
+            ratingInput.value = rating;
+            ratingText.textContent = ratingTexts[rating];
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+        }
+
+        function submitRating(event, bookingId) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const submitBtn = document.getElementById(`submit-rating-${bookingId}`);
+            
+            // Disable submit button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+            
+            fetch('/ratings', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => {
+                // Check if response is ok
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response');
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Rating Submitted!',
+                        text: 'Thank you for your feedback!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Hide the rating form
+                    toggleRatingForm(bookingId);
+                    
+                    // Reload the page to show updated status
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Failed to submit rating');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to submit rating. Please try again.',
+                });
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Rating';
+            });
+        }
     </script>
 </x-app-layout>

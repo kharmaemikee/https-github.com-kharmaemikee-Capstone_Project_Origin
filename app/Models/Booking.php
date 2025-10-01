@@ -228,4 +228,13 @@ class Booking extends Model
     {
         return $this->belongsTo(Room::class);
     }
+
+    /**
+     * Get the ratings for this booking.
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
 }

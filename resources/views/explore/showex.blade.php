@@ -149,6 +149,25 @@
                                                 <span>₱{{ number_format($room->price_per_night, 2) }}</span>
                                             </div>
                                         </div>
+                                        
+                                        {{-- Star Rating Display --}}
+                                        <div class="room-rating">
+                                            <div class="stars">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    @if($i <= floor($room->average_rating))
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    @elseif($i - 0.5 <= $room->average_rating)
+                                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                                    @else
+                                                        <i class="far fa-star text-muted"></i>
+                                                    @endif
+                                                @endfor
+                                            </div>
+                                            <span class="rating-text">
+                                                {{ number_format($room->average_rating, 1) }} 
+                                                ({{ $room->rating_count }} {{ $room->rating_count == 1 ? 'review' : 'reviews' }})
+                                            </span>
+                                        </div>
                                     </div>
 
                                     @if($room->description)
@@ -182,6 +201,13 @@
                                                     data-room-images="{{ $room->images->pluck('image_path')->toJson() }}">
                                                 <i class="fas fa-images me-2"></i>View Images
                                             </button>
+                                        @endif
+                                        
+                                        {{-- See Feedback Button --}}
+                                        @if($room->rating_count > 0)
+                                            <a href="{{ route('feedback.room', $room->id) }}?from=explore" class="btn btn-outline-success accommodation-btn mb-2">
+                                                <i class="fas fa-comments me-2"></i>See Feedback
+                                            </a>
                                         @endif
                                         
                                         @php
@@ -750,6 +776,35 @@
         gap: 0.5rem;
     }
 
+    /* Room Rating Styles */
+    .room-rating {
+        margin: 0.75rem 0;
+    }
+
+    .room-rating .stars-display {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .room-rating .star {
+        font-size: 1rem;
+        color: #ddd;
+        transition: color 0.2s ease;
+    }
+
+    .room-rating .star.filled {
+        color: #ffc107;
+    }
+
+    .room-rating .rating-text {
+        margin-left: 0.5rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
     .detail-item {
         display: flex;
         align-items: center;
@@ -947,6 +1002,27 @@
             padding: 0.6rem 1.25rem;
             font-size: 0.9rem;
         }
+    }
+
+    /* Room Rating Styles */
+    .room-rating {
+        margin-top: 0.5rem;
+    }
+
+    .room-rating .stars {
+        display: inline-flex;
+        gap: 2px;
+        margin-right: 8px;
+    }
+
+    .room-rating .stars i {
+        font-size: 0.9rem;
+    }
+
+    .room-rating .rating-text {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 500;
     }
 </style>
 </x-explore-layout>

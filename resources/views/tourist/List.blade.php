@@ -35,7 +35,8 @@
                                         <img src="{{ asset($resort->image_path) }}"
                                              class="resort-image"
                                              alt="{{ $resort->resort_name }}"
-                                             onerror="handleImageError(this, '{{ asset('images/default_resort.png') }}')">
+                                             data-default-image="{{ asset('images/default_resort.png') }}"
+                                             onerror="handleImageError(this, this.dataset.defaultImage)">
                                     @else
                                         <img src="{{ asset('images/default_resort.png') }}"
                                              class="resort-image"
@@ -1010,10 +1011,12 @@
                 font-size: 1rem;
             }
             
-            .mobile-brand-subtitle {
-                font-size: 0.75rem;
-            }
+        .mobile-brand-subtitle {
+            font-size: 0.75rem;
         }
+    }
+
+
     </style>
 
     {{-- Custom JavaScript for image error handling and mobile sidebar behavior --}}

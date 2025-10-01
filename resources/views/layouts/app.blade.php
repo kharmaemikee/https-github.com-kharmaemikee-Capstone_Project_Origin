@@ -26,7 +26,7 @@
     @endisset
 
     <main>
-        {{ $slot }} {{-- Replace @yield('content') with {{ $slot }} --}}
+        {{ $slot }}
     </main>
 </div>
 

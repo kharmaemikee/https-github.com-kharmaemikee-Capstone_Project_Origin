@@ -69,6 +69,12 @@
                                         <i class="fas fa-circle me-1"></i>
                                         {{ $resortStatusText }}
                                     </div>
+
+                                    {{-- Visit Count Badge --}}
+                                    <div class="visit-badge">
+                                        <i class="fas fa-users"></i>
+                                        <span>{{ $resort->visit_count ?? 0 }} visits</span>
+                                    </div>
                                 </div>
 
                                 <div class="resort-content">
@@ -77,6 +83,13 @@
                                         <div class="resort-location">
                                             <i class="fas fa-map-marker-alt me-1"></i>
                                             {{ $resort->location }}
+                                        </div>
+                                    </div>
+
+                                    <div class="resort-stats">
+                                        <div class="stat-item">
+                                            <i class="fas fa-chart-line"></i>
+                                            <span>{{ $resort->visit_count ?? 0 }} visits</span>
                                         </div>
                                     </div>
 
@@ -184,6 +197,46 @@
             font-weight: 600;
             font-size: 1rem;
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Visit Count Badge */
+        .visit-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            z-index: 2;
+        }
+
+        .visit-badge i {
+            font-size: 0.7rem;
+        }
+
+        /* Resort Stats */
+        .resort-stats {
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .stat-item i {
+            color: #007bff;
         }
 
         /* ===== RESORT CARDS ===== */
@@ -321,6 +374,7 @@
             display: flex;
             align-items: center;
         }
+
 
         .rehab-reason {
             background: rgba(255, 193, 7, 0.1);
@@ -538,6 +592,7 @@
                 font-size: 1rem;
             }
         }
+
     </style>
 
     {{-- Custom JavaScript for image error handling --}}

@@ -132,6 +132,27 @@ Route::get('/resort_owner/resort-information', [ResortController::class, 'index'
     ->name('resort.owner.information')
     ->middleware('can:access-resort-features');
 
+// Resort Owner Notification routes
+Route::get('/resort_owner/notifications', function () {
+    return view('resort_owner.notifications');
+})->middleware(['auth', 'role:resort_owner'])->name('resort_owner.notifications');
+
+Route::put('/resort_owner/notifications/{notification}/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markResortOwnerNotificationAsRead'])
+    ->middleware(['auth', 'role:resort_owner'])
+    ->name('resort_owner.notifications.markAsRead');
+
+Route::put('/resort_owner/notifications/mark-all-as-read', [\App\Http\Controllers\NotificationController::class, 'markAllResortOwnerNotificationsAsRead'])
+    ->middleware(['auth', 'role:resort_owner'])
+    ->name('resort_owner.notifications.markAllAsRead');
+
+Route::delete('/resort_owner/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroyResortOwnerNotification'])
+    ->middleware(['auth', 'role:resort_owner'])
+    ->name('resort_owner.notifications.destroy');
+
+Route::delete('/resort_owner/notifications', [\App\Http\Controllers\NotificationController::class, 'destroyAllResortOwnerNotifications'])
+    ->middleware(['auth', 'role:resort_owner'])
+    ->name('resort_owner.notifications.destroyAll');
+
 // --- CORRECTED/ADDED ROUTES FOR EDIT/UPDATE/DELETE ---
 // Route for displaying the edit resort form
 Route::get('/resorts/{resort}/edit', [ResortController::class, 'edit'])
@@ -1128,8 +1149,28 @@ Route::put('/tourist/bookings/{booking}', [BookingController::class, 'update'])
 Route::delete('/tourist/bookings/{booking}/delete', [BookingController::class, 'destroy'])
     ->middleware(['auth'])
     ->name('tourist.bookings.destroy');
+
 // --- END NEW TOURIST BOOKING EDIT/DELETE ROUTES ---
 
+// --- RATING ROUTES ---
+Route::get('/tourist/bookings/{booking}/rate', [\App\Http\Controllers\RatingController::class, 'show'])
+    ->middleware(['auth'])
+    ->name('ratings.show');
+
+Route::post('/ratings', [\App\Http\Controllers\RatingController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('ratings.store');
+
+// --- END RATING ROUTES ---
+
+// =====================================================================================================
+// Feedback Routes (open to all users)
+// =====================================================================================================
+
+Route::get('/feedback/room/{room}', [\App\Http\Controllers\FeedbackController::class, 'showRoomFeedback'])
+    ->name('feedback.room');
+
+// --- END FEEDBACK ROUTES ---
 
 // =====================================================================================================
 // Explore Routes (open to all users)

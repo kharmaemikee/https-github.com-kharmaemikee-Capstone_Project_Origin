@@ -58,6 +58,31 @@ class Resort extends Model
     }
 
     /**
+     * Get the ratings for the resort.
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Get the average rating for the resort.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get the total number of ratings for the resort.
+     */
+    public function getRatingCountAttribute(): int
+    {
+        return $this->ratings()->count();
+    }
+
+
+    /**
      * The "booted" method of the model.
      * Used to register a deleting event to remove associated image files.
      */

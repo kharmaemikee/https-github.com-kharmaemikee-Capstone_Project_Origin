@@ -80,6 +80,14 @@ class User extends Authenticatable
     ];
 
     /**
+     * Get the user's full name.
+     */
+    public function getNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . ($this->middle_name ? $this->middle_name . ' ' : '') . $this->last_name);
+    }
+
+    /**
      * The model's default values for attributes.
      *
      * @var array

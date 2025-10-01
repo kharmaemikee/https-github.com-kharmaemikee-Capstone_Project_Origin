@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Booking;
+use App\Models\TouristNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -44,6 +45,15 @@ class UpdateBookingStatuses extends Command
                     $completedCount++;
                     
                     $this->info("Marked booking #{$booking->id} as completed for guest: {$booking->guest_name}");
+                    
+                    // Create completion notification for the tourist
+                    TouristNotification::create([
+                        'user_id' => $booking->user_id,
+                        'booking_id' => $booking->id,
+                        'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . ($booking->name_of_resort ?? 'the resort') . ' has been marked as COMPLETED. We hope you enjoyed your visit!',
+                        'type' => 'booking_completed',
+                        'is_read' => false,
+                    ]);
                     
                     // Log the status change
                     Log::info("Booking #{$booking->id} automatically marked as completed", [

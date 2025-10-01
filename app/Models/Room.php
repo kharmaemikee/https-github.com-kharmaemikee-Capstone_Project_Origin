@@ -79,6 +79,31 @@ class Room extends Model
     }
 
     /**
+     * Get the ratings for the room.
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Get the average rating for the room.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get the total number of ratings for the room.
+     */
+    public function getRatingCountAttribute(): int
+    {
+        return $this->ratings()->count();
+    }
+
+
+    /**
      * Check if the room is available for a specific date.
      * Returns true if no active bookings exist for that date.
      */

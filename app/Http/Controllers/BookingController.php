@@ -1195,12 +1195,12 @@ class BookingController extends Controller
                                     ->where('user_id', $user->id)
                                     ->update(['is_read' => true]);
 
-            // Create a notification for the Tourist about the completion
+            // Create a notification for the Tourist about the completion and rating request
             TouristNotification::create([
                 'user_id' => $booking->user_id,
                 'booking_id' => $booking->id,
-                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . ($booking->name_of_resort ?? 'the resort') . ' has been marked as COMPLETED. We hope you enjoyed your visit!',
-                'type' => 'booking_completed',
+                'message' => 'Your booking for ' . ($booking->room->room_name ?? 'a room') . ' at ' . ($booking->name_of_resort ?? 'the resort') . ' has been marked as COMPLETED. We hope you enjoyed your visit! Please rate your experience to help other travelers.',
+                'type' => 'booking_completed_rating_request',
                 'is_read' => false,
             ]);
 

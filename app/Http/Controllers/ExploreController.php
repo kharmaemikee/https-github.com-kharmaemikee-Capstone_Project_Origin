@@ -24,13 +24,20 @@ class ExploreController extends Controller
                              ->orderBy('resort_name')
                              ->get();
 
+        // Fetch the most visited resorts for the explore page
+        $mostVisitedResorts = Resort::orderByDesc('visit_count')
+                                    ->where('admin_status', 'approved')
+                                    ->whereIn('status', ['open', 'closed', 'maintenance'])
+                                    ->take(8)
+                                    ->get();
+
         // Check if the current route is 'tourist.list' and user is authenticated and phone verified
         if ($request->routeIs('tourist.list') && Auth::check() && Auth::user()->hasVerifiedPhone()) {
             return view('tourist.list', compact('resorts'));
         }
 
         // Otherwise, use the explore.exploring view (for public explore page)
-        return view('explore.exploring', compact('resorts'));
+        return view('explore.exploring', compact('resorts', 'mostVisitedResorts'));
     }
 
     /**
@@ -52,7 +59,7 @@ class ExploreController extends Controller
         // We still filter by admin_status to ensure only admin-approved rooms are considered.
         $resort->load(['rooms' => function ($query) {
             // Show all non-archived rooms; admin approval not required anymore
-            $query->where('archived', false)->with('images');
+            $query->where('archived', false)->with(['images']);
         }]);
 
         // If the user is authenticated, is a 'tourist', AND has verified their phone, render the tourist-specific view.

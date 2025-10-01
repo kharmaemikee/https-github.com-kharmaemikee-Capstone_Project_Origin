@@ -13,7 +13,7 @@ return new class extends Migration
                 $table->string('downpayment_receipt_path')->nullable()->after('special_requests');
             }
             if (!Schema::hasColumn('bookings', 'valid_id_type')) {
-                $table->string('valid_id_type', 50)->nullable()->after('downpayment_receipt_path');
+                $table->string('valid_id_type', 100)->nullable()->after('downpayment_receipt_path');
             }
             if (!Schema::hasColumn('bookings', 'valid_id_image_path')) {
                 $table->string('valid_id_image_path')->nullable()->after('valid_id_type');

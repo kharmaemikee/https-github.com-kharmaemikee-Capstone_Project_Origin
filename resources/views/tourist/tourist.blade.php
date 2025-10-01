@@ -39,7 +39,7 @@
                     <div class="recommendation-card">
                         <a href="{{ route('tourist.reminders') }}" class="recommendation-link">
                             <div class="card-image-container">
-                                <img src="{{ asset('images/cottages.png') }}" class="card-image" alt="Resorts">
+                                <img src="{{ asset('image/heart.png') }}" class="card-image" alt="Resorts">
                                 <div class="card-overlay">
                                     <div class="overlay-content">
                                         <i class="fas fa-hotel overlay-icon"></i>
@@ -804,6 +804,28 @@
             font-size: 0.9rem;
             color: #6c757d;
             font-weight: 500;
+        }
+
+        .rating-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rating-item .stars-display {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .rating-item .star {
+            font-size: 0.9rem;
+            color: #ddd;
+            transition: color 0.2s ease;
+        }
+
+        .rating-item .star.filled {
+            color: #ffc107;
         }
 
         .stat-item i {

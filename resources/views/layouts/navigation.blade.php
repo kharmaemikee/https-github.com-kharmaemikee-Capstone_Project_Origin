@@ -858,6 +858,8 @@
         .modern-dropdown {
             min-width: 160px;
         }
+
+      
     }
 
     /* Tablet devices (768px-991px) */
