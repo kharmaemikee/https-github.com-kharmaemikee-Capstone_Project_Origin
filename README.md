@@ -1,61 +1,246 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Matnog Tourism Booking System
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/Laravel-10.x-red?style=for-the-badge&logo=laravel" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-8.1+-blue?style=for-the-badge&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-Database-orange?style=for-the-badge&logo=mysql" alt="MySQL">
+  <img src="https://img.shields.io/badge/Bootstrap-5-purple?style=for-the-badge&logo=bootstrap" alt="Bootstrap">
 </p>
 
-## About Laravel
+A comprehensive tourism booking platform for **Matnog, Sorsogon, Philippines**, featuring boat and resort reservations with real-time availability, SMS notifications, and multi-role user management system.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🚤 **Boat Booking System**
+- Real-time boat availability checking
+- Automatic boat assignment based on capacity and schedule
+- Dynamic pricing calculation
+- Boat owner dashboard for fleet management
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🏨 **Resort Reservation System**
+- Room availability management
+- Multi-image gallery for rooms
+- Resort owner control panel
+- Booking calendar integration
 
-## Learning Laravel
+### 👥 **Multi-Role User System**
+- **Tourists**: Browse, book, and rate services
+- **Boat Owners**: Manage boats and bookings
+- **Resort Owners**: Manage properties and reservations
+- **Administrators**: Complete system oversight
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📱 **Communication & Notifications**
+- SMS notifications via Semaphore SMS API
+- Email notifications for booking confirmations
+- Real-time booking status updates
+- Rating and review system
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 📊 **Advanced Features**
+- Dynamic pricing based on demand and seasonality
+- Comprehensive admin dashboard with analytics
+- Booking history and management
+- User profile management with phone verification
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Live Demo
 
-## Laravel Sponsors
+**Visit the live application**: [https://matnogsubictourism.site](https://matnogsubictourism.site)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Demo Accounts
+- **Tourist**: Register directly on the platform
+- **Admin**: Contact for demo credentials
 
-### Premium Partners
+## 🛠️ Built With
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+- **Backend Framework**: Laravel 10.x
+- **PHP Version**: 8.1+
+- **Database**: MySQL
+- **Frontend**: Blade Templates with Bootstrap 5
+- **SMS Service**: Semaphore SMS API
+- **Hosting**: Hostinger
+- **Version Control**: Git & GitHub
 
-## Contributing
+## 📱 System Architecture
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Models & Relationships
+- **User** (Multi-role: Tourist, Boat Owner, Resort Owner, Admin)
+- **Boat** with dynamic assignment system
+- **Resort** with room management
+- **Booking** with status tracking
+- **Rating** system for service quality
+- **Notification** system for all user types
 
-## Code of Conduct
+### Key Services
+- **PricingCalculationService**: Dynamic pricing algorithms
+- **SemaphoreSmsService**: SMS notification handling
+- **Boat Assignment Logic**: Intelligent boat allocation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🏗️ Installation & Setup
 
-## Security Vulnerabilities
+### Prerequisites
+- PHP 8.1 or higher
+- Composer
+- MySQL 5.7+
+- Node.js & NPM
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Local Development Setup
 
-## License
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/Capstone_Project_Origin.git
+cd Capstone_Project_Origin
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. **Install PHP dependencies**
+```bash
+composer install
+```
+
+3. **Install Node.js dependencies**
+```bash
+npm install
+```
+
+4. **Environment configuration**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+5. **Database setup**
+```bash
+# Configure your database in .env file
+php artisan migrate
+php artisan db:seed --class=AdminSeeder
+```
+
+6. **Build frontend assets**
+```bash
+npm run build
+```
+
+7. **Start development server**
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000` to access the application.
+
+## 🌐 Production Deployment
+
+For detailed deployment instructions on Hostinger, see [HOSTINGER_DEPLOYMENT_GUIDE.md](HOSTINGER_DEPLOYMENT_GUIDE.md).
+
+### Key Deployment Steps
+1. Upload files to Hostinger
+2. Configure `.env` file with production settings
+3. Set up MySQL database
+4. Run migrations and seeders
+5. Configure SMS API credentials
+6. Set proper file permissions
+
+## ⚙️ Configuration
+
+### SMS Service Setup (Semaphore)
+```env
+SEMAPHORE_API_KEY=your_semaphore_api_key
+SEMAPHORE_SENDER_NAME=MATNOG
+```
+
+### Database Configuration
+```env
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+## 📊 Project Structure
+
+```
+app/
+├── Http/Controllers/     # Role-based controllers
+├── Models/              # Eloquent models
+├── Services/            # Business logic services
+├── Notifications/       # SMS and email notifications
+└── Middleware/          # Authentication and authorization
+
+resources/views/
+├── admin/              # Admin dashboard views
+├── tourist/            # Tourist interface
+├── boat_owner/         # Boat owner dashboard
+├── resort_owner/       # Resort owner dashboard
+└── layouts/            # Shared layouts
+
+database/
+├── migrations/         # Database schema
+└── seeders/           # Sample data
+```
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+php artisan test
+```
+
+Key test coverage:
+- Boat assignment logic
+- Booking status management
+- User authentication flows
+- API endpoints
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 Documentation
+
+- [Boat Assignment Logic](README_BOAT_ASSIGNMENT.md)
+- [Booking Status Management](README_BOOKING_STATUS.md)
+- [Boat Assignment Timing](README_BOAT_ASSIGNMENT_TIMING.md)
+- [Deployment Guide](HOSTINGER_DEPLOYMENT_GUIDE.md)
+
+## 🏆 Project Highlights
+
+- **Real-world Application**: Solving actual tourism booking challenges in Matnog
+- **Scalable Architecture**: Built with Laravel best practices
+- **User-Centric Design**: Intuitive interfaces for all user roles
+- **SMS Integration**: Professional communication system
+- **Production Ready**: Successfully deployed and operational
+
+## 👥 Development Team
+
+- **Lead Developer**: [Your Name]
+- **Institution**: [Your School/University]
+- **Project Type**: Capstone Project
+- **Academic Year**: [Year]
+
+## 📞 Contact & Support
+
+- **Email**: [your.email@example.com]
+- **LinkedIn**: [Your LinkedIn Profile]
+- **GitHub**: [Your GitHub Profile]
+- **Live Demo**: [https://matnogsubictourism.site](https://matnogsubictourism.site)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Laravel Framework** - Robust PHP framework
+- **Bootstrap** - Responsive CSS framework
+- **Semaphore SMS** - Reliable SMS service
+- **Hostinger** - Web hosting platform
+- **Matnog Tourism Industry** - Project inspiration and requirements
+
+---
+
+⭐ **If you find this project helpful, please consider giving it a star!**
+
+**Keywords**: Laravel tourism booking system, PHP boat reservation platform, Matnog Sorsogon tourism, capstone project, booking management system, SMS integration Laravel, multi-role user system
